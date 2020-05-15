@@ -3,7 +3,14 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-black.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![GitHub top language](https://img.shields.io/github/languages/top/JBthePenguin/TestCasesExecutor)
 [![python](https://img.shields.io/badge/python-3.7.5-yellow.svg)](https://www.python.org/downloads/) ![GitHub repo size](https://img.shields.io/github/repo-size/JBthePenguin/TestCasesExecutor)
-
 ##  TestCasesExecutor
 
-hello world
+Desription...
+
+### Install
+-  pip install ....
+-  clone requirements...
+
+### Usage
+-  python -m testcases_executor
+-  with custom groups of TestCase
