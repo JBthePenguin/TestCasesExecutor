@@ -1,5 +1,4 @@
-import os
-ROOT_DIR = os.path.basename(os.path.abspath(os.curdir))
+# groups = [('Group_name', [<subclass 'unittest.TestCase'>, ...]), ...]
 
 
 def get_groups():
@@ -8,7 +7,10 @@ def get_groups():
     try:
         from testcases import groups
     except ModuleNotFoundError:  # testscases.py not founded
-        return f"\nFile testcases.py not founded in root -> {ROOT_DIR}."
+        from os import curdir
+        from os.path import basename, abspath
+        root_dir = basename(abspath(curdir))
+        return f"\nFile testcases.py not founded in root -> {root_dir}."
     except ImportError:  # groups not founded
         return "\nList groups not founded in testscases.py ."
     if not isinstance(groups, list):  # groups not a list
@@ -38,19 +40,20 @@ def check_components(groups_list):
 
 
 def main():
-    """Get groups, if error print corresponding message,
-    else verify groups is instance list of tuples,
-    with group name and testases list, if error print corresponding message,
+    """Get groups, check his componentssponding message,
+    if error print corresponding message,
     else execute groups of testcases."""
-    tc_groups = get_groups()
+    tc_groups = get_groups()  # get
     if isinstance(tc_groups, list):
-        tc_groups = check_components(tc_groups)
+        tc_groups = check_components(tc_groups)  # check
     if isinstance(tc_groups, str):  # error
         print("\n".join([
             tc_groups, "\nFor more infos about usage, see README.md:",
             "https://github.com/JBthePenguin/TestCasesExecutor\n"]))
-    else:  # groups founded and checked
-        print(tc_groups)
+    else:  # groups imported and checked
+        # execute tc_groups
+        pass
+        # print(tc_groups)
 
 
 main()
