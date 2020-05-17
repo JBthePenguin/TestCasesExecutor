@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from testcases_executor.__main__ import get_groups, check_components
+from testcases_executor.__main__ import get_groups, check_components, main
 
 
 class FakeTestCase(TestCase):
@@ -68,3 +68,45 @@ class TestMain(TestCase):
         self.assert_check_components(
             [('a', [FakeTestCase, ]), ('b', [FakeTestCase, FakeTestCase])],
             [('a', [FakeTestCase, ]), ('b', [FakeTestCase, FakeTestCase])])
+
+    def assert_main(self, mock_get, check_tup, print_tup, parser_tup):
+        """Call main and assert if get_groups is called once,
+        if check_components and print is not or is called once with arg."""
+        main()
+        mock_get.assert_called_once()
+        mock_get.reset_mock()
+        for mock_foo, arg_value in [check_tup, print_tup, parser_tup]:
+            if arg_value is None:
+                mock_foo.assert_not_called()
+            else:
+                mock_foo.assert_called_once_with(arg_value)
+                mock_foo.reset_mock()
+
+    @patch("builtins.print")
+    @patch('testcases_executor.__main__.get_groups')
+    @patch('testcases_executor.__main__.check_components')
+    @patch('testcases_executor.__main__.TestCasesParser')
+    def test_main(self, mock_parser, mock_check, mock_get, mock_print):
+        """Assert main returns for get_groups return a string,
+        for get_groups return a list and check_components a string,
+        for get_groups return a list and check_components the same."""
+        base_error_msg = "\n".join([
+            "\nFor more infos about usage, see README.md:",
+            "https://github.com/JBthePenguin/TestCasesExecutor\n"])
+        # get_groups return a string
+        mock_get.return_value = "a"
+        self.assert_main(
+            mock_get, (mock_check, None), (mock_print, f"a\n{base_error_msg}"),
+            (mock_parser, None))
+        # get_groups return a list
+        mock_get.return_value = [1, 2, 3]
+        # check_components return a string
+        mock_check.return_value = "b"
+        self.assert_main(
+            mock_get, (mock_check, [1, 2, 3]),
+            (mock_print, f"b\n{base_error_msg}"), (mock_parser, None))
+        # check_components return same than get_groups
+        mock_check.return_value = [1, 2, 3]
+        self.assert_main(
+            mock_get, (mock_check, [1, 2, 3]), (mock_print, None),
+            (mock_parser, [1, 2, 3]))

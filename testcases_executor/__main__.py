@@ -1,3 +1,5 @@
+from testcases_executor.tc_parser import TestCasesParser
+
 # groups = [('Group_name', [<subclass 'unittest.TestCase'>, ...]), ...]
 
 
@@ -58,9 +60,7 @@ def main():
             tc_groups, "\nFor more infos about usage, see README.md:",
             "https://github.com/JBthePenguin/TestCasesExecutor\n"]))
     else:  # groups imported and checked
-        # execute tc_groups
-        pass
-        # print(tc_groups)
+        TestCasesParser(tc_groups)
 
 
 main()
