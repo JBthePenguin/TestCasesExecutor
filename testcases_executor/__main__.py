@@ -25,17 +25,24 @@ def check_components(groups_list):
     for tc_tups in groups_list:
         if not isinstance(tc_tups, tuple):  # component not a tuple
             return "\nComponent of groups must to be a tuple."
-        group_name, tc_list = tc_tups
-        if not isinstance(group_name, str):  # name not a string
+    for tc_tups in groups_list:
+        if not isinstance(tc_tups[0], str):  # name not a string
             return "\nGroup's name must to be a string."
-        if not isinstance(tc_list, list):  # testcases not a list
+    for tc_tups in groups_list:
+        if not isinstance(tc_tups[1], list):  # testcases not a list
             return "\nGroup's testcases must to be a list."
-        from unittest import TestCase
-        for tc in tc_list:
-            if not issubclass(tc, TestCase):  # tc not TestCase
+    from unittest import TestCase
+    for tc_tups in groups_list:
+        for tc in tc_tups[1]:
+            try:
+                if not issubclass(tc, TestCase):  # tc not TestCase
+                    return "".join([
+                        "\nComponent of group's testcases list ",
+                        "must to be unittest.TestCase subclass."])
+            except TypeError:
                 return "".join([
                     "\nComponent of group's testcases list ",
-                    "must to be unittest.TestCase subclass."])
+                    "must to be a class (unittest.TestCase subclass)."])
     return groups_list
 
 
