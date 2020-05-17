@@ -1,18 +1,18 @@
-class SumTwo():
+class MulTwo():
     def __init__(self, a, b):
-        self.sum = a + b
+        self.mul = a * b
 
     def int_result(self):
-        return int(self.sum)
+        return int(self.mul)
 
     def float_result(self):
-        return float(self.sum)
+        return float(self.mul)
 
     def bin_result(self):
-        return bin(self.sum)
+        return bin(self.mul)
 
 
-class SumThree(SumTwo):
+class MulThree(MulTwo):
     def __init__(self, a, b, c):
         super().__init__(a, b)
-        self.sum += c
+        self.mul *= c
