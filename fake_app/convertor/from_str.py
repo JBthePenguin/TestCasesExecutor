@@ -6,7 +6,7 @@ class FromStr():
         return int(self.number_string)
 
     def to_float(self):
-        return float(self.number_string.replace(',' '.'))
+        return float(self.number_string.replace(',', '.'))
 
     def to_bin(self):
-        ''.join(format(ord(i), 'b') for i in self.number_string)
+        return ''.join(format(ord(i), 'b') for i in self.number_string)

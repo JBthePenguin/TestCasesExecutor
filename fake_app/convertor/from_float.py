@@ -6,4 +6,4 @@ class FromFloat():
         return int(self.float_number)
 
     def to_str(self):
-        return str(self.float_number)
+        return str(self.float_number).replace('.', ',')
