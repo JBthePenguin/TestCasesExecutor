@@ -30,6 +30,8 @@ def check_components(groups_list):
     for tc_tups in groups_list:
         if not isinstance(tc_tups[0], str):  # name not a string
             return "\nGroup's name must to be a string."
+        if " " in tc_tups[0]:  # name with space
+            return "\nGroup's name must not contain space."
     for tc_tups in groups_list:
         if not isinstance(tc_tups[1], list):  # testcases not a list
             return "\nGroup's testcases must to be a list."
@@ -63,4 +65,5 @@ def main():
         TestCasesParser(tc_groups)
 
 
-main()
+if __name__ == "__main__":
+    main()

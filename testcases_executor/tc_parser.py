@@ -30,21 +30,20 @@ class TestCasesParser(ArgumentParser):
     """An Argument Parser for groups of TestCases."""
 
     def __init__(self, tc_groups):
-        """Set properties tc_groups and all tests list.
-        Init ArgumentParser with formatter class and description.
-        Set help message's title for help command. Make argument groups.
-        Check args and run the corresponding tests.
-        ***arg_groups -> [('group_name', [TestCase1, ...]), (..)].***"""
+        """Set properties tc_groups with the list groups of testcases.
+        Init ArgumentParser with formatter class, description,
+        epilog and allow_abbrev to False, set help message's title for options.
+        Make groups of arguments, parse args and run the corresponding tests.
+        ***tc_groups -> [('group_name', [TestCase1, ...]), (..)].***"""
         self.tc_groups = tc_groups
         super().__init__(  # init ArgumentParser
             formatter_class=HelpFormatterTestCases,
-            allow_abbrev=False,
             description=''.join([
                 'Without argument to run all tests, or with optionnal ',
                 'one(s) without option to run group or TestCase tests, or ',
                 'with method names in options to a TestCase arg to run',
                 'specific test methods.']),
-            epilog="---")
+            epilog="---", allow_abbrev=False)
         self._optionals.title = 'Options'  # help msg title for options
         self.add_argument(  # arg to open report diretly in browser
             "-t", "--timestamp", action='store_true',
@@ -60,8 +59,7 @@ class TestCasesParser(ArgumentParser):
         """ For each group of testcases, set help msg's title with his name,
         add argument with his name to run all his testases,
         for each of them, add argument with his name and for each test,
-        add optionnal parameter with his name.
-        ***construct all tests list by adding each tests cases list"""
+        add optionnal parameter with his name."""
         for group_name, testcases in self.tc_groups:  # group
             group = self.add_argument_group(f"{group_name.title()}")
             group.add_argument(  # arg group name to run all group's testcases

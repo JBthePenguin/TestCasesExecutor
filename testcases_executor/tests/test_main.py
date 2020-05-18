@@ -42,6 +42,7 @@ class TestMain(TestCase):
     def test_check_components(self):
         """Assert check_components returns for component not a tuple,
         group's name(component[0]) not a string,
+        group's name with space,
         group's testcases(component[1]) not a list,
         component of group's testcases is not a class,
         component of group's testcases is not and is a subclass of TestCase."""
@@ -51,6 +52,9 @@ class TestMain(TestCase):
         # simulate component[0] not a string
         self.assert_check_components(
             [('a', 2), (3, 4)], "\nGroup's name must to be a string.")
+        # simulate component[0] with space
+        self.assert_check_components(
+            [('a', 2), ("a b", 4)], "\nGroup's name must not contain space.")
         # simulate component[1] not a list
         self.assert_check_components(
             [('a', [1, ]), ('b', 4)], "\nGroup's testcases must to be a list.")
