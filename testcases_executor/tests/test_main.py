@@ -1,5 +1,6 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
+from colorama import Style
 from testcases_executor.__main__ import get_groups, check_components, main
 
 
@@ -96,19 +97,24 @@ class TestMain(TestCase):
         for get_groups return a list and check_components the same."""
         base_error_msg = "\n".join([
             "\nFor more infos about usage, see README.md:",
-            "https://github.com/JBthePenguin/TestCasesExecutor\n"])
+            "https://github.com/JBthePenguin/TestCasesExecutor",
+            f"{Style.RESET_ALL}"])
         # get_groups return a string
         mock_get.return_value = "a"
         self.assert_main(
-            mock_get, (mock_check, None), (mock_print, f"a\n{base_error_msg}"),
+            mock_get, (mock_check, None), (
+                mock_print,
+                f"{Style.BRIGHT}a{Style.NORMAL}{Style.DIM}\n{base_error_msg}"),
             (mock_parser, None))
         # get_groups return a list
         mock_get.return_value = [1, 2, 3]
         # check_components return a string
         mock_check.return_value = "b"
         self.assert_main(
-            mock_get, (mock_check, [1, 2, 3]),
-            (mock_print, f"b\n{base_error_msg}"), (mock_parser, None))
+            mock_get, (mock_check, [1, 2, 3]), (
+                mock_print,
+                f"{Style.BRIGHT}b{Style.NORMAL}{Style.DIM}\n{base_error_msg}"),
+            (mock_parser, None))
         # check_components return same than get_groups
         mock_check.return_value = [1, 2, 3]
         self.assert_main(

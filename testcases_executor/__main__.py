@@ -1,3 +1,4 @@
+from colorama import Style
 from testcases_executor.tc_parser import TestCasesParser
 
 # groups = [('Group_name', [<subclass 'unittest.TestCase'>, ...]), ...]
@@ -59,8 +60,10 @@ def main():
         tc_groups = check_components(tc_groups)  # check
     if isinstance(tc_groups, str):  # error
         print("\n".join([
-            tc_groups, "\nFor more infos about usage, see README.md:",
-            "https://github.com/JBthePenguin/TestCasesExecutor\n"]))
+            f"{Style.BRIGHT}{tc_groups}{Style.NORMAL}{Style.DIM}",
+            f"\nFor more infos about usage, see README.md:",
+            "https://github.com/JBthePenguin/TestCasesExecutor",
+            f"{Style.RESET_ALL}"]))
     else:  # groups imported and checked
         TestCasesParser(tc_groups)
 
