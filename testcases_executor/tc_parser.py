@@ -1,4 +1,5 @@
 from argparse import ArgumentParser, HelpFormatter
+from colorama import Style
 
 
 class HelpFormatterTestCases(HelpFormatter):
@@ -6,22 +7,27 @@ class HelpFormatterTestCases(HelpFormatter):
 
     def __init__(self, prog, **kwargs):
         """Override init to change prog used in usage message."""
-        prog = "python -m testcases_executor"
-        super().__init__(prog, **kwargs)
+        prog = f"{Style.DIM}python -m testcases_executor{Style.NORMAL}"
+        super().__init__(
+            prog, indent_increment=2,
+            max_help_position=5,
+            width=None)
 
     def add_usage(self, usage, actions, groups, prefix=None):
         """Override add_usage to change prefix used in usage message."""
         return super(HelpFormatterTestCases, self).add_usage(
-            usage, actions, groups, '---\n\nUsage: ')
+            usage, actions, groups,
+            f'{Style.BRIGHT}Usage: ')
 
     def _format_args(self, action, default_metavar):
         """Override _format_args to change how to display nargs."""
-        return "options:tests_names"
+        return f"{Style.DIM}...{Style.NORMAL}"
 
     def _join_parts(self, part_strings):
         """Override _join_parts to add space between each arg."""
         if part_strings:
-            part_strings[0] = "\n" + part_strings[0]
+            part_strings[0] = (
+                f"\n{Style.BRIGHT}{part_strings[0]}{Style.NORMAL}")
         return ''.join([
             part for part in part_strings if part and part != '==SUPPRESS=='])
 
@@ -41,27 +47,28 @@ class TestCasesParser(ArgumentParser):
             description=''.join([
                 'Without argument to run all tests, or with optionnal ',
                 'one(s) without option to run group or TestCase tests, or ',
-                'with method names in options to a TestCase arg to run',
+                'with method names in options to a TestCase arg to run ',
                 'specific test methods.']),
-            epilog="---", allow_abbrev=False)
-        self._optionals.title = 'Options'  # help msg title for options
+            epilog=f"{Style.BRIGHT}", allow_abbrev=False)
+        self._optionals.title = f"{Style.BRIGHT}Options"  # title for options
         self.add_argument(  # arg to open report diretly in browser
             "-t", "--timestamp", action='store_true',
             help="Add timestamp in report file name.")
         self.add_argument(  # arg to open report diretly in browser
             "-o", "--open", action='store_true',
-            help="Open report in browser directly after tests.")
+            help="Open report in browser after tests.")
         self.make_arg_groups()  # groups
         # self.parse_and_run()  # check args and run the corresponding tests
         self.parse_args()
 
     def make_arg_groups(self):
         """ For each group of testcases, set help msg's title with his name,
-        add argument with his name to run all his testases,
-        for each of them, add argument with his name and for each test,
+        add optionna argument with his name to run all his testases,
+        for each of them, add optionnal argument with his name and for each test,
         add optionnal parameter with his name."""
         for group_name, testcases in self.tc_groups:  # group
-            group = self.add_argument_group(f"{group_name.title()}")
+            group = self.add_argument_group(
+                f"{Style.BRIGHT}{group_name.title()}")
             group.add_argument(  # arg group name to run all group's testcases
                 f"-{group_name}", action='store_true',
                 help=f"Run all {group_name} TestCases.")
