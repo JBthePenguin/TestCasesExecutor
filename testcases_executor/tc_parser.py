@@ -59,12 +59,12 @@ class TestCasesParser(ArgumentParser):
             help="Open report in browser after tests.")
         self.make_arg_groups()  # groups
         # self.parse_and_run()  # check args and run the corresponding tests
-        self.parse_args()
+        # self.parse_args()
 
     def make_arg_groups(self):
         """ For each group of testcases, set help msg's title with his name,
         add optionna argument with his name to run all his testases,
-        for each of them, add optionnal argument with his name and for each test,
+        for each of them, add option argument with his name and for each test,
         add optionnal parameter with his name."""
         for group_name, testcases in self.tc_groups:  # group
             group = self.add_argument_group(
@@ -77,3 +77,27 @@ class TestCasesParser(ArgumentParser):
                 group.add_argument(  # arg with testcase's name
                     f"-{tc.__name__}", help=f"{' '.join(t_names)}",
                     nargs='*', choices=t_names)  # tests's names for params
+
+    # def parse_and_run(self):
+    #     """Check args, set a list and append to it corresponding tests cases,
+    #     before run it."""
+    #     all_test_cases = []
+    #     args = self.parse_args()
+    #     if (len(sys.argv) == 1) or (
+    #             (len(sys.argv) == 2) and (args.open or args.timestamp)) or (
+    #                 (len(sys.argv) == 3) and args.open and args.timestamp):
+    #         all_test_cases += self.all_tests  # no arg or open -> all tests
+    #     else:
+    #         args_dict = vars(args)
+    #         for group_name, test_cases in self.tests_groups:
+    #             if args_dict[group_name]:  # group's name arg -> group tests
+    #                 all_test_cases += test_cases
+    #         for test_case in self.all_tests:
+    #             # t_case_name = test_case.__name__
+    #             options = args_dict[test_case.__name__]
+    #             if isinstance(options, list):  # test case's name arg
+    #                 if not options:  # no param -> test case's tests
+    #                     all_test_cases.append(test_case)
+    #                 else:  # method name(s) param -> methods's tests
+    #                     all_test_cases.append((test_case, options))
+    #     TestCaseRunner(all_test_cases, args.timestamp, args.open).run()
