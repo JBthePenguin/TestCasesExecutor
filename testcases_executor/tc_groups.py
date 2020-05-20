@@ -3,8 +3,19 @@ from testcases_executor.tc_utils import raise_error, check_type
 
 
 def import_groups():
-    """Try to import groups, raise error if testcases.py or groups not founded,
-    else return it."""
+    """
+    Import groups from testcases.py .
+
+    Try to import groups, raise errors or return it.
+
+    Returns:
+        instance: groups
+
+    Raises:
+         ModuleNotFoundError: testscases.py not founded
+         ImportError: groups not founded in testscases.py
+
+    """
 
     error_type = None
     try:
@@ -24,7 +35,6 @@ def import_groups():
 
 
 class TestCasesGroup():
-
     """A Group: -name -list of instances (subclass of unittest.TestCases)."""
 
     def __init__(self, group_tup):
