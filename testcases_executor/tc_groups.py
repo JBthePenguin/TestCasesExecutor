@@ -13,8 +13,7 @@ def import_groups():
 
     Raises:
         - ModuleNotFoundError: testscases.py not founded.
-        - ImportError: groups not founded in testscases.py .
-    """
+        - ImportError: groups not founded in testscases.py ."""
     error_type = None
     try:
         from testcases import groups
