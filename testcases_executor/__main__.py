@@ -71,7 +71,7 @@ def main():
     else execute groups of testcases."""
     sys.tracebacklimit = 0
     tc_groups = TestCasesGroups()
-    print(tc_groups)
+    # print(tc_groups)
     # tc_groups = get_groups()  # get
     # if isinstance(tc_groups, list):
     #     tc_groups = check_components_type(tc_groups)  # check

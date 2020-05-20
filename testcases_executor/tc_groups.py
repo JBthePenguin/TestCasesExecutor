@@ -1,3 +1,4 @@
+from unittest import TestCase
 from colorama import Style, Fore
 
 info_msg = "\n".join([
@@ -8,7 +9,7 @@ info_msg = "\n".join([
 
 
 def raise_error(error_type, error_msg):
-    """Raise error with specific type and formated message."""
+    """Raise error with specific type and formated message with info at end."""
     print(f"{Style.BRIGHT}{Fore.RED}")
     raise error_type(f"{Fore.RESET}{error_msg}{Style.NORMAL}{info_msg}")
 
@@ -23,7 +24,8 @@ def check_type(obj, desired_types, obj_msg):
 
 
 def import_groups():
-    """Try to import groups objects, raise error or check is type."""
+    """Try to import groups, raise error if testcases.py or groups not founded,
+    else return it."""
     error_type = None
     try:
         from testcases import groups
@@ -42,21 +44,40 @@ def import_groups():
 
 
 class TestCasesGroup():
-    """A Group of TestCases."""
+    """A Group: -name -list of instances (subclass of unittest.TestCases)."""
 
     def __init__(self, group_tup):
-        """Check if group tuple have 2 items, raise error if not,
-        check type of group's name and if no contain space,"""
-        if len(group_tup) != 2:
+        """Raise error if group tuple not contain 2 items,
+        for group's name, check type(str), not empty and space,
+        for testcases, check type(list, tuple) and for each of his items,
+        raise error if not a class subclass unittest.TestCase, else set
+        properties name and testcases (convert it to list if it's tuple)."""
+        if len(group_tup) != 2:  # not contain 2 items
             raise_error(IndexError, "".join([
                 "Group tuple must contain 2 items (group's name, ",
                 f"testcases list or tuple), not {len(group_tup)}"]))
         check_type(group_tup[0], (str, ), "Group's name")
-        if " " in group_tup[0]:
+        if not group_tup[0]:  # name empty string
+            raise_error(ValueError, "Group's name can't be an empty string.")
+        if " " in group_tup[0]:  # name contain space
             raise_error(
                 ValueError,
                 f"Group's name must not contain space, '{group_tup[0]}'.")
+        check_type(group_tup[1], (list, tuple), "Group's testcases")
+        for tc_item in group_tup[1]:
+            error_type = None
+            try:  # tc not
+                if not issubclass(tc_item, TestCase):  # a TestCase subclass
+                    error_type = "unittest.TestCase subclass"
+            except TypeError:  # a class
+                error_type = "class (unittest.TestCase subclass)"
+            if error_type is not None:  # TypeError for tc
+                raise_error(TypeError, "".join([
+                    "Item of group's testcases list or tuple must be ",
+                    f"a {error_type}: {tc_item}"]))
         self.name, self.testcases = group_tup
+        if isinstance(self.testcases, tuple):  # convert to list
+            self.testcases = list(self.testcases)
 
 
 class TestCasesGroups(list):
