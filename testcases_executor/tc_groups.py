@@ -1,15 +1,33 @@
+"""
+Module testcases_executor.tc_groups
+
+Contain necessary classes and functions to make groups of TestCases.
+
+Classes:
+    TestCasesGroup
+    TestCasesGroups
+
+Functions:
+    import_groups()
+
+Imports:
+    from unittest: TestCase
+    from testcases_executor.tc_utils: raise_error, check_type
+"""
 from unittest import TestCase
 from testcases_executor.tc_utils import raise_error, check_type
 
 
 def import_groups():
-    """Try to import groups, raise errors or return it.
+    """
+    Try to import groups, raise errors or return it.
 
-    Returns:
-    - instance: groups.
-    Raises:
-    - ModuleNotFoundError: testscases.py not founded.
-    - ImportError: groups not founded in testscases.py .
+        Returns:
+            object: groups.
+
+        Raises:
+            ModuleNotFoundError: testscases.py not founded.
+            ImportError: groups not founded in testscases.py .
     """
     error_type = None
     try:
@@ -30,28 +48,31 @@ def import_groups():
 
 class TestCasesGroup():
     """
-    A group of TestCases.
+    A class to represent a group of TestCases.
 
     A group with a name and a list of TestCases.
 
-    Properties:
-        - name: string without space and not empty.
-        - testases: list of instances subclass of unittest.TestCase .
+    Attributes
+    ----------
+    name : str
+        string without space and not empty.
+    testases : list
+        instances subclass of unittest.TestCase .
     """
 
     def __init__(self, group_tup):
         """
-        Init a TestCasesGroup instance.
+        Constructs all the necessary attributes for the group object.
 
-        Set properties name (str without space) and testcases (list).
+        Parameters
+        ----------
+            group_tup : tuple
+                name and testcases's list or tuple.
 
-        Args:
-            - group_tup (tuple): ('group_name', (TestCase1, TestCase2, ...))
-            or ('group_name', [TestCase1, TestCase2, ...]) .
-
-        Raises:
-            - ValueError: name empty string or contain space
-            - TypeError: testcase not a subclass of unittest.TestCase .
+        Raises
+        ----------
+            ValueError: name empty string or contain space
+            TypeError: testcase not a subclass of unittest.TestCase .
         """
         group_name, group_tc = group_tup
         check_type(group_name, (str, ), "Group's name")
@@ -82,24 +103,28 @@ class TestCasesGroup():
 
 class TestCasesGroups(list):
     """
-    A list of TestCasesGroup instances.
+    A class to represent a list of TestCasesGroup object.
 
-    [TestCasesGroup1, TestCasesGroup2, ...].
+    A list with groups of testcases for items.
+
+    Attributes
+    ----------
+    None
     """
 
     def __init__(self, tc_groups=import_groups()):
         """
-        Init a TestCasesGroup instance.
+        Constructs all the necessary attributes for the groups object.
 
-        Init self as list and append TestCasesGroup instances maked with items.
+        Parameters
+        ----------
+            tc_groups : list or tuple
+                tuples with 2 items each for items
 
-        Args:
-            - tc_groups (list or tuple): [gr_tup1, gr_tup2, ...]
-            or (gr_tup1, gr_tup2, ...) .
-
-        Raises:
-            - IndexError: group tup not contain 2 items.
-            - ValueError: group's name or testcase not used once.
+        Raises
+        ----------
+            IndexError: group tup not contain 2 items.
+            ValueError: group's name or testcase not used once.
         """
         check_type(tc_groups, (list, tuple), "Object groups")
         super().__init__()
