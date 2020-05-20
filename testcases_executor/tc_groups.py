@@ -14,7 +14,6 @@ def import_groups():
     Raises:
         - ModuleNotFoundError: testscases.py not founded.
         - ImportError: groups not founded in testscases.py .
-
     """
     error_type = None
     try:
@@ -42,7 +41,6 @@ class TestCasesGroup():
     Properties:
         - name: string without space and not empty.
         - testases: list of instances subclass of unittest.TestCase .
-
     """
 
     def __init__(self, group_tup):
@@ -58,7 +56,6 @@ class TestCasesGroup():
         Raises:
             - ValueError: name empty string or contain space
             - TypeError: testcase not a subclass of unittest.TestCase .
-
         """
         group_name, group_tc = group_tup
         check_type(group_name, (str, ), "Group's name")
@@ -92,7 +89,6 @@ class TestCasesGroups(list):
     A list of TestCasesGroup instances.
 
     [TestCasesGroup1, TestCasesGroup2, ...].
-
     """
 
     def __init__(self, tc_groups=import_groups()):
@@ -108,7 +104,6 @@ class TestCasesGroups(list):
         Raises:
             - IndexError: group tup not contain 2 items.
             - ValueError: group's name or testcase not used once.
-
         """
         check_type(tc_groups, (list, tuple), "Object groups")
         super().__init__()
