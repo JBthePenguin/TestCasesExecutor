@@ -7,13 +7,12 @@ def import_groups():
     Import groups from testcases.py .
 
     Try to import groups, raise errors or return it.
-
     Returns:
         - instance: groups.
-
     Raises:
         - ModuleNotFoundError: testscases.py not founded.
-        - ImportError: groups not founded in testscases.py ."""
+        - ImportError: groups not founded in testscases.py .
+    """
     error_type = None
     try:
         from testcases import groups
