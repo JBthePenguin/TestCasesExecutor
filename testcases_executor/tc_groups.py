@@ -5,7 +5,6 @@ from testcases_executor.tc_utils import raise_error, check_type
 def import_groups():
     """
     Import groups from testcases.py .
-
     Try to import groups, raise errors or return it.
     Returns:
         - instance: groups.
