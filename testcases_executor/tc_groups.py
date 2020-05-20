@@ -5,6 +5,7 @@ from testcases_executor.tc_utils import raise_error, check_type
 def import_groups():
     """Try to import groups, raise error if testcases.py or groups not founded,
     else return it."""
+
     error_type = None
     try:
         from testcases import groups
@@ -23,20 +24,17 @@ def import_groups():
 
 
 class TestCasesGroup():
+
     """A Group: -name -list of instances (subclass of unittest.TestCases)."""
 
     def __init__(self, group_tup):
-        """Raise error if group tuple not contain 2 items,
-        for group's name, check type(str), not empty and no contain space,
+        """For group's name, check type(str), not empty and no contain space,
         for testcases, check type(list, tuple) and for each of his items,
         raise error if not a class subclass unittest.TestCase, else set
         properties name and testcases (convert it to list if it's tuple).
         ***group_tup = ('group_name', [TestCase1, TestCase2, ...]) or
         group_tup = ('group_name', (TestCase1, TestCase2, ...))***"""
-        if len(group_tup) != 2:  # not contain 2 items
-            raise_error(IndexError, "".join([
-                "Group tuple must contain 2 items (group's name, ",
-                f"testcases list or tuple), not {len(group_tup)}"]))
+
         group_name, group_tc = group_tup
         check_type(group_name, (str, ), "Group's name")
         error_type = None
@@ -65,19 +63,25 @@ class TestCasesGroup():
 
 
 class TestCasesGroups(list):
+
     """A list of TestCasesGroup instances.
     ***[TestCasesGroup1, TestCasesGroup2, ...]***"""
 
     def __init__(self, tc_groups=import_groups()):
         """Import groups and check his type(list, tup), init self as list and,
-        for each groups's item, check his type(tup),
+        for each groups's item, check his type(tup) and if contain 2 items,
         append to self a TestCasesGroup instance maked with it,
         check if group's name or testcase used once.
         ***tc_groups = [gr_tup1, gr_tup2, ...] or (gr_tup1, gr_tup2, ...)***"""
+
         check_type(tc_groups, (list, tuple), "Object groups")
         super().__init__()
         for group_item in tc_groups:  # append TestCasesGroup instances
             check_type(group_item, (tuple, ), "Item of groups")
+            if len(group_item) != 2:  # not contain 2 items
+                raise_error(IndexError, "".join([
+                    "Group tuple must contain 2 items (group's name, ",
+                    f"testcases list or tuple), not {len(group_item)}"]))
             self.append(TestCasesGroup(group_item))
         group_names = [g.name for g in self]
         for group_name in group_names:  # group's name used once
