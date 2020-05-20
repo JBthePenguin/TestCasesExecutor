@@ -3,14 +3,13 @@ from testcases_executor.tc_utils import raise_error, check_type
 
 
 def import_groups():
-    """
-    Import groups from testcases.py .
-    Try to import groups, raise errors or return it.
+    """Try to import groups, raise errors or return it.
+
     Returns:
-        - instance: groups.
+    - instance: groups.
     Raises:
-        - ModuleNotFoundError: testscases.py not founded.
-        - ImportError: groups not founded in testscases.py .
+    - ModuleNotFoundError: testscases.py not founded.
+    - ImportError: groups not founded in testscases.py .
     """
     error_type = None
     try:
