@@ -9,14 +9,13 @@ def import_groups():
     Try to import groups, raise errors or return it.
 
     Returns:
-        instance: groups
+        - instance: groups.
 
     Raises:
-         ModuleNotFoundError: testscases.py not founded
-         ImportError: groups not founded in testscases.py
+        - ModuleNotFoundError: testscases.py not founded.
+        - ImportError: groups not founded in testscases.py .
 
     """
-
     error_type = None
     try:
         from testcases import groups
@@ -35,16 +34,32 @@ def import_groups():
 
 
 class TestCasesGroup():
-    """A Group: -name -list of instances (subclass of unittest.TestCases)."""
+    """
+    A group of TestCases.
+
+    A group with a name and a list of TestCases.
+
+    Properties:
+        - name: string without space and not empty.
+        - testases: list of instances subclass of unittest.TestCase .
+
+    """
 
     def __init__(self, group_tup):
-        """For group's name, check type(str), not empty and no contain space,
-        for testcases, check type(list, tuple) and for each of his items,
-        raise error if not a class subclass unittest.TestCase, else set
-        properties name and testcases (convert it to list if it's tuple).
-        ***group_tup = ('group_name', [TestCase1, TestCase2, ...]) or
-        group_tup = ('group_name', (TestCase1, TestCase2, ...))***"""
+        """
+        Init a TestCasesGroup instance.
 
+        Set properties name (str without space) and testcases (list).
+
+        Args:
+            - group_tup (tuple): ('group_name', (TestCase1, TestCase2, ...))
+            or ('group_name', [TestCase1, TestCase2, ...]) .
+
+        Raises:
+            - ValueError: name empty string or contain space
+            - TypeError: testcase not a subclass of unittest.TestCase .
+
+        """
         group_name, group_tc = group_tup
         check_type(group_name, (str, ), "Group's name")
         error_type = None
@@ -73,17 +88,28 @@ class TestCasesGroup():
 
 
 class TestCasesGroups(list):
+    """
+    A list of TestCasesGroup instances.
 
-    """A list of TestCasesGroup instances.
-    ***[TestCasesGroup1, TestCasesGroup2, ...]***"""
+    [TestCasesGroup1, TestCasesGroup2, ...].
+
+    """
 
     def __init__(self, tc_groups=import_groups()):
-        """Import groups and check his type(list, tup), init self as list and,
-        for each groups's item, check his type(tup) and if contain 2 items,
-        append to self a TestCasesGroup instance maked with it,
-        check if group's name or testcase used once.
-        ***tc_groups = [gr_tup1, gr_tup2, ...] or (gr_tup1, gr_tup2, ...)***"""
+        """
+        Init a TestCasesGroup instance.
 
+        Init self as list and append TestCasesGroup instances maked with items.
+
+        Args:
+            - tc_groups (list or tuple): [gr_tup1, gr_tup2, ...]
+            or (gr_tup1, gr_tup2, ...) .
+
+        Raises:
+            - IndexError: group tup not contain 2 items.
+            - ValueError: group's name or testcase not used once.
+
+        """
         check_type(tc_groups, (list, tuple), "Object groups")
         super().__init__()
         for group_item in tc_groups:  # append TestCasesGroup instances
