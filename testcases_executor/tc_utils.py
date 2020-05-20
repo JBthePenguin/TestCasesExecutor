@@ -1,18 +1,28 @@
+"""
+Module testcases_executor.tc_utils
+
+Contain utils functions
+
+Functions:
+    raise_error(error_type, error_msg)
+    check_type(obj, desired_classes, obj_msg)
+
+Imports:
+    from coloroma: Style, Fore
+"""
 from colorama import Style, Fore
 
 
 def raise_error(error_type, error_msg):
     """
-    Raise an error.
-
     Raise a speific type error with a formated message with info at the end.
 
-    Args:
-        - error_type (Exception subclass): ImportError or KeyError or ...
-        - error_msg (string): message to display.
+        Parameters:
+            error_type (Error): A specific type Error.
+            error_msg (string): message to display.
 
-    Raises:
-        Exception (error_type): with formatted message
+        Raises:
+            Exception (error_type): with formatted message
     """
     info_msg = "\n".join([
         f"{Style.DIM}\nFor more infos about usage, see README.md:",
@@ -23,17 +33,15 @@ def raise_error(error_type, error_msg):
 
 def check_type(obj, desired_classes, obj_msg):
     """
-    Check object's class.
-
     Check if an object's class is one of the desired.
 
-    Args:
-        - obj (?): instance checked.
-        - desired_classes (tuple): classes checked.
-        - obj_msg (str): obj name used in error message.
+        Parameters:
+            obj (?): instance checked.
+            desired_classes (tuple): classes checked.
+            obj_msg (str): obj name used in error message.
 
-    Raises:
-        TypeError: obj not one of desired classes.
+        Raises:
+            TypeError: obj not one of desired classes.
     """
     if not isinstance(obj, desired_classes):
         end_msg = " or ".join([f"'{t.__name__}'" for t in desired_classes])
