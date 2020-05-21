@@ -7,10 +7,11 @@ Classes:
     TestUtils(TestCase)
 
 Imports:
-    from unittest: TestCase
+    from unittest: TestCase, patch
     from testcases_executor.tc_utils: raise_error, check_type
 """
 from unittest import TestCase
+from unittest.mock import patch
 from testcases_executor.tc_utils import raise_error, check_type
 from colorama import Fore, Style
 
@@ -29,7 +30,8 @@ class TestUtils(TestCase):
         Assert if error is raised or not.
     """
 
-    def test_raise_error(self):
+    @patch("builtins.print")
+    def test_raise_error(self, mock_print):
         """
         Assert if type and message of error raised.
 
@@ -37,23 +39,18 @@ class TestUtils(TestCase):
 
         Assertions:
         ----------
-        assertRaises:
-            Assert the type of error raised
-        assertEqual:
-            Assert the error message
+        assertRaisesRegex:
+            Assert the type of error raised and his message.
+        assert_called_once_with:
+            Assert if print is called once to set color and style.
         """
-        self.assertRaisesRegex(TypeError, "error message.", raise_error, TypeError, "error message.")
-        print(f"{Fore.RESET}{Style.NORMAL}")
-        # with self.assertRaises(TypeError) as cm:
-        #     raise_error(TypeError, "error message.")
-        # print(str(cm.exception))
-        # self.assertEqual("error message.", str(cm.exception))
-        # try:
-        #     raise_error(TypeError, "error message.")
-        #     self.assertFail()
-        # except TypeError as inst:
-        #     self.assertEqual(inst.exception.message, "error_msg")
-        # with self.assertRaises(TypeError) as error:
-        #     raise_error(TypeError, "error message.")
-        # self.assertEqual(str(error.exception), '\x1b[39merror message.\x1b[22m\x1b[2m\nFo[94 chars]b[0m')
-        #     # self.assertEqual(error.exception.message, 'error message.')
+        self.assertRaisesRegex(  # with TypeError
+            TypeError, "error message.", raise_error,
+            TypeError, "error message.")
+        mock_print.assert_called_once_with(f"{Style.BRIGHT}{Fore.RED}")
+        mock_print.reset_mock()
+        self.assertRaisesRegex(  # with ModuleNotFoundError
+            ModuleNotFoundError, "second error message.", raise_error,
+            ModuleNotFoundError, "second error message.")
+        mock_print.assert_called_once_with(f"{Style.BRIGHT}{Fore.RED}")
+        mock_print.reset_mock()
