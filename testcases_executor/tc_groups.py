@@ -40,7 +40,7 @@ def import_groups():
         if error_type == "ModuleNotFound":
             raise_error(
                 ModuleNotFoundError,
-                f"File testcases.py not founded in root directory.")
+                "File testcases.py not founded in root directory.")
         raise_error(
             ImportError, "Object groups not founded in testscases.py .")
     return groups
@@ -55,7 +55,7 @@ class TestCasesGroup():
     Attributes
     ----------
     name : str
-        string without space and not empty.
+        string not empty.
     testases : list
         instances subclass of unittest.TestCase .
     """
@@ -71,19 +71,15 @@ class TestCasesGroup():
 
         Raises
         ----------
-            ValueError: name empty string or contain space
+            ValueError: name empty string
             TypeError: testcase not a subclass of unittest.TestCase .
         """
         group_name, group_tc = group_tup
         check_type(group_name, (str, ), "Group's name")
-        error_type = None
         if not group_name:  # name empty string
-            error_type = "be an non empty string"
-        elif " " in group_name:  # name contain space
-            error_type = "not contain space"
-        if error_type is not None:
             raise_error(
-                ValueError, f"Group's name must {error_type}: '{group_name}'.")
+                ValueError,
+                f"Group's name must be an non empty string: '{group_name}'.")
         check_type(group_tup[1], (list, tuple), "Group's testcases")
         for tc_item in group_tc:
             error_type = None

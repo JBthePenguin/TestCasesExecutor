@@ -4,10 +4,11 @@ Module testcases_executor.tests.test_tc_utils .
 Contain TestCase for testcases_executor.tc_utils .
 
 Classes:
-    TestUtils(TestCase)
+    TestUtilsFunctions(TestCase)
 
 Imports:
-    from unittest: TestCase, patch
+    from unittest: TestCase
+    from unittest.mock: patch
     from testcases_executor.tc_utils: raise_error, check_type, BOLD, RED
 """
 from unittest import TestCase
@@ -15,11 +16,11 @@ from unittest.mock import patch
 from testcases_executor.tc_utils import raise_error, check_type, BOLD, RED
 
 
-class TestUtils(TestCase):
+class TestUtilsFunctions(TestCase):
     """
     A subclass of unittest.TestCase .
 
-    Testase for tc_utils, raise_error and check_type.
+    Tests for tc_utils funtions, raise_error and check_type.
 
     Methods
     ----------
@@ -68,7 +69,7 @@ class TestUtils(TestCase):
 
         Assertions:
         ----------
-        assert_not_called:
+        assertFalse:
             Assert if raise_error is not called.
         assert_called_once_with:
             Assert if raise_error is called once with TypeError and error msg.
@@ -76,7 +77,7 @@ class TestUtils(TestCase):
         for obj, desired_classes, obj_msg in [  # check passed
                 ([1, 2], (list, ), 'Obj 1'), ((1, 2), (list, tuple), 'Obj 2')]:
             check_type(obj, desired_classes, obj_msg)
-            mock_raise_error.assert_not_called
+            self.assertFalse(mock_raise_error.called)
         for obj, desired_classes, obj_msg, end_msg in [  # error raised
                 ((1, 2), (list, ), 'Obj 3', "'list'"),
                 ((1, 2), (int, str), 'Obj 4', "'int' or 'str'")]:

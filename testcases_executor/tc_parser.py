@@ -69,9 +69,11 @@ class TestCasesParser(ArgumentParser):
         for group_name, testcases in self.tc_groups:  # group
             group = self.add_argument_group(
                 f"{Style.BRIGHT}{group_name.title()}")
+            if " " in group_name:  # name contain space
+                group_name.replace(" ", "_")
             group.add_argument(  # arg group name to run all group's testcases
                 f"-{group_name}", action='store_true',
-                help=f"Run all {group_name} TestCases.")
+                help=f"Run all {group_name.lower()} TestCases.")
             for tc in testcases:
                 t_names = [n for n in tc.__dict__.keys() if n[:5] == 'test_']
                 group.add_argument(  # arg with testcase's name
