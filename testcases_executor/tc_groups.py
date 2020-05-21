@@ -78,9 +78,8 @@ class TestCasesGroup():
         check_type(group_name, (str, ), "Group's name")
         if not group_name:  # name empty string
             raise_error(
-                ValueError,
-                f"Group's name must be an non empty string: '{group_name}'.")
-        check_type(group_tup[1], (list, tuple), "Group's testcases")
+                ValueError, "Group's name must be an non empty string.")
+        check_type(group_tc, (list, tuple), "Group's testcases")
         for tc_item in group_tc:
             error_type = None
             try:  # item in testcases not
