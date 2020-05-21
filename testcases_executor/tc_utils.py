@@ -7,10 +7,15 @@ Functions:
     raise_error(error_type, error_msg)
     check_type(obj, desired_classes, obj_msg)
 
-Imports:
-    from coloroma: Style, Fore
+Variables: str
+    PREFIX, MUTED, BOLD, RED, S_RESET, C_RESET: colors and style
 """
-from colorama import Style, Fore
+PREFIX = "\x1b["
+MUTED = f"{PREFIX}2m"
+BOLD = f"{PREFIX}1m"
+RED = f"{PREFIX}31m"
+S_RESET = f"{PREFIX}0m"
+C_RESET = f"{PREFIX}39m"
 
 
 def raise_error(error_type, error_msg):
@@ -25,10 +30,10 @@ def raise_error(error_type, error_msg):
             Exception (error_type): with formatted message
     """
     info_msg = "\n".join([
-        f"{Style.DIM}\nFor more infos about usage, see README.md:",
-        f"https://github.com/JBthePenguin/TestCasesExecutor{Style.RESET_ALL}"])
-    print(f"{Style.BRIGHT}{Fore.RED}")
-    raise error_type(f"{Fore.RESET}{error_msg}{Style.NORMAL}{info_msg}")
+        f"{MUTED}\nFor more infos about usage, see README.md:",
+        f"https://github.com/JBthePenguin/TestCasesExecutor{S_RESET}"])
+    print(f"{BOLD}{RED}")
+    raise error_type(f"{C_RESET}{error_msg}{S_RESET}{info_msg}")
 
 
 def check_type(obj, desired_classes, obj_msg):

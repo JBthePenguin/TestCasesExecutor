@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/JBthePenguin/TestCasesExecutor",
     packages=["testcases_executor", "testcases_executor.tests"],
-    install_requires=['coloroma'],
+    install_requires=[],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: GPL v3",
