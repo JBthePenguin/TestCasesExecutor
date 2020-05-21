@@ -16,7 +16,7 @@ setuptools.setup(
     install_requires=['coloroma'],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GPL v3",
+        "License :: GPL v3",
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.7.5',
