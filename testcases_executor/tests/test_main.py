@@ -12,7 +12,7 @@ Imports:
     from testcases_executor.__main__: main
 """
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from testcases_executor.__main__ import main
 
 
@@ -28,9 +28,9 @@ class TestMainFunctions(TestCase):
         Assert if groups is constructed, parsed and testscases runned.
     """
 
-    @patch("builtins.print")
     @patch('testcases_executor.__main__.TestCasesGroups')
-    def test_main(self, mock_groups, mock_print):
+    @patch('testcases_executor.__main__.TestCasesParser')
+    def test_main(self, mock_parser, mock_groups):
         """
         Assert if groups is constructed, parsed and testscases runned.
 
@@ -38,18 +38,19 @@ class TestMainFunctions(TestCase):
 
         Parameters:
         ----------
+        mock_parser : Mock
+            Mock of TestCasesParser.
         mock_groups : Mock
             Mock of TestCasesGroups.
-        mock_print : Mock
-            Mock of print function.
 
         Assertions:
         ----------
         assert_called_once:
-            Assert if TestCasesGroups is called once.
-        assertTrue:
-            Assert if print is called.
+            Assert if TestCasesGroups, TestCasesParser.parse_args called once.
+        assert_called_once_with:
+            Assert if TestCasesParser called once with TestCasesGroups object.
         """
         main()
         mock_groups.assert_called_once()
-        self.assertTrue(mock_print.called)
+        mock_parser.assert_called_once_with(mock_groups())
+        mock_parser().parse_args.assert_called_once()

@@ -44,12 +44,6 @@ class HelpFormatterTestCases(HelpFormatter):
         kwargs['max_help_position'] = 5
         super().__init__(**kwargs)
 
-    # def add_usage(self, usage, actions, groups, prefix=None):
-    #     """Override add_usage to change prefix used in usage message."""
-    #     return super(HelpFormatterTestCases, self).add_usage(
-    #         usage, actions, groups,
-    #         f'{BOLD}Usage: ')
-
     def add_usage(self, *args, prefix=None):
         """
         Override original one to change prefix.
