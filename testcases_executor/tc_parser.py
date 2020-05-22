@@ -17,7 +17,7 @@ from testcases_executor.tc_utils import MUTED, BOLD, S_RESET
 
 class HelpFormatterTestCases(HelpFormatter):
     """
-    A subclass of argparse.HelpFormatter.
+    A subclass of argparse.HelpFormatter .
 
     Use to format help message with color and style.
 
@@ -44,32 +44,31 @@ class HelpFormatterTestCases(HelpFormatter):
         kwargs['max_help_position'] = 5
         super().__init__(**kwargs)
 
-    def add_usage(self, *args, prefix=None):
+    def add_usage(self, usage, actions, groups, prefix=None):
         """
         Override original one to change prefix.
 
         Parameters
         ----------
-            *args : usage, actions, groups
+            usage, actions, groups:
                 default args passed.
             prefix : str (default: None)
                 used in usage as title.
 
         Return
         ----------
-            result of original add_usage().
+            result of original add_usage() with prefix changed.
         """
         return super(HelpFormatterTestCases, self).add_usage(
-            *args, f'{BOLD}Usage: ')
+            usage, actions, groups, f'{BOLD}Usage: ')
 
-    # def _format_args(self, action, default_metavar):
-    def _format_args(self, *args):
+    def _format_args(self, action, default_metavar):
         """
         Override original one to change how to display nargs.
 
         Parameters
         ----------
-            *args : action, default_metavar
+            action, default_metavar:
                 default args passed.
 
         Return
@@ -99,35 +98,59 @@ class HelpFormatterTestCases(HelpFormatter):
 
 
 class TestCasesParser(ArgumentParser):
-    """An Argument Parser for groups of TestCases."""
+    """
+    A subclass of argparse.ArgumentParser .
+
+    A custom ArgumentParser for groups of TestCases.
+
+    Attributes
+    ----------
+    tc_groups : TestCasesGroups
+        list with instances of TestCasesGroup for items.
+
+    Methods
+    ----------
+    add_args_options:
+        Add default options arguments.
+    add_args_groups:
+        Add groups of arguments for each TestCasesGroup.
+    """
 
     def __init__(self, tc_groups):
-        """Set properties tc_groups with the list groups of testcases.
-        Init ArgumentParser with formatter class, description,
-        epilog and allow_abbrev to False, set help message's title for options.
-        Make groups of arguments, parse args and run the corresponding tests.
-        ***tc_groups -> [('group_name', [TestCase1, ...]), (..)].***"""
+        """
+        Set attribute, init Parser with parameters and call add_args methods.
+
+        Parameters
+        ----------
+            tc_groups : TestCasesGroups
+                list with instances of TestCasesGroup for items.
+        """
         self.tc_groups = tc_groups
-        super().__init__(  # init ArgumentParser
-            formatter_class=HelpFormatterTestCases,
-            description=''.join([
+        super().__init__(
+            formatter_class=HelpFormatterTestCases, description=''.join([
                 'Without argument to run all tests, or with optionnal ',
                 'one(s) without option to run group or TestCase tests, or ',
                 'with method names in options to a TestCase arg to run ',
                 'specific test methods.']),
             epilog=f"{BOLD}", allow_abbrev=False)
-        self._optionals.title = f"{BOLD}Options"  # title for options
-        self.add_argument(  # arg to open report diretly in browser
-            "-t", "--timestamp", action='store_true',
-            help="Add timestamp in report file name.")
-        self.add_argument(  # arg to open report diretly in browser
-            "-o", "--open", action='store_true',
-            help="Open report in browser after tests.")
-        # self.make_arg_groups()  # groups
+        self.add_args_options()
+        # self.make_args_groups()  # groups
         # self.parse_and_run()  # check args and run the corresponding tests
         # self.parse_args()
 
-    def make_arg_groups(self):
+    def add_args_options(self):
+        """
+        Add default options arguments.
+        """
+        self._optionals.title = f"{BOLD}Options"  # title for options
+        self.add_argument(  # arg to timestamp in html file name
+            "-t", "--timestamp", action='store_true',
+            help="Add timestamp in html report file name.")
+        self.add_argument(  # arg to open report diretly in browser
+            "-o", "--open", action='store_true',
+            help="Open report in browser after tests.")
+
+    def make_args_groups(self):
         """ For each group of testcases, set help msg's title with his name,
         add optionna argument with his name to run all his testases,
         for each of them, add option argument with his name and for each test,
