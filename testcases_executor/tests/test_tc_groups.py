@@ -11,11 +11,13 @@ Classes:
 Imports:
     from unittest: TestCase
     from unittest.mock: patch, Mock
-    from testcases_executor.tc_groups: import_groups, TestCasesGroup
+    from testcases_executor.tc_groups: (
+        import_groups, TestCasesGroup, TestCasesGroups
 """
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from testcases_executor.tc_groups import import_groups, TestCasesGroup
+from testcases_executor.tc_groups import (
+    import_groups, TestCasesGroup, TestCasesGroups)
 
 
 class TestGroupsFunctions(TestCase):
@@ -72,6 +74,26 @@ class TestGroupsFunctions(TestCase):
             self.assertEqual(groups_imported, 'groups')
 
 
+class SubclassTCone(TestCase):
+    """
+    A subclass of unittest.TestCase .
+
+    Used in testcases list or tuple.
+    """
+
+    pass
+
+
+class SubclassTCtwo(TestCase):
+    """
+    A subclass of unittest.TestCase .
+
+    Used in testcases list or tuple to init obj with success.
+    """
+
+    pass
+
+
 class TestGroup(TestCase):
     """
     A subclass of unittest.TestCase .
@@ -81,14 +103,14 @@ class TestGroup(TestCase):
     Methods
     ----------
     test_init_group():
-        Assert a group object is initialized with good attributes.
+        Assert TestCasesGroup's object is initialized with good attributes.
     """
 
     @patch("testcases_executor.tc_groups.raise_error")
     @patch("testcases_executor.tc_utils.raise_error")
     def test_init_group(self, mock_error_one, mock_error_two):
         """
-        Assert a group object is initialized with good attributes.
+        Assert TestCasesGroup's object is initialized with good attributes.
 
         Init TestCasesGroup and assert if object have desired properties.
 
@@ -110,16 +132,6 @@ class TestGroup(TestCase):
         assertListEqual:
             Assert if obj.testcases is the correct list.
         """
-
-        class SubclassTC(TestCase):
-            """
-            A subclass of unittest.TestCase .
-
-            Used in testcases list or tuple.
-            """
-
-            pass
-
         mock_error_one.side_effect = Exception("raise_error called")
         mock_error_two.side_effect = Exception("raise_error called")
         name_no_str = (  # group's name not str, tup[0]
@@ -145,9 +157,9 @@ class TestGroup(TestCase):
                 "Item of group's testcases list or tuple must be ",
                 "a unittest.TestCase subclass: <class 'int'>"]))
         item_no_used_once = (  # testcase not used once
-            ("group test", [SubclassTC, SubclassTC]), mock_error_two,
+            ("group test", [SubclassTCone, SubclassTCone]), mock_error_two,
             ValueError,
-            "Testcase's subclass must used once in group: 'SubclassTC'.")
+            "Testcase's subclass must used once in group: 'SubclassTCone'.")
         for group_tup, mock_error, e_type, e_msg in [
                 name_no_str, name_empty, tc_no_list_tup,
                 item_no_class, item_no_subclass, item_no_used_once]:
@@ -156,19 +168,100 @@ class TestGroup(TestCase):
             except Exception:
                 mock_error.assert_called_once_with(e_type, e_msg)
                 mock_error.reset_mock()
-
-        class NewSubclassTC(TestCase):
-            """
-            A subclass of unittest.TestCase .
-
-            Used in testcases list or tuple to init obj with success.
-            """
-
-            pass
-
         # init success
-        obj = TestCasesGroup(("group test", (SubclassTC, NewSubclassTC)))
+        obj = TestCasesGroup(("group test", (SubclassTCone, SubclassTCtwo)))
         mock_error_one.assert_not_called()
         mock_error_two.assert_not_called()
         self.assertEqual(obj.name, "group test")
-        self.assertListEqual(obj.testcases, [SubclassTC, NewSubclassTC])
+        self.assertListEqual(obj.testcases, [SubclassTCone, SubclassTCtwo])
+
+
+class TestGroups(TestCase):
+    """
+    A subclass of unittest.TestCase .
+
+    Tests for tc_groups.TestCasesGroups .
+
+    Methods
+    ----------
+    test_init_groups():
+        Assert TestCasesGroups's object is initialized.
+    """
+
+    @patch("testcases_executor.tc_groups.raise_error")
+    @patch("testcases_executor.tc_utils.raise_error")
+    def test_init_groups(self, mock_error_one, mock_error_two):
+        """
+        Assert TestCasesGroups's object is initialized.
+
+        Init TestCasesGroups and assert if it's the desired list.
+
+        Parameters:
+        ----------
+        mock_error_one : Mock
+            Mock of tc_utils.raise_error function (call in check_type in init).
+        mock_error_two : Mock
+            Mock of tc_groups.raise_error function (call in init).
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert if raise_error is called once with Error and error msg.
+        assert_not_called:
+            Assert if raise_error is not called for init with success.
+        assertIsInstance:
+            Assert if obj is a list and items TestCasesGroup.
+        assertEqual:
+            Assert if len obj is 2, if obj[i].name is correct.
+        assertListEqual:
+            Assert if obj[i].testcases is the correct list.
+        """
+        mock_error_one.side_effect = Exception("raise_error called")
+        mock_error_two.side_effect = Exception("raise_error called")
+        groups_no_list_tup = (  # groups not a list or tuple
+            2, mock_error_one,
+            TypeError,
+            "Object groups must be 'list' or 'tuple', not 'int': 2")
+        item_no_tup = (  # groups's item not a tuple
+            [2, ], mock_error_one,
+            TypeError,
+            "Item of groups must be 'tuple', not 'int': 2")
+        item_no_two_items = (  # groups's item not contain 2 items
+            [(1, 2, 3), ], mock_error_two,
+            IndexError, "".join([
+                "Group tuple must contain 2 items (group's name, ",
+                "testcases list or tuple), not 3"]))
+        name_no_used_once = (  # group's name not used once
+            (
+                ("group test", [SubclassTCone, ]),
+                ('group test', (SubclassTCtwo, ))),
+            mock_error_two, ValueError,
+            "Group's name must used once, 'group test'.")
+        tc_no_used_once = (  # testcase not used once
+            (
+                ("group test", [SubclassTCone, ]),
+                ('group test two', (SubclassTCtwo, SubclassTCone))),
+            mock_error_two, ValueError,
+            "Testcase must used only in one group, 'SubclassTCone'")
+        for tc_groups, mock_error, e_type, e_msg in [
+                groups_no_list_tup, item_no_tup, item_no_two_items,
+                name_no_used_once, tc_no_used_once]:
+            try:
+                TestCasesGroups(tc_groups)
+            except Exception:
+                mock_error.assert_called_once_with(e_type, e_msg)
+                mock_error.reset_mock()
+        # init success
+        obj = TestCasesGroups([
+            ("group test", [SubclassTCone, ]),
+            ('group test two', (SubclassTCtwo, ))])
+        mock_error_one.assert_not_called()
+        mock_error_two.assert_not_called()
+        self.assertIsInstance(obj, list)
+        self.assertEqual(len(obj), 2)
+        for group in obj:
+            self.assertIsInstance(group, TestCasesGroup)
+        self.assertEqual(obj[0].name, "group test")
+        self.assertListEqual(obj[0].testcases, [SubclassTCone, ])
+        self.assertEqual(obj[1].name, "group test two")
+        self.assertListEqual(obj[1].testcases, [SubclassTCtwo, ])

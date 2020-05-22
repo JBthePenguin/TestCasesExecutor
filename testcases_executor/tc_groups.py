@@ -104,20 +104,20 @@ class TestCasesGroups(list):
     """
     A class to represent a list of TestCasesGroup object.
 
-    A list with groups of testcases for items.
+    A list with TestCasesGroup's objects for items.
 
-    Attributes
+    Self
     ----------
-    None
+    [TestCasesGroup1, TestCasesGroup2, ...]
     """
 
     def __init__(self, tc_groups=import_groups()):
         """
-        Constructs all the necessary attributes for the groups object.
+        Constructs list of TestCasesGroup's objects initialized with tc_groups.
 
         Parameters
         ----------
-            tc_groups : list or tuple
+            tc_groups : list or tuple (default: import_groups())
                 tuples with 2 items each for items
 
         Raises
@@ -127,24 +127,25 @@ class TestCasesGroups(list):
         """
         check_type(tc_groups, (list, tuple), "Object groups")
         super().__init__()
-        for group_item in tc_groups:  # append TestCasesGroup instances
+        for group_item in tc_groups:
             check_type(group_item, (tuple, ), "Item of groups")
-            if len(group_item) != 2:  # not contain 2 items
-                raise_error(IndexError, "".join([
+            if len(group_item) != 2:
+                raise_error(IndexError, "".join([  # not contain 2 items
                     "Group tuple must contain 2 items (group's name, ",
                     f"testcases list or tuple), not {len(group_item)}"]))
             self.append(TestCasesGroup(group_item))
         group_names = [g.name for g in self]
-        for group_name in group_names:  # group's name used once
+        for group_name in group_names:
             if group_names.count(group_name) != 1:
-                raise_error(
+                raise_error(  # group's name not used once
                     ValueError,
                     f"Group's name must used once, '{group_name}'.")
         all_testcases = []
         for group in self:
             all_testcases += group.testcases
-        for testcase in all_testcases:  # testcase used once
+        for testcase in all_testcases:
             if all_testcases.count(testcase) != 1:
-                raise_error(
-                    ValueError,
-                    f"A Testcase must used once, '{testcase.__name__}'.")
+                raise_error(  # testcase not used once
+                    ValueError, "".join([
+                        "Testcase must used only in one group, ",
+                        f"'{testcase.__name__}'"]))

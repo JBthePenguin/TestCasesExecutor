@@ -8,7 +8,7 @@ Desription...
 
 ### Install
 -  pip install ....
--  clone requirements... coloroma
+-  clone requirements
 
 ### Usage
 -  Create a file *testcases.py* in root directory of your project
