@@ -7,8 +7,9 @@ Functions:
     raise_error(error_type, error_msg)
     check_type(obj, desired_classes, obj_msg)
 
-Variables: str
-    PREFIX, MUTED, BOLD, RED, S_RESET, C_RESET: colors and style
+Variables:
+    PREFIX, MUTED, BOLD, RED, S_RESET, C_RESET: str
+        colors and style
 """
 PREFIX = "\x1b["
 MUTED = f"{PREFIX}2m"

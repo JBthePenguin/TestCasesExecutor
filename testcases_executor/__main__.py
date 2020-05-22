@@ -1,29 +1,26 @@
+"""
+Module testcases_executor.__main__
+
+Contain main function that called when testcases_executor executed as module.
+
+Functions:
+    main()
+
+Imports:
+    sys
+    from testcases_executor.tc_groups: TestCasesGroups
+"""
 import sys
-# from testcases_executor.tc_parser import TestCasesParser
 from testcases_executor.tc_groups import TestCasesGroups
 
 
 def main():
-    """Get groups, check his componentssponding message,
-    if error print corresponding message,
-    else execute groups of testcases."""
+    """
+    Parse and run groups's TestCases.
+    """
     sys.tracebacklimit = 0
     tc_groups = TestCasesGroups()
-    # print(tc_groups)
-    # tc_groups = get_groups()  # get
-    # if isinstance(tc_groups, list):
-    #     tc_groups = check_components_type(tc_groups)  # check
-    # if isinstance(tc_groups, str):  # error
-    #     print("\n".join([
-    #         f"{Style.BRIGHT}{tc_groups}{Style.NORMAL}{Style.DIM}",
-    #         info_msg]))
-    # else:  # groups imported and checked
-    #     try:
-    #         parser = TestCasesParser(tc_groups)
-    #     except ArgumentError as e:
-    #         print(e)
-    #     else:
-    #         parser.parse_args()
+    print(tc_groups)
 
 
 if __name__ == "__main__":

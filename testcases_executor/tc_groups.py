@@ -134,18 +134,19 @@ class TestCasesGroups(list):
                     "Group tuple must contain 2 items (group's name, ",
                     f"testcases list or tuple), not {len(group_item)}"]))
             self.append(TestCasesGroup(group_item))
+        error_value = None
         group_names = [g.name for g in self]
         for group_name in group_names:
-            if group_names.count(group_name) != 1:
-                raise_error(  # group's name not used once
-                    ValueError,
-                    f"Group's name must used once, '{group_name}'.")
-        all_testcases = []
-        for group in self:
-            all_testcases += group.testcases
-        for testcase in all_testcases:
-            if all_testcases.count(testcase) != 1:
-                raise_error(  # testcase not used once
-                    ValueError, "".join([
+            if group_names.count(group_name) != 1:  # name not used once
+                error_value = f"Group's name must used once, '{group_name}'."
+        if error_value is None:
+            all_testcases = []
+            for group in self:
+                all_testcases.extend(group.testcases)
+            for testcase in all_testcases:
+                if all_testcases.count(testcase) != 1:
+                    error_value = "".join([  # testcase not used once
                         "Testcase must used only in one group, ",
-                        f"'{testcase.__name__}'"]))
+                        f"'{testcase.__name__}'"])
+        if error_value is not None:
+            raise_error(ValueError, error_value)
