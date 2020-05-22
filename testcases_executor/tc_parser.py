@@ -92,7 +92,7 @@ class HelpFormatterTestCases(HelpFormatter):
         """
         if part_strings:
             part_strings[0] = (
-                f"\n{BOLD}{part_strings[0]}{S_RESET}")
+                f"\n{S_RESET}{BOLD}{part_strings[0]}{S_RESET}")
         return ''.join([
             part for part in part_strings if part and part != '==SUPPRESS=='])
 
@@ -134,15 +134,20 @@ class TestCasesParser(ArgumentParser):
                 'specific test methods.']),
             epilog=f"{BOLD}", allow_abbrev=False)
         self.add_args_options()
-        # self.make_args_groups()  # groups
-        # self.parse_and_run()  # check args and run the corresponding tests
-        # self.parse_args()
+        self.add_args_groups()
 
     def add_args_options(self):
         """
         Add default options arguments.
+
+        Arguments
+        ----------
+            t, timestamp : store_true
+                to timestamp in html file name.
+            o, open : store_true
+                arg to open report in browser after tests.
         """
-        self._optionals.title = f"{BOLD}Options"  # title for options
+        self._optionals.title = f"{MUTED}{BOLD}Options"  # title for options
         self.add_argument(  # arg to timestamp in html file name
             "-t", "--timestamp", action='store_true',
             help="Add timestamp in html report file name.")
@@ -150,22 +155,29 @@ class TestCasesParser(ArgumentParser):
             "-o", "--open", action='store_true',
             help="Open report in browser after tests.")
 
-    def make_args_groups(self):
-        """ For each group of testcases, set help msg's title with his name,
-        add optionna argument with his name to run all his testases,
-        for each of them, add option argument with his name and for each test,
-        add optionnal parameter with his name."""
-        for group_name, testcases in self.tc_groups:  # group
-            group = self.add_argument_group(
-                f"{BOLD}{group_name.title()}")
-            if " " in group_name:  # name contain space
-                group_name.replace(" ", "_")
-            group.add_argument(  # arg group name to run all group's testcases
-                f"-{group_name}", action='store_true',
-                help=f"Run all {group_name.lower()} TestCases.")
-            for tc in testcases:
+    def add_args_groups(self):
+        """
+        Add groups of arguments for each TestCasesGroup.
+
+        Arguments
+        ----------
+            group's names : store_true
+                to run all group's testcases
+            testcase's names : nargs (choices: method test's names).
+                to run all testcase's tests or tests specified im parameter.
+        """
+        for tc_group in self.tc_groups:
+            group_name_title = tc_group.name.title()
+            arg_group = self.add_argument_group(
+                f"{MUTED}{BOLD}{group_name_title}")
+            tc_group.name = "".join([  # if name contain non alphanuneric -> _
+                c if c.isalnum() else "_" for c in tc_group.name])
+            arg_group.add_argument(  # group name to run all group's testcases
+                f"-{tc_group.name.lower()}", action='store_true',
+                help=f"Run all {group_name_title} TestCases.")
+            for tc in tc_group.testcases:
                 t_names = [n for n in tc.__dict__.keys() if n[:5] == 'test_']
-                group.add_argument(  # arg with testcase's name
+                arg_group.add_argument(  # arg with testcase's name
                     f"-{tc.__name__}", help=f"{' '.join(t_names)}",
                     nargs='*', choices=t_names)  # tests's names for params
 
