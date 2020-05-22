@@ -34,7 +34,7 @@ def raise_error(error_type, error_msg):
         f"{MUTED}\nFor more infos about usage, see README.md:",
         f"https://github.com/JBthePenguin/TestCasesExecutor{S_RESET}"])
     print(f"{BOLD}{RED}")
-    raise error_type(f"{C_RESET}{error_msg}{S_RESET}{info_msg}")
+    raise error_type(f"{C_RESET}{error_msg}{S_RESET}\n{info_msg}\n")
 
 
 def check_type(obj, desired_classes, obj_msg):

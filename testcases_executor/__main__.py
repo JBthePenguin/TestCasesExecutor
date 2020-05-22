@@ -12,6 +12,7 @@ Imports:
 """
 import sys
 from testcases_executor.tc_groups import TestCasesGroups
+from testcases_executor.tc_parser import TestCasesParser
 
 
 def main():
@@ -20,7 +21,8 @@ def main():
     """
     sys.tracebacklimit = 0
     tc_groups = TestCasesGroups()
-    print(tc_groups)
+    parser = TestCasesParser(tc_groups)
+    parser.parse_args()
 
 
 if __name__ == "__main__":

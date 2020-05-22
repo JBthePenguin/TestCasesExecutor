@@ -1,33 +1,105 @@
+"""
+Module testcases_executor.tc_parser
+
+Contain necessary classes to make a parser for groups of TestCases.
+
+Classes:
+    HelpFormatterTestCases
+    TestCasesParser
+
+Imports:
+    from argparse import ArgumentParser, HelpFormatter
+    from testcases_executor.tc_utils: MUTED, BOLD, S_RESET
+"""
 from argparse import ArgumentParser, HelpFormatter
-from colorama import Style
+from testcases_executor.tc_utils import MUTED, BOLD, S_RESET
 
 
 class HelpFormatterTestCases(HelpFormatter):
-    """A help formatter for TestCasesParser subclass argparse.HelpFormatter."""
+    """
+    A subclass of argparse.HelpFormatter.
 
-    def __init__(self, prog, **kwargs):
-        """Override init to change prog used in usage message."""
-        prog = f"{Style.DIM}python -m testcases_executor{Style.NORMAL}"
-        super().__init__(
-            prog, indent_increment=2,
-            max_help_position=5,
-            width=None)
+    Use to format help message with color and style.
 
-    def add_usage(self, usage, actions, groups, prefix=None):
-        """Override add_usage to change prefix used in usage message."""
+    Methods
+    ----------
+    add_usage():
+        Override original one to change a prefix.
+    _format_args():
+        Override original one to change how to display nargs.
+    _join_parts():
+        Override original one to add space between args.
+    """
+
+    def __init__(self, **kwargs):
+        """
+        Change prog and max_help_position before init HelpFormatter.
+
+        Parameters
+        ----------
+            **kwargs : prog, indent_increment, max_help_position, width
+                default kwargs passed to costruct HelpFormatter
+        """
+        kwargs['prog'] = f"{MUTED}python -m testcases_executor{S_RESET}"
+        kwargs['max_help_position'] = 5
+        super().__init__(**kwargs)
+
+    # def add_usage(self, usage, actions, groups, prefix=None):
+    #     """Override add_usage to change prefix used in usage message."""
+    #     return super(HelpFormatterTestCases, self).add_usage(
+    #         usage, actions, groups,
+    #         f'{BOLD}Usage: ')
+
+    def add_usage(self, *args, prefix=None):
+        """
+        Override original one to change prefix.
+
+        Parameters
+        ----------
+            *args : usage, actions, groups
+                default args passed.
+            prefix : str (default: None)
+                used in usage as title.
+
+        Return
+        ----------
+            result of original add_usage().
+        """
         return super(HelpFormatterTestCases, self).add_usage(
-            usage, actions, groups,
-            f'{Style.BRIGHT}Usage: ')
+            *args, f'{BOLD}Usage: ')
 
-    def _format_args(self, action, default_metavar):
-        """Override _format_args to change how to display nargs."""
-        return f"{Style.DIM}...{Style.NORMAL}"
+    # def _format_args(self, action, default_metavar):
+    def _format_args(self, *args):
+        """
+        Override original one to change how to display nargs.
+
+        Parameters
+        ----------
+            *args : action, default_metavar
+                default args passed.
+
+        Return
+        ----------
+            string to represent nargs.
+        """
+        return f"{MUTED}...{S_RESET}"
 
     def _join_parts(self, part_strings):
-        """Override _join_parts to add space between each arg."""
+        """
+        Override original one to add in string style and space between args.
+
+        Parameters
+        ----------
+            part_strings : list of str
+                default list of part string.
+
+        Return
+        ----------
+            string constructed with the new part string.
+        """
         if part_strings:
             part_strings[0] = (
-                f"\n{Style.BRIGHT}{part_strings[0]}{Style.NORMAL}")
+                f"\n{BOLD}{part_strings[0]}{S_RESET}")
         return ''.join([
             part for part in part_strings if part and part != '==SUPPRESS=='])
 
@@ -49,15 +121,15 @@ class TestCasesParser(ArgumentParser):
                 'one(s) without option to run group or TestCase tests, or ',
                 'with method names in options to a TestCase arg to run ',
                 'specific test methods.']),
-            epilog=f"{Style.BRIGHT}", allow_abbrev=False)
-        self._optionals.title = f"{Style.BRIGHT}Options"  # title for options
+            epilog=f"{BOLD}", allow_abbrev=False)
+        self._optionals.title = f"{BOLD}Options"  # title for options
         self.add_argument(  # arg to open report diretly in browser
             "-t", "--timestamp", action='store_true',
             help="Add timestamp in report file name.")
         self.add_argument(  # arg to open report diretly in browser
             "-o", "--open", action='store_true',
             help="Open report in browser after tests.")
-        self.make_arg_groups()  # groups
+        # self.make_arg_groups()  # groups
         # self.parse_and_run()  # check args and run the corresponding tests
         # self.parse_args()
 
@@ -68,7 +140,7 @@ class TestCasesParser(ArgumentParser):
         add optionnal parameter with his name."""
         for group_name, testcases in self.tc_groups:  # group
             group = self.add_argument_group(
-                f"{Style.BRIGHT}{group_name.title()}")
+                f"{BOLD}{group_name.title()}")
             if " " in group_name:  # name contain space
                 group_name.replace(" ", "_")
             group.add_argument(  # arg group name to run all group's testcases
