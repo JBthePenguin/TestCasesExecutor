@@ -71,7 +71,7 @@ class TestCasesGroup():
 
         Raises
         ----------
-            ValueError: name empty string
+            ValueError: name empty string, subclass not used once.
             TypeError: testcase not a subclass of unittest.TestCase .
         """
         group_name, group_tc = group_tup
@@ -80,17 +80,21 @@ class TestCasesGroup():
             raise_error(
                 ValueError, "Group's name must be an non empty string.")
         check_type(group_tc, (list, tuple), "Group's testcases")
-        for tc_item in group_tc:
+        for testcase in group_tc:
             error_type = None
             try:  # item in testcases not
-                if not issubclass(tc_item, TestCase):  # a TestCase subclass
+                if not issubclass(testcase, TestCase):  # a TestCase subclass
                     error_type = "unittest.TestCase subclass"
             except TypeError:  # a class
                 error_type = "class (unittest.TestCase subclass)"
             if error_type is not None:  # TypeError for tc
                 raise_error(TypeError, "".join([
                     "Item of group's testcases list or tuple must be ",
-                    f"a {error_type}: {tc_item}"]))
+                    f"a {error_type}: {testcase}"]))
+            if group_tc.count(testcase) != 1:  # testcase not used once
+                raise_error(ValueError, "".join([
+                    "Testcase's subclass must used once in group: ",
+                    f"'{testcase.__name__}'."]))
         self.name, self.testcases = group_tup
         if isinstance(self.testcases, tuple):  # convert to list
             self.testcases = list(self.testcases)

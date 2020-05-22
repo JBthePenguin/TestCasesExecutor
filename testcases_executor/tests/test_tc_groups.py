@@ -95,60 +95,80 @@ class TestGroup(TestCase):
         Parameters:
         ----------
         mock_error_one : Mock
-            Mock of tc_utils.raise_error function.
+            Mock of tc_utils.raise_error function (call in check_type in init).
         mock_error_two : Mock
-            Mock of tc_groups.raise_error function.
+            Mock of tc_groups.raise_error function (call in init).
 
         Assertions:
         ----------
         assert_called_once_with:
             Assert if raise_error is called once with Error and error msg.
         assert_not_called:
-            Assert if raise_error is not called for an import without error.
+            Assert if raise_error is not called for init with success.
         assertEqual:
-            Assert if groups is imported correctly.
+            Assert if obj.name is correct.
+        assertListEqual:
+            Assert if obj.testcases is the correct list.
         """
+
+        class SubclassTC(TestCase):
+            """
+            A subclass of unittest.TestCase .
+
+            Used in testcases list or tuple.
+            """
+
+            pass
+
         mock_error_one.side_effect = Exception("raise_error called")
         mock_error_two.side_effect = Exception("raise_error called")
-        # group's name not str, tup[0]
-        try:
-            TestCasesGroup((1, 2))
-        except Exception:
-            mock_error_one.assert_called_once_with(
-                TypeError, "Group's name must be 'str', not 'int': 1")
-            mock_error_one.reset_mock()
-        # group's name empty str, tup[0]
-        try:
-            TestCasesGroup(("", 2))
-        except Exception:
-            mock_error_two.assert_called_once_with(
-                ValueError, "Group's name must be an non empty string.")
-            mock_error_two.reset_mock()
-        # testcases not a list or tuple, tup[1]
-        try:
-            TestCasesGroup(("group test", 2))
-        except Exception:
-            mock_error_one.assert_called_once_with(
-                TypeError,
-                "Group's testcases must be 'list' or 'tuple', not 'int': 2")
-            mock_error_one.reset_mock()
-        # item of testcases not a class
-        try:
-            TestCasesGroup(("group test", (1, )))
-        except Exception:
-            mock_error_two.assert_called_once_with(
-                TypeError,
-                "".join([
-                    "Item of group's testcases list or tuple must be ",
-                    "a class (unittest.TestCase subclass): 1"]))
-            mock_error_two.reset_mock()
-        # item of testcases not a subclass
-        try:
-            TestCasesGroup(("group test", [int, ]))
-        except Exception:
-            mock_error_two.assert_called_once_with(
-                TypeError,
-                "".join([
-                    "Item of group's testcases list or tuple must be ",
-                    "a unittest.TestCase subclass: <class 'int'>"]))
-            mock_error_two.reset_mock()
+        name_no_str = (  # group's name not str, tup[0]
+            (1, 2), mock_error_one,
+            TypeError, "Group's name must be 'str', not 'int': 1")
+        name_empty = (  # group's name empty str, tup[0]
+            ("", 2), mock_error_two,
+            ValueError, "Group's name must be an non empty string.")
+        tc_no_list_tup = (  # testcases not a list or tuple, tup[1]
+            ("group test", 2), mock_error_one,
+            TypeError,
+            "Group's testcases must be 'list' or 'tuple', not 'int': 2")
+        item_no_class = (  # item of testcases not a class
+            ("group test", (1, )), mock_error_two,
+            TypeError,
+            "".join([
+                "Item of group's testcases list or tuple must be ",
+                "a class (unittest.TestCase subclass): 1"]))
+        item_no_subclass = (  # item of testcases not a subclass
+            ("group test", [int, ]), mock_error_two,
+            TypeError,
+            "".join([
+                "Item of group's testcases list or tuple must be ",
+                "a unittest.TestCase subclass: <class 'int'>"]))
+        item_no_used_once = (  # testcase not used once
+            ("group test", [SubclassTC, SubclassTC]), mock_error_two,
+            ValueError,
+            "Testcase's subclass must used once in group: 'SubclassTC'.")
+        for group_tup, mock_error, e_type, e_msg in [
+                name_no_str, name_empty, tc_no_list_tup,
+                item_no_class, item_no_subclass, item_no_used_once]:
+            try:
+                TestCasesGroup(group_tup)
+            except Exception:
+                mock_error.assert_called_once_with(e_type, e_msg)
+                mock_error.reset_mock()
+
+        class NewSubclassTC(TestCase):
+            """
+            A subclass of unittest.TestCase .
+
+            Used in testcases list or tuple to init obj with success.
+            """
+
+            pass
+
+        # init success
+        obj = TestCasesGroup(("group test", (SubclassTC, NewSubclassTC)))
+        mock_error_one.assert_not_called()
+        mock_error_two.assert_not_called()
+        self.assertEqual(obj.name, "group test")
+        self.assertListEqual(obj.testcases, [SubclassTC, NewSubclassTC])
