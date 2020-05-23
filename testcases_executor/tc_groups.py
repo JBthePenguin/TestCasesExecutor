@@ -55,7 +55,7 @@ class GroupTestLoader(TestLoader):
     """
     A subclass of unittest.TestLoader .
 
-    Used to load tests.
+    Used to load test methods of testcase.
 
     Methods
     ----------
@@ -160,7 +160,7 @@ class TestCasesGroup():
 
     def update_suites(self, testcase, test_methods=None):
         """
-        Extend suites with a tuple maked with parameters.
+        Append a tuple maked with parameters to suites attribute.
 
         Parameters
         ----------
@@ -173,7 +173,7 @@ class TestCasesGroup():
             suite = GroupTestLoader().loadTestsFromTestCase(testcase)
         else:
             suite = TestSuite([testcase(t_name) for t_name in test_methods])
-        self.suites.extend((testcase, suite))
+        self.suites.append((testcase, suite))
 
 
 class TestCasesGroups(list):
@@ -245,4 +245,23 @@ class TestCasesGroups(list):
             args :
                 result of TestCasesParser.parse_args() .
         """
-        pass
+        if (len(sys.argv) == 1) or (
+            (len(sys.argv) == 2) and (args.open or args.timestamp)) or (
+                (len(sys.argv) == 3) and args.open and args.timestamp):
+            for tc_group in self:  # no arg or open -> all tests
+                for testcase in tc_group.testcases:
+                    tc_group.update_suites(testcase)
+        else:
+            args_dict = vars(args)
+            for tc_group in self:
+                if args_dict[tc_group.arg_name]:  # group name arg, group tests
+                    for testcase in tc_group.testcases:
+                        tc_group.update_suites(testcase)
+                else:
+                    for testcase in tc_group.testcases:
+                        t_names = args_dict[testcase.__name__]
+                        if isinstance(t_names, list):  # test case's name arg
+                            if not t_names:  # no param -> test case's tests
+                                tc_group.update_suites(testcase)
+                            else:  # method name(s) param -> methods's tests
+                                tc_group.update_suites(testcase, t_names)
