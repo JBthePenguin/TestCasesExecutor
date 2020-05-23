@@ -4,6 +4,7 @@ Module testcases_executor.tc_groups
 Contain necessary classes and functions to make groups of TestCases.
 
 Classes:
+    GroupTestLoader
     TestCasesGroup
     TestCasesGroups
 
@@ -11,10 +12,14 @@ Functions:
     import_groups()
 
 Imports:
-    from unittest: TestCase
+    sys
+    from fnmatch: fnmatchcase
+    from unittest: TestCase, TestLoader, TestSuite
     from testcases_executor.tc_utils: raise_error, check_type
 """
-from unittest import TestCase
+import sys
+from fnmatch import fnmatchcase
+from unittest import TestCase, TestLoader, TestSuite
 from testcases_executor.tc_utils import raise_error, check_type
 
 
@@ -46,6 +51,47 @@ def import_groups():
     return groups
 
 
+class GroupTestLoader(TestLoader):
+    """
+    A subclass of unittest.TestLoader .
+
+    Used to load tests.
+
+    Methods
+    ----------
+    getTestCaseNames():
+        Override original one to ordered test methods by declaration.
+    """
+
+    def getTestCaseNames(self, testCaseClass):
+        """
+        Override original one to ordered test methods by declaration.
+
+        Parameters
+        ----------
+            testCaseClass: subclass of unittest.TestCase object
+                testcase to load tests.
+
+        Returns
+        ----------
+            list maked with vars(testCaseClass).keys(), not dir(testCaseClass).
+        """
+        def shouldIncludeMethod(attrname):
+            if not attrname.startswith(self.testMethodPrefix):
+                return False
+            testFunc = getattr(testCaseClass, attrname)
+            if not callable(testFunc):
+                return False
+            fullName = f'%s.%s.%s' % (
+                testCaseClass.__module__, testCaseClass.__qualname__, attrname
+            )
+            return self.testNamePatterns is None or \
+                any(fnmatchcase(
+                    fullName, pattern) for pattern in self.testNamePatterns)
+        return list(filter(
+            shouldIncludeMethod, vars(testCaseClass).keys()))
+
+
 class TestCasesGroup():
     """
     A class to represent a group of TestCases.
@@ -60,6 +106,13 @@ class TestCasesGroup():
         string name with '_' to replace all non alphanuneric charact.
     testases : list
         instances subclass of unittest.TestCase .
+    suites : list
+        tuples (testcase, unittest.TestSuite object).
+
+    Methods
+    ----------
+    update_suites(testcase, test_methods):
+        Extend suites with a tuple maked with parameters.
     """
 
     def __init__(self, group_tup):
@@ -103,6 +156,24 @@ class TestCasesGroup():
             [c if c.isalnum() else "_" for c in g_name.lower()])
         if isinstance(self.testcases, tuple):  # convert to list
             self.testcases = list(self.testcases)
+        self.suites = []
+
+    def update_suites(self, testcase, test_methods=None):
+        """
+        Extend suites with a tuple maked with parameters.
+
+        Parameters
+        ----------
+            testcase : Unittest.Testase subclass object
+                first item of tuple.
+            test_methods: list (default: None)
+                names of test methods (str)
+        """
+        if test_methods is None:
+            suite = GroupTestLoader().loadTestsFromTestCase(testcase)
+        else:
+            suite = TestSuite([testcase(t_name) for t_name in test_methods])
+        self.suites.extend((testcase, suite))
 
 
 class TestCasesGroups(list):
@@ -114,6 +185,11 @@ class TestCasesGroups(list):
     Self
     ----------
     [TestCasesGroup1, TestCasesGroup2, ...]
+
+    Methods
+    ----------
+    construct_suites(args):
+        Update TestSuites for each Group depending of args.
     """
 
     def __init__(self, tc_groups=import_groups()):
@@ -130,6 +206,7 @@ class TestCasesGroups(list):
             IndexError: group tup not contain 2 items.
             ValueError: group's name or testcase not used once.
         """
+        sys.tracebacklimit = 0
         check_type(tc_groups, (list, tuple), "Object groups")
         super().__init__()
         for group_item in tc_groups:
@@ -157,3 +234,15 @@ class TestCasesGroups(list):
                     break
         if error_value is not None:
             raise_error(ValueError, error_value)
+        sys.tracebacklimit = 1000
+
+    def construct_suites(self, args):
+        """
+        Update TestSuites for each Group depending of args.
+
+        Parameters
+        ----------
+            args :
+                result of TestCasesParser.parse_args() .
+        """
+        pass

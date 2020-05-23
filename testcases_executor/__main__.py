@@ -7,10 +7,9 @@ Functions:
     main()
 
 Imports:
-    sys
     from testcases_executor.tc_groups: TestCasesGroups
+    from testcases_executor.tc_parser: TestCasesParser
 """
-import sys
 from testcases_executor.tc_groups import TestCasesGroups
 from testcases_executor.tc_parser import TestCasesParser
 
@@ -19,11 +18,11 @@ def main():
     """
     Parse and run groups's TestCases.
     """
-    sys.tracebacklimit = 0
     tc_groups = TestCasesGroups()
-    sys.tracebacklimit = 1000
     parser = TestCasesParser(tc_groups)
-    parser.parse_args()
+    args = parser.parse_args()
+    # suites = tc_groups.get_suites(args)
+    # print(suites)
 
 
 if __name__ == "__main__":

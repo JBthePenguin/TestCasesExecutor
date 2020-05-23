@@ -38,7 +38,7 @@ class HelpFormatterTestCases(HelpFormatter):
         Parameters
         ----------
             **kwargs : prog, indent_increment, max_help_position, width
-                default kwargs passed to costruct HelpFormatter
+                default kwargs passed to construct HelpFormatter
         """
         kwargs['prog'] = f"{MUTED}python -m testcases_executor{S_RESET}{MUTED}"
         kwargs['max_help_position'] = 5
