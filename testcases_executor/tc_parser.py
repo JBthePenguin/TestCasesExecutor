@@ -40,7 +40,7 @@ class HelpFormatterTestCases(HelpFormatter):
             **kwargs : prog, indent_increment, max_help_position, width
                 default kwargs passed to costruct HelpFormatter
         """
-        kwargs['prog'] = f"{MUTED}python -m testcases_executor{S_RESET}"
+        kwargs['prog'] = f"{MUTED}python -m testcases_executor{S_RESET}{MUTED}"
         kwargs['max_help_position'] = 5
         super().__init__(**kwargs)
 
@@ -60,7 +60,7 @@ class HelpFormatterTestCases(HelpFormatter):
             result of original add_usage() with prefix changed.
         """
         return super(HelpFormatterTestCases, self).add_usage(
-            usage, actions, groups, f'{BOLD}Usage: ')
+            usage, actions, groups, f'{BOLD}')
 
     def _format_args(self, action, default_metavar):
         """
@@ -75,7 +75,7 @@ class HelpFormatterTestCases(HelpFormatter):
         ----------
             string to represent nargs.
         """
-        return f"{MUTED}...{S_RESET}"
+        return "..."
 
     def _join_parts(self, part_strings):
         """
@@ -90,9 +90,11 @@ class HelpFormatterTestCases(HelpFormatter):
         ----------
             string constructed with the new part string.
         """
-        if part_strings:
-            part_strings[0] = (
-                f"\n{S_RESET}{BOLD}{part_strings[0]}{S_RESET}")
+        if part_strings:  # add style for group name ang args
+            if part_strings[1] and part_strings[1].split('\n')[0] and (
+                    part_strings[1].split('\n')[0][-1] == ":"):
+                part_strings[1] = f"{BOLD}{part_strings[1]}{S_RESET}"
+            part_strings[0] = f"\n{MUTED}{part_strings[0]}{S_RESET}"
         return ''.join([
             part for part in part_strings if part and part != '==SUPPRESS=='])
 
@@ -147,7 +149,7 @@ class TestCasesParser(ArgumentParser):
             o, open : store_true
                 arg to open report in browser after tests.
         """
-        self._optionals.title = f"{MUTED}{BOLD}Options"  # title for options
+        self._optionals.title = "Options"  # title for options
         self.add_argument(  # arg to timestamp in html file name
             "-t", "--timestamp", action='store_true',
             help="Add timestamp in html report file name.")
@@ -161,20 +163,16 @@ class TestCasesParser(ArgumentParser):
 
         Arguments
         ----------
-            group's names : store_true
+            group's arg_names : store_true
                 to run all group's testcases
             testcase's names : nargs (choices: method test's names).
                 to run all testcase's tests or tests specified im parameter.
         """
         for tc_group in self.tc_groups:
-            group_name_title = tc_group.name.title()
-            arg_group = self.add_argument_group(
-                f"{MUTED}{BOLD}{group_name_title}")
-            tc_group.name = "".join([  # if name contain non alphanuneric -> _
-                c if c.isalnum() else "_" for c in tc_group.name])
+            arg_group = self.add_argument_group(f"{tc_group.name}")
             arg_group.add_argument(  # group name to run all group's testcases
-                f"-{tc_group.name.lower()}", action='store_true',
-                help=f"Run all {group_name_title} TestCases.")
+                f"-{tc_group.arg_name}", action='store_true',
+                help=f"Run all {tc_group.name} TestCases.")
             for tc in tc_group.testcases:
                 t_names = [n for n in tc.__dict__.keys() if n[:5] == 'test_']
                 arg_group.add_argument(  # arg with testcase's name

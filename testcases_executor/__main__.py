@@ -21,6 +21,7 @@ def main():
     """
     sys.tracebacklimit = 0
     tc_groups = TestCasesGroups()
+    sys.tracebacklimit = 1000
     parser = TestCasesParser(tc_groups)
     parser.parse_args()
 

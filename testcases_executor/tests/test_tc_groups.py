@@ -128,7 +128,7 @@ class TestGroup(TestCase):
         assert_not_called:
             Assert if raise_error is not called for init with success.
         assertEqual:
-            Assert if obj.name is correct.
+            Assert if obj name and arg name are correct.
         assertListEqual:
             Assert if obj.testcases is the correct list.
         """
@@ -172,7 +172,8 @@ class TestGroup(TestCase):
         obj = TestCasesGroup(("group test", (SubclassTCone, SubclassTCtwo)))
         mock_error_one.assert_not_called()
         mock_error_two.assert_not_called()
-        self.assertEqual(obj.name, "group test")
+        self.assertEqual(obj.name, "Group test")
+        self.assertEqual(obj.arg_name, "group_test")
         self.assertListEqual(obj.testcases, [SubclassTCone, SubclassTCtwo])
 
 
@@ -212,7 +213,7 @@ class TestGroups(TestCase):
         assertIsInstance:
             Assert if obj is a list and items TestCasesGroup.
         assertEqual:
-            Assert if len obj is 2, if obj[i].name is correct.
+            Assert if len obj is 2, if obj[i] name and arg name are correct.
         assertListEqual:
             Assert if obj[i].testcases is the correct list.
         """
@@ -236,7 +237,7 @@ class TestGroups(TestCase):
                 ("group test", [SubclassTCone, ]),
                 ('group test', (SubclassTCtwo, ))),
             mock_error_two, ValueError,
-            "Group's name must used once, 'group test'.")
+            "Group's name must used once, 'Group test'.")
         tc_no_used_once = (  # testcase not used once
             (
                 ("group test", [SubclassTCone, ]),
@@ -254,14 +255,16 @@ class TestGroups(TestCase):
         # init success
         obj = TestCasesGroups([
             ("group test", [SubclassTCone, ]),
-            ('group test two', (SubclassTCtwo, ))])
+            ('group test*2', (SubclassTCtwo, ))])
         mock_error_one.assert_not_called()
         mock_error_two.assert_not_called()
         self.assertIsInstance(obj, list)
         self.assertEqual(len(obj), 2)
         for group in obj:
             self.assertIsInstance(group, TestCasesGroup)
-        self.assertEqual(obj[0].name, "group test")
+        self.assertEqual(obj[0].name, "Group test")
+        self.assertEqual(obj[0].arg_name, "group_test")
         self.assertListEqual(obj[0].testcases, [SubclassTCone, ])
-        self.assertEqual(obj[1].name, "group test two")
+        self.assertEqual(obj[1].name, "Group test*2")
+        self.assertEqual(obj[1].arg_name, "group_test_2")
         self.assertListEqual(obj[1].testcases, [SubclassTCtwo, ])

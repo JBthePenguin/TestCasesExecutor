@@ -55,7 +55,9 @@ class TestCasesGroup():
     Attributes
     ----------
     name : str
-        string not empty.
+        string not empty and capitalize.
+    arg_name : str
+        string name with '_' to replace all non alphanuneric charact.
     testases : list
         instances subclass of unittest.TestCase .
     """
@@ -95,7 +97,10 @@ class TestCasesGroup():
                 raise_error(ValueError, "".join([
                     "Testcase's subclass must used once in group: ",
                     f"'{testcase.__name__}'."]))
-        self.name, self.testcases = group_tup
+        g_name, self.testcases = group_tup
+        self.name = g_name.capitalize()
+        self.arg_name = "".join(
+            [c if c.isalnum() else "_" for c in g_name.lower()])
         if isinstance(self.testcases, tuple):  # convert to list
             self.testcases = list(self.testcases)
 
@@ -139,6 +144,7 @@ class TestCasesGroups(list):
         for group_name in group_names:
             if group_names.count(group_name) != 1:  # name not used once
                 error_value = f"Group's name must used once, '{group_name}'."
+                break
         if error_value is None:
             all_testcases = []
             for group in self:
@@ -148,5 +154,6 @@ class TestCasesGroups(list):
                     error_value = "".join([  # testcase not used once
                         "Testcase must used only in one group, ",
                         f"'{testcase.__name__}'"])
+                    break
         if error_value is not None:
             raise_error(ValueError, error_value)
