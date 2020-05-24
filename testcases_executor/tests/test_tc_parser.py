@@ -134,7 +134,7 @@ class TestParser(TestCase):
     @patch("testcases_executor.tc_parser.ArgumentParser.__init__")
     def test_init_parser(self, mock_parser_init, mock_options, mock_groups):
         """
-        Assert if TestCasesHelpFormatter's is initialized with good kwargs.
+        Assert if TestCasesParser is initialized correctly.
 
         Parameters:
         ----------
@@ -168,21 +168,21 @@ class TestParser(TestCase):
     @patch("testcases_executor.tc_parser.ArgumentParser.add_argument")
     def test_add_args_options(self, mock_add_argument, mock_groups):
         """
-        Assert if TestCasesHelpFormatter's is initialized with good kwargs.
+        Assert if options arguments are added to parser.
 
         Parameters:
         ----------
-        mock_parser_init : Mock
-            Mock of argparse.ArgumentParser.__init__ .
-        mock_options: Mock
-            Mock of TestCasesParser.add_args_options
+        mock_add_argument : Mock
+            Mock of argparse.ArgumentParser.add_argument .
         mock_groups: Mock
             Mock of TestCasesParser.add_args_groups
 
         Assertions:
         ----------
-        assert_called_once_with:
-            Assert if mocks are called once with good kwargs.
+        assertEqual:
+            Assert add_argument called 3 times, optionnals title > Options
+        assert_has_calls:
+            Assert if add_argument called with good kwargs.
         assertIsInstance:
             Assert if obj is instance ArgumentParser.
         """
@@ -199,3 +199,78 @@ class TestParser(TestCase):
                 "-o", "--open", action='store_true',
                 help="Open report in browser after tests.")])
         self.assertEqual(obj._optionals.title, 'Options')
+
+    @patch("testcases_executor.tc_parser.TestCasesParser.add_args_options")
+    @patch("testcases_executor.tc_parser.ArgumentParser.add_argument_group")
+    def test_add_args_groups(self, mock_add_group, mock_options):
+        """
+        Assert groups and testcases arguments are added to parser.
+
+        Parameters:
+        ----------
+        mock_add_group : Mock
+            Mock of argparse.ArgumentParser.add_argument_group .
+        mock_options: Mock
+            Mock of TestCasesParser.add_args_options
+
+        Classes:
+        ----------
+        FakeTestA:
+            A fake testcase with necessary keys in __dict__ for test.
+        FakeTestB:
+            A fake testcase with necessary keys in __dict__ for test.
+        FakeGroup:
+            A fake group with necessary attributes to make groups list for test.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert mock_add_group.add_argument called 5 times.
+        assert_has_calls:
+            Assert if mock_add_group.add_argument called with good kwargs.
+        """
+        class FakeTestA():
+
+            def __init__(self, tc_name):
+                self.__dict__ = {
+                    '__name__': tc_name, 'test_a': '', 'test_b': '',
+                    'no_test': ''}
+
+        class FakeTestB():
+
+            def __init__(self, tc_name):
+                self.__dict__ = {
+                    '__name__': tc_name, 'test_1': '', 'test_2': '',
+                    'test_a': ''}
+
+        class FakeGroup():
+
+            def __init__(self, g_name, g_arg_name, testcases):
+                self.name = g_name
+                self.arg_name = g_arg_name
+                self.testcases = testcases
+
+        tc_groups = [
+            FakeGroup('fake group one', 'one', [
+                FakeTestA("FakeTest1"), FakeTestB('FakeTest2')]),
+            FakeGroup('fake group two', 'two', [
+                FakeTestB('FakeTest3')]),
+        ]
+        TestCasesParser(tc_groups)
+        self.assertEqual(mock_add_group().add_argument.call_count, 5)
+        mock_add_group().add_argument.assert_has_calls([
+            call(
+                '-one', action='store_true',
+                help='Run all fake group one TestCases.'),
+            call(
+                '-FakeTest1', choices=['test_a', 'test_b'],
+                help='test_a test_b', nargs='*'),
+            call(
+                '-FakeTest2', choices=['test_1', 'test_2', 'test_a'],
+                help='test_1 test_2 test_a', nargs='*'),
+            call(
+                '-two', action='store_true',
+                help='Run all fake group two TestCases.'),
+            call(
+                '-FakeTest3', choices=['test_1', 'test_2', 'test_a'],
+                help='test_1 test_2 test_a', nargs='*')])
