@@ -15,8 +15,9 @@ from testcases_executor.tests.test_main import TestMainFunctions
 from testcases_executor.tests.test_tc_utils import TestUtilsFunctions
 from testcases_executor.tests.test_tc_groups import (
     TestGroupsFunctions, TestGroup, TestGroups)
-from testcases_executor.tests.test_tc_parser import TestHelpFormatter
+from testcases_executor.tests.test_tc_parser import (
+    TestHelpFormatter, TestParser)
 
 __all__ = [
     'TestMainFunctions', 'TestUtilsFunctions', 'TestGroupsFunctions',
-    'TestGroup', 'TestGroups', 'TestHelpFormatter']
+    'TestGroup', 'TestGroups', 'TestHelpFormatter', 'TestParser']

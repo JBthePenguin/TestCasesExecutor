@@ -131,7 +131,7 @@ class TestCasesParser(ArgumentParser):
                 'one(s) without option to run group or TestCase tests, or ',
                 'with method names in options to a TestCase arg to run ',
                 'specific test methods.']),
-            epilog=f"{BOLD}", allow_abbrev=False)
+            epilog="-\n", allow_abbrev=False)  # epilog=f"{BOLD}"
         self.add_args_options()
         self.add_args_groups(tc_groups)
 

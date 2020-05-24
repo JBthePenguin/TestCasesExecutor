@@ -14,9 +14,10 @@ Imports:
     from testcases_executor.tc_parser: TestCasesHelpFormatter, TestCasesParser
 """
 from unittest import TestCase
-from unittest.mock import patch
-from argparse import HelpFormatter
-from testcases_executor.tc_parser import TestCasesHelpFormatter
+from unittest.mock import patch, call
+from argparse import HelpFormatter, ArgumentParser
+from testcases_executor.tc_parser import (
+    TestCasesHelpFormatter, TestCasesParser)
 
 
 class TestHelpFormatter(TestCase):
@@ -28,7 +29,7 @@ class TestHelpFormatter(TestCase):
     Methods
     ----------
     test_init_formatter():
-        Assert if TestCasesHelpFormatter's is initialized with good kwargs.
+        Assert if TestCasesHelpFormatter is initialized with good kwargs.
     test_add_usage():
         Assert if TestCasesHelpFormatter.add_usage -> HelpFormatter.add_usage .
     test_format_args():
@@ -40,7 +41,7 @@ class TestHelpFormatter(TestCase):
     @patch("testcases_executor.tc_parser.HelpFormatter.__init__")
     def test_init_formatter(self, mock_formatter_init):
         """
-        Assert if TestCasesHelpFormatter's is initialized with good kwargs.
+        Assert if TestCasesHelpFormatter is initialized with good kwargs.
 
         Parameters:
         ----------
@@ -110,3 +111,91 @@ class TestHelpFormatter(TestCase):
                 (['', 'foo:\n'], '\n\x1b[2m\x1b[0m\x1b[1mfoo:\n\x1b[0m')]:
             self.assertEqual(
                 TestCasesHelpFormatter()._join_parts(parameter), result)
+
+
+class TestParser(TestCase):
+    """
+    A subclass of unittest.TestCase .
+
+    Tests for tc_parser.TestCasesParser .
+
+    Methods
+    ----------
+    test_init_parser():
+        Assert if TestCasesParser is initialized correctly.
+    test_add_args_options():
+        Assert if options arguments are added to parser.
+    test_add_args_groups():
+        Assert groups and testcases arguments are added to parser.
+    """
+
+    @patch("testcases_executor.tc_parser.TestCasesParser.add_args_groups")
+    @patch("testcases_executor.tc_parser.TestCasesParser.add_args_options")
+    @patch("testcases_executor.tc_parser.ArgumentParser.__init__")
+    def test_init_parser(self, mock_parser_init, mock_options, mock_groups):
+        """
+        Assert if TestCasesHelpFormatter's is initialized with good kwargs.
+
+        Parameters:
+        ----------
+        mock_parser_init : Mock
+            Mock of argparse.ArgumentParser.__init__ .
+        mock_options: Mock
+            Mock of TestCasesParser.add_args_options
+        mock_groups: Mock
+            Mock of TestCasesParser.add_args_groups
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert if mocks are called once with good kwargs.
+        assertIsInstance:
+            Assert if obj is instance ArgumentParser.
+        """
+        obj = TestCasesParser('tc_groups')
+        mock_parser_init.assert_called_once_with(
+            formatter_class=TestCasesHelpFormatter, description=''.join([
+                'Without argument to run all tests, or with optionnal ',
+                'one(s) without option to run group or TestCase tests, or ',
+                'with method names in options to a TestCase arg to run ',
+                'specific test methods.']),
+            epilog='-\n', allow_abbrev=False)
+        mock_options.assert_called_once_with()
+        mock_groups.assert_called_once_with('tc_groups')
+        self.assertIsInstance(obj, ArgumentParser)
+
+    @patch("testcases_executor.tc_parser.TestCasesParser.add_args_groups")
+    @patch("testcases_executor.tc_parser.ArgumentParser.add_argument")
+    def test_add_args_options(self, mock_add_argument, mock_groups):
+        """
+        Assert if TestCasesHelpFormatter's is initialized with good kwargs.
+
+        Parameters:
+        ----------
+        mock_parser_init : Mock
+            Mock of argparse.ArgumentParser.__init__ .
+        mock_options: Mock
+            Mock of TestCasesParser.add_args_options
+        mock_groups: Mock
+            Mock of TestCasesParser.add_args_groups
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert if mocks are called once with good kwargs.
+        assertIsInstance:
+            Assert if obj is instance ArgumentParser.
+        """
+        obj = TestCasesParser('tc_groups')
+        self.assertEqual(mock_add_argument.call_count, 3)
+        mock_add_argument.assert_has_calls([
+            call(
+                '-h', '--help', action='help', default='==SUPPRESS==',
+                help='show this help message and exit'),
+            call(
+                "-t", "--timestamp", action='store_true',
+                help="Add timestamp in html report file name."),
+            call(
+                "-o", "--open", action='store_true',
+                help="Open report in browser after tests.")])
+        self.assertEqual(obj._optionals.title, 'Options')
