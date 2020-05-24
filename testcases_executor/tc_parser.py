@@ -4,7 +4,7 @@ Module testcases_executor.tc_parser
 Contain necessary classes to make a parser for groups of TestCases.
 
 Classes:
-    HelpFormatterTestCases
+    TestCasesHelpFormatter
     TestCasesParser
 
 Imports:
@@ -15,7 +15,7 @@ from argparse import ArgumentParser, HelpFormatter
 from testcases_executor.tc_utils import MUTED, BOLD, S_RESET
 
 
-class HelpFormatterTestCases(HelpFormatter):
+class TestCasesHelpFormatter(HelpFormatter):
     """
     A subclass of argparse.HelpFormatter .
 
@@ -59,7 +59,7 @@ class HelpFormatterTestCases(HelpFormatter):
         ----------
             result of original add_usage() with prefix changed.
         """
-        return super(HelpFormatterTestCases, self).add_usage(
+        return super(TestCasesHelpFormatter, self).add_usage(
             usage, actions, groups, f'{BOLD}')
 
     def _format_args(self, action, default_metavar):
@@ -108,11 +108,6 @@ class TestCasesParser(ArgumentParser):
 
     A custom ArgumentParser for groups of TestCases.
 
-    Attributes
-    ----------
-    tc_groups : TestCasesGroups
-        list with instances of TestCasesGroup for items.
-
     Methods
     ----------
     add_args_options:
@@ -130,16 +125,15 @@ class TestCasesParser(ArgumentParser):
             tc_groups : TestCasesGroups
                 list with instances of TestCasesGroup for items.
         """
-        self.tc_groups = tc_groups
         super().__init__(
-            formatter_class=HelpFormatterTestCases, description=''.join([
+            formatter_class=TestCasesHelpFormatter, description=''.join([
                 'Without argument to run all tests, or with optionnal ',
                 'one(s) without option to run group or TestCase tests, or ',
                 'with method names in options to a TestCase arg to run ',
                 'specific test methods.']),
             epilog=f"{BOLD}", allow_abbrev=False)
         self.add_args_options()
-        self.add_args_groups()
+        self.add_args_groups(tc_groups)
 
     def add_args_options(self):
         """
@@ -160,9 +154,14 @@ class TestCasesParser(ArgumentParser):
             "-o", "--open", action='store_true',
             help="Open report in browser after tests.")
 
-    def add_args_groups(self):
+    def add_args_groups(self, tc_groups):
         """
         Add groups of arguments for each TestCasesGroup.
+
+        Parameters
+        ----------
+            tc_groups : TestCasesGroups
+                list with instances of TestCasesGroup for items.
 
         Arguments
         ----------
@@ -171,7 +170,7 @@ class TestCasesParser(ArgumentParser):
             testcase's names : nargs (choices: method test's names).
                 to run all testcase's tests or tests specified im parameter.
         """
-        for tc_group in self.tc_groups:
+        for tc_group in tc_groups:
             arg_group = self.add_argument_group(f"{tc_group.name}")
             arg_group.add_argument(  # group name to run all group's testcases
                 f"-{tc_group.arg_name}", action='store_true',

@@ -21,7 +21,7 @@ def main():
     tc_groups = TestCasesGroups()
     parser = TestCasesParser(tc_groups)
     args = parser.parse_args()
-    # tc_groups.construct_suites(args)
+    tc_groups.construct_suites(args)
     # for group in tc_groups:
     #     print(group.name, len(group.suites))
 

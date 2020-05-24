@@ -189,7 +189,7 @@ class TestCasesGroups(list):
     Methods
     ----------
     construct_suites(args):
-        Update TestSuites for each Group depending of args.
+        Check args, update group's testsuites and remove group without suite.
     """
 
     def __init__(self, tc_groups=import_groups()):
@@ -238,7 +238,7 @@ class TestCasesGroups(list):
 
     def construct_suites(self, args):
         """
-        Update TestSuites for each Group depending of args.
+        Check args, update group's testsuites and remove group without suite.
 
         Parameters
         ----------
@@ -265,3 +265,6 @@ class TestCasesGroups(list):
                                 tc_group.update_suites(testcase)
                             else:  # method name(s) param -> methods's tests
                                 tc_group.update_suites(testcase, t_names)
+            groups_to_remove = [g for g in self if not g.suites]
+            for group in groups_to_remove:  # remove group without suite
+                self.remove(group)

@@ -12,7 +12,7 @@ Imports:
     from testcases_executor.__main__: main
 """
 from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from testcases_executor.__main__ import main
 
 
@@ -46,11 +46,13 @@ class TestMainFunctions(TestCase):
         Assertions:
         ----------
         assert_called_once:
-            Assert if TestCasesGroups, TestCasesParser.parse_args called once.
+            Assert if groups, parser.parse_args called once.
         assert_called_once_with:
-            Assert if TestCasesParser called once with TestCasesGroups object.
+            parser -> groups, groups.construct_suites -> parse.parse_args
         """
         main()
         mock_groups.assert_called_once()
         mock_parser.assert_called_once_with(mock_groups())
         mock_parser().parse_args.assert_called_once()
+        mock_groups().construct_suites.assert_called_once_with(
+            mock_parser().parse_args())

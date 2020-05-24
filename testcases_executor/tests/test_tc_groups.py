@@ -112,8 +112,6 @@ class TestGroup(TestCase):
         """
         Assert TestCasesGroup's object is initialized with good attributes.
 
-        Init TestCasesGroup and assert if object have desired properties.
-
         Parameters:
         ----------
         mock_error_one : Mock
@@ -186,16 +184,14 @@ class TestGroups(TestCase):
     Methods
     ----------
     test_init_groups():
-        Assert TestCasesGroups's object is initialized.
+        Assert if TestCasesGroups's object initialized is the desired list.
     """
 
     @patch("testcases_executor.tc_groups.raise_error")
     @patch("testcases_executor.tc_utils.raise_error")
     def test_init_groups(self, mock_error_one, mock_error_two):
         """
-        Assert TestCasesGroups's object is initialized.
-
-        Init TestCasesGroups and assert if it's the desired list.
+        Assert if TestCasesGroups's object initialized is the desired list.
 
         Parameters:
         ----------
