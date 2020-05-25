@@ -122,7 +122,11 @@ class SubclassTCtwo(TestCase):
     Used in testcases list or tuple to init obj with success.
     """
 
-    pass
+    def test_bar_foo(self):
+        pass
+
+    def test_foo_bar(self):
+        pass
 
 
 class TestGroup(TestCase):
@@ -207,6 +211,47 @@ class TestGroup(TestCase):
         self.assertEqual(obj.arg_name, "group_test")
         self.assertListEqual(obj.testcases, [SubclassTCone, SubclassTCtwo])
         self.assertListEqual(obj.suites, [])
+
+    @patch("testcases_executor.tc_groups.TestSuite")
+    @patch("testcases_executor.tc_groups.GroupTestLoader")
+    def test_update_suites(self, mock_loader, mock_suite):
+        """
+        Assert tuple added to TestCasesGroup.suites .
+
+        Parameters:
+        ----------
+        mock_loader : Mock
+            Mock of tc_groups.GroupTestLoader .
+        mock_error_two : Mock
+            Mock of tc_groups.TestSuite (from unittest).
+
+        Assertions:
+        ----------
+        assert_not_called:
+            Assert if TestSuite or loader.loadTestsFromTestCase are not called.
+        assert_called_once_with:
+            Assert if TestSuite or loadTestsFromTestCase called once with arg.
+        assertEqual:
+            Assert if obj name and arg name are correct.
+        assertTupleEqual:
+            Assert if it's the good tuple added to suites property.
+        """
+        mock_loader().loadTestsFromTestCase.return_value = [
+            "test_foo", "test_bar"]
+        mock_suite.return_value = ["test_foo"]
+        obj = TestCasesGroup(("group test", (SubclassTCone, SubclassTCtwo)))
+        obj.update_suites(SubclassTCone)  # with just testcase
+        mock_suite.assert_not_called()
+        mock_loader().loadTestsFromTestCase.assert_called_once_with(
+            SubclassTCone)
+        self.assertTupleEqual(
+            obj.suites[0], (SubclassTCone, ["test_foo", "test_bar"]))
+        obj.suites = []
+        mock_loader.reset_mock()
+        obj.update_suites(SubclassTCone, ["test_foo"])  # with test method
+        mock_loader().loadTestsFromTestCase.assert_not_called()
+        mock_suite.assert_called_once_with([SubclassTCone('test_foo')])
+        self.assertTupleEqual(obj.suites[0], (SubclassTCone, ["test_foo"]))
 
 
 class TestGroups(TestCase):
