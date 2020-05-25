@@ -11,12 +11,12 @@ unittest.TestCase sublasses:
 
 Imports:
     from unittest: TestCase
-    from unittest.mock: patch, Mock
+    from unittest.mock: patch, Mock, call
     from testcases_executor.tc_groups: (
         import_groups, GroupTestLoader, TestCasesGroup, TestCasesGroups
 """
 from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, call
 from testcases_executor.tc_groups import (
     import_groups, GroupTestLoader, TestCasesGroup, TestCasesGroups)
 
@@ -264,6 +264,8 @@ class TestGroups(TestCase):
     ----------
     test_init_groups():
         Assert if TestCasesGroups's object initialized is the desired list.
+    test_construct_suites():
+        Assert group.update_suites called with good parameter depending args.
     """
 
     @patch("testcases_executor.tc_groups.raise_error")
@@ -343,3 +345,55 @@ class TestGroups(TestCase):
         self.assertEqual(obj[1].name, "Group test*2")
         self.assertEqual(obj[1].arg_name, "group_test_2")
         self.assertListEqual(obj[1].testcases, [SubclassTCtwo, ])
+
+    @patch("builtins.vars")
+    @patch("testcases_executor.tc_groups.TestCasesGroup.update_suites")
+    @patch("testcases_executor.tc_groups.sys")
+    def test_construct_suites(self, mock_sys, mock_update_suites, mock_vars):
+        """
+        Assert group.update_suites called with good parameter depending args.
+
+        Parameters:
+        ----------
+        mock_error_one : Mock
+            Mock of tc_utils.raise_error function (call in check_type in init).
+        mock_error_two : Mock
+            Mock of tc_groups.raise_error function (call in init).
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert if raise_error is called once with Error and error msg.
+        assert_not_called:
+            Assert if raise_error is not called for init with success.
+        assertIsInstance:
+            Assert if obj is a list and items TestCasesGroup.
+        assertEqual:
+            Assert if len obj is 2, if obj[i] name and arg name are correct.
+        assertListEqual:
+            Assert if obj[i].testcases is the correct list.
+        """
+        class FakeArgs():
+            def __init__(self, open, timestamp, ):
+                self.open = open
+                self.timestamp = timestamp
+        for argv, args in [
+                ([1], FakeArgs(False, False)),
+                ([1, 2], FakeArgs(True, False)),
+                ([1, 2], FakeArgs(False, True)),
+                ([1, 2, 3], FakeArgs(True, True))]:
+            mock_sys.argv = argv
+            obj = TestCasesGroups([
+                ("group test", [SubclassTCone, ]),
+                ('group test 2', (SubclassTCtwo, ))])
+            obj.construct_suites(args)
+            self.assertEqual(mock_update_suites.call_count, 2)
+            mock_update_suites.assert_has_calls([
+                call(SubclassTCone), call(SubclassTCtwo)])
+            mock_update_suites.reset_mock()
+        mock_sys.argv = [1, 2, 3, 4]
+        obj = TestCasesGroups([
+            ("group test", [SubclassTCone, ]),
+            ('group test 2', (SubclassTCtwo, ))])
+        obj.construct_suites('rrf')
+        mock_vars.assert_called_once_with('rrf')
