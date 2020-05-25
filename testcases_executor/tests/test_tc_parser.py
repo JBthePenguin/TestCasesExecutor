@@ -220,7 +220,7 @@ class TestParser(TestCase):
         FakeTestB:
             A fake testcase with necessary keys in __dict__ for test.
         FakeGroup:
-            A fake group with necessary attributes to make groups list for test.
+            A fake group with necessary attributes to make groups testcases.
 
         Assertions:
         ----------

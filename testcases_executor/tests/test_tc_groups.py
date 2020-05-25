@@ -3,21 +3,22 @@ Module testcases_executor.tests.test_tc_groups .
 
 Contain TestCase for testcases_executor.tc_groups .
 
-Classes:
-    TestGroupsFunctions(TestCase)
-    TestGroup(TestCase)
-    TestGroups(TestCase)
+unittest.TestCase sublasses:
+    TestGroupsFunctions
+    TestLoader
+    TestGroup
+    TestGroups
 
 Imports:
     from unittest: TestCase
     from unittest.mock: patch, Mock
     from testcases_executor.tc_groups: (
-        import_groups, TestCasesGroup, TestCasesGroups
+        import_groups, GroupTestLoader, TestCasesGroup, TestCasesGroups
 """
 from unittest import TestCase
 from unittest.mock import patch, Mock
 from testcases_executor.tc_groups import (
-    import_groups, TestCasesGroup, TestCasesGroups)
+    import_groups, GroupTestLoader, TestCasesGroup, TestCasesGroups)
 
 
 class TestGroupsFunctions(TestCase):
@@ -81,7 +82,37 @@ class SubclassTCone(TestCase):
     Used in testcases list or tuple.
     """
 
-    pass
+    def test_foo(self):
+        pass
+
+    def test_bar(self):
+        pass
+
+
+class TestLoader(TestCase):
+    """
+    A subclass of unittest.TestCase .
+
+    Tests for tc_groups.GroupTestLoader .
+
+    Methods
+    ----------
+    test_getTestCaseNames():
+        Assert if getTestCaseNames return methods list ordered by declaration.
+    """
+
+    def test_getTestCaseNames(self):
+        """
+        Assert if getTestCaseNames return methods list ordered by declaration.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if result items are ordered correctly.
+        """
+        result = GroupTestLoader().getTestCaseNames(SubclassTCone)
+        self.assertEqual(result[0], 'test_foo')
+        self.assertEqual(result[1], 'test_bar')
 
 
 class SubclassTCtwo(TestCase):
@@ -104,6 +135,8 @@ class TestGroup(TestCase):
     ----------
     test_init_group():
         Assert TestCasesGroup's object is initialized with good attributes.
+    test_update_suites():
+        Assert tuple added to TestCasesGroup.suites .
     """
 
     @patch("testcases_executor.tc_groups.raise_error")
@@ -128,7 +161,7 @@ class TestGroup(TestCase):
         assertEqual:
             Assert if obj name and arg name are correct.
         assertListEqual:
-            Assert if obj.testcases is the correct list.
+            Assert if properties testcases and suites are the correct list.
         """
         mock_error_one.side_effect = Exception("raise_error called")
         mock_error_two.side_effect = Exception("raise_error called")
@@ -173,6 +206,7 @@ class TestGroup(TestCase):
         self.assertEqual(obj.name, "Group test")
         self.assertEqual(obj.arg_name, "group_test")
         self.assertListEqual(obj.testcases, [SubclassTCone, SubclassTCtwo])
+        self.assertListEqual(obj.suites, [])
 
 
 class TestGroups(TestCase):

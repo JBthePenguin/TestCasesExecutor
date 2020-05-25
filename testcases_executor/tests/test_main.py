@@ -51,7 +51,7 @@ class TestMainFunctions(TestCase):
             parser -> groups, groups.construct_suites -> parse.parse_args
         """
         main()
-        mock_groups.assert_called_once()
+        self.assertEqual(mock_groups.call_count, 1)
         mock_parser.assert_called_once_with(mock_groups())
         mock_parser().parse_args.assert_called_once()
         mock_groups().construct_suites.assert_called_once_with(
