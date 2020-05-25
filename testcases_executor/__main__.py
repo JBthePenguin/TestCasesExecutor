@@ -12,6 +12,7 @@ Imports:
 """
 from testcases_executor.tc_groups import TestCasesGroups
 from testcases_executor.tc_parser import TestCasesParser
+from testcases_executor.tc_runner import TestCasesRunner
 
 
 def main():
@@ -22,6 +23,7 @@ def main():
     parser = TestCasesParser(tc_groups)
     args = parser.parse_args()
     tc_groups.construct_suites(args)
+    # TestCasesRunner().run(tc_groups)
     # for group in tc_groups:
     #     print(group.name, len(group.suites))
 

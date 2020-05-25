@@ -379,9 +379,9 @@ class TestGroups(TestCase):
         """
         class FakeArgs():
 
-            def __init__(self, open, timestamp):
-                self.open = open
-                self.timestamp = timestamp
+            def __init__(self, a_open, a_timestamp):
+                self.open = a_open
+                self.timestamp = a_timestamp
 
         for argv, args in [  # all groups testcases
                 ([1], FakeArgs(False, False)),
