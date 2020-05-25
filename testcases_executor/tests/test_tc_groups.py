@@ -347,11 +347,10 @@ class TestGroups(TestCase):
         self.assertListEqual(obj[1].testcases, [SubclassTCtwo, ])
 
     @patch("builtins.vars")
-    @patch("testcases_executor.tc_groups.TestCasesGroups.remove")
     @patch("testcases_executor.tc_groups.TestCasesGroup.update_suites")
     @patch("testcases_executor.tc_groups.sys")
     def test_construct_suites(
-            self, mock_sys, mock_update_suites, mock_remove, mock_vars):
+            self, mock_sys, mock_update_suites, mock_vars):
         """
         Assert group.update_suites called with good parameter depending args.
 
@@ -361,26 +360,29 @@ class TestGroups(TestCase):
             Mock of sys to set value to sys.argv .
         mock_update_suites : Mock
             Mock of tc_groups.TestCasesGroup.update_suites .
-        mock_remove : Mock
-            Mock of tc_groups.TestCasesGroups.remove .
         mock_vars : Mock
-            Mock of vars to set return value for vars(args) .
+            Mock of vars to set return value for vars(args).
+
+        Classes:
+        ----------
+        FakeArgs:
+            A fake agrs with properties open and timestamp.
 
         Assertions:
         ----------
         assertEqual:
             Assert group.update_suites call count.
         assert_has_calls:
-            Assert group.update_suites calls parameters
-        assert_not_called:
-            Assert if TestCasesGroups.remove is not called.
+            Assert group.update_suites calls parameters.
         assert_called_once_with:
             Assert vars called once with 'args', groups.remove with group.
         """
         class FakeArgs():
-            def __init__(self, open, timestamp, ):
+
+            def __init__(self, open, timestamp):
                 self.open = open
                 self.timestamp = timestamp
+
         for argv, args in [  # all groups testcases
                 ([1], FakeArgs(False, False)),
                 ([1, 2], FakeArgs(True, False)),
@@ -395,7 +397,7 @@ class TestGroups(TestCase):
             self.assertEqual(mock_update_suites.call_count, 2)
             mock_update_suites.assert_has_calls([
                 call(SubclassTCone), call(SubclassTCtwo)])
-            mock_remove.assert_not_called()
+            self.assertEqual(obj, [group_one, group_two])
             mock_update_suites.reset_mock()
         mock_sys.argv = [1, 2, 3, 4]
         for vars_val, count_val, call_vals, new_obj in [  # depending args
@@ -428,11 +430,10 @@ class TestGroups(TestCase):
                     call_list.append(call(tc))
             mock_update_suites.assert_has_calls(call_list)
             if new_obj == "one":
-                mock_remove.assert_called_once_with(group_two)
+                self.assertEqual(obj, [group_one])
             elif new_obj == "two":
-                mock_remove.assert_called_once_with(group_one)
+                self.assertEqual(obj, [group_two])
             else:
-                mock_remove.assert_not_called()
+                self.assertEqual(obj, [group_one, group_two])
             mock_vars.reset_mock()
             mock_update_suites.reset_mock()
-            mock_remove.reset_mock()
