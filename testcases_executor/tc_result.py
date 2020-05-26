@@ -1,3 +1,4 @@
+import time
 from unittest import TestResult
 from testcases_executor.tc_utils import GREEN, MAGENTA, C_RESET
 
@@ -15,26 +16,35 @@ class TestCasesResult(TestResult):
         # self.dots = verbosity == 1
         self.descriptions = descriptions
 
+    @staticmethod
+    def _format_duration(duration):
+        """Format the elapsed time in seconds,
+        or milliseconds if the duration is less than 1 second."""
+        if duration >= 1:
+            duration_str = f"{str(round(duration, 3))} s"
+        else:
+            duration_str = f"{str(round(duration * 1000, 2))} ms"
+        return duration_str
+
     def getDescription(self, test):
         """Return the test description with the test method name."""
         return test._testMethodName
 
     def startTest(self, test):
+        """ Called before execute each method. """
+        self.test_t_start = time.time()
         super().startTest(test)
-        # if self.showAll:
         self.stream.write(self.getDescription(test))
         self.stream.write(" ... ")
         self.stream.flush()
 
     def addSuccess(self, test):
+        t_duration = time.time() - self.test_t_start
         super().addSuccess(test)
-        # if self.showAll:
         status = f"{GREEN}OK{C_RESET}"
-        time_str = 0  # f"{self._format_duration(t_info.elapsed_time)}"
+        duration_str = f"{self._format_duration(t_duration)}"
         self.stream.writeln(
-            f"{status} ... {MAGENTA}{time_str}{C_RESET}")
-        # elif self.dots:
-        #     self.stream.write('.')
+            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
         self.stream.flush()
 
     def addError(self, test, err):

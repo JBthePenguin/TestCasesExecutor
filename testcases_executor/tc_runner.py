@@ -19,8 +19,7 @@ import time
 import warnings
 from datetime import datetime
 from unittest import TextTestRunner
-from unittest.signals import registerResult
-from colorama import Fore, Style
+from testcases_executor.tc_utils import BOLD, MUTED, S_RESET
 from testcases_executor.tc_result import TestCasesResult
 
 
@@ -57,10 +56,11 @@ class TestCasesRunner(TextTestRunner):
         """Run all TestCases suites and display result in console."""
         self.start_time = datetime.now()
         for test_case, suite in suites:
+            self.stream.writeln(f"\n{result.separator2}")
             self.stream.writeln(  # test case title
-                f"\n {Style.BRIGHT}--- {test_case.__name__} ---")
+                f"\n {BOLD}--- {test_case.__name__} ---{S_RESET}")
             self.stream.writeln(
-                f" {Style.DIM}{test_case.__module__}.py{Style.NORMAL}\n")
+                f" {MUTED}{test_case.__module__}.py{S_RESET}\n")
             suite(result)  # run tests
             t_case_time = 0  # calculate  and display time for TestCase
             # for t_result in result.successes + result.failures + (
@@ -69,16 +69,21 @@ class TestCasesRunner(TextTestRunner):
             #         t_case_time += t_result.elapsed_time
             # self.stream.writeln(
             #     f"\n {Fore.MAGENTA}{result._format_duration(t_case_time)}")
-            self.stream.writeln(f"{Fore.RESET}\n{result.separator2}")
+            # self.stream.writeln(f"{Fore.RESET}\n{result.separator2}")
 
     def run(self, groups):
         """ Runs the given testcase or testsuite. """
         result = self._makeResult()
         result.failfast = self.failfast
-        self.stream.writeln("\nRunning tests... ")
-        self.stream.writeln(result.separator2)
+        self.stream.writeln(f"\nRunning tests...\n\n{result.separator1}")
+        # self.stream.writeln(result.separator1)
+        start_time = datetime.now()
         for group in groups:
+            self.stream.writeln(f"{result.separator1}")
+            self.stream.writeln(f"\n{BOLD}{MUTED} {group.name}{S_RESET}")
+            # self.stream.writeln(result.separator2)
             self.run_suites(result, group.suites)
+            self.stream.writeln(f"\n{result.separator1}")
         # result.printErrors()
         # self.stream.writeln(result.separator2)
         # result.printTotal()
@@ -86,7 +91,7 @@ class TestCasesRunner(TextTestRunner):
         # result.printInfos()
         # self.stream.writeln(f"Generating HTML reports...{Style.DIM}")
         # result.generate_reports(self)
-        self.stream.writeln(f"{Style.RESET_ALL}")
+        self.stream.writeln(S_RESET)
         # if self.open_in_browser:
         #     import webbrowser
         #     for report in result.report_files:

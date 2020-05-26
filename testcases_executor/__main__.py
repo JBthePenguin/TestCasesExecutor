@@ -23,7 +23,7 @@ def main():
     parser = TestCasesParser(tc_groups)
     args = parser.parse_args()
     tc_groups.construct_suites(args)
-    # TestCasesRunner().run(tc_groups)
+    TestCasesRunner().run(tc_groups)
 
 
 if __name__ == "__main__":
