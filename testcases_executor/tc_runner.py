@@ -17,8 +17,11 @@ Imports:
 """
 import time
 import warnings
+from datetime import datetime
 from unittest import TextTestRunner
 from unittest.signals import registerResult
+from colorama import Fore, Style
+from testcases_executor.tc_result import TestCasesResult
 
 
 class TestCasesRunner(TextTestRunner):
@@ -47,79 +50,45 @@ class TestCasesRunner(TextTestRunner):
     def __init__(self):
         super().__init__(
             stream=None, descriptions=True, verbosity=2,
-            failfast=False, buffer=False, resultclass=None,
+            failfast=False, buffer=False, resultclass=TestCasesResult,
             warnings=None, tb_locals=False)
 
-    def run(self, tc_groups):
-        "Run the given test case or test suite."
+    def run_suites(self, result, suites):
+        """Run all TestCases suites and display result in console."""
+        self.start_time = datetime.now()
+        for test_case, suite in suites:
+            self.stream.writeln(  # test case title
+                f"\n {Style.BRIGHT}--- {test_case.__name__} ---")
+            self.stream.writeln(
+                f" {Style.DIM}{test_case.__module__}.py{Style.NORMAL}\n")
+            suite(result)  # run tests
+            t_case_time = 0  # calculate  and display time for TestCase
+            # for t_result in result.successes + result.failures + (
+            #         result.errors + result.skipped):
+            #     if t_result.test_name.split('.')[-1] == test_case.__name__:
+            #         t_case_time += t_result.elapsed_time
+            # self.stream.writeln(
+            #     f"\n {Fore.MAGENTA}{result._format_duration(t_case_time)}")
+            self.stream.writeln(f"{Fore.RESET}\n{result.separator2}")
+
+    def run(self, groups):
+        """ Runs the given testcase or testsuite. """
         result = self._makeResult()
-        registerResult(result)
         result.failfast = self.failfast
-        result.buffer = self.buffer
-        result.tb_locals = self.tb_locals
-        with warnings.catch_warnings():
-            if self.warnings:
-                # if self.warnings is set, use it to filter all the warnings
-                warnings.simplefilter(self.warnings)
-                # if the filter is 'default' or 'always', special-case the
-                # warnings from the deprecated unittest methods to show them
-                # no more than once per module, because they can be fairly
-                # noisy.  The -Wd and -Wa flags can be used to bypass this
-                # only when self.warnings is None.
-                if self.warnings in ['default', 'always']:
-                    warnings.filterwarnings('module',
-                            category=DeprecationWarning,
-                            message=r'Please use assert\w+ instead.')
-            startTime = time.perf_counter()
-            startTestRun = getattr(result, 'startTestRun', None)
-            if startTestRun is not None:
-                startTestRun()
-            try:
-                for tc_group in tc_groups:
-                    for tc, suite in tc_group.suites:
-                        suite(result)
-            finally:
-                stopTestRun = getattr(result, 'stopTestRun', None)
-                if stopTestRun is not None:
-                    stopTestRun()
-            stopTime = time.perf_counter()
-        timeTaken = stopTime - startTime
-        result.printErrors()
-        if hasattr(result, 'separator2'):
-            self.stream.writeln(result.separator2)
-        run = result.testsRun
-        self.stream.writeln("Ran %d test%s in %.3fs" %
-                            (run, run != 1 and "s" or "", timeTaken))
-        self.stream.writeln()
-
-        expectedFails = unexpectedSuccesses = skipped = 0
-        try:
-            results = map(len, (result.expectedFailures,
-                                result.unexpectedSuccesses,
-                                result.skipped))
-        except AttributeError:
-            pass
-        else:
-            expectedFails, unexpectedSuccesses, skipped = results
-
-        infos = []
-        if not result.wasSuccessful():
-            self.stream.write("FAILED")
-            failed, errored = len(result.failures), len(result.errors)
-            if failed:
-                infos.append("failures=%d" % failed)
-            if errored:
-                infos.append("errors=%d" % errored)
-        else:
-            self.stream.write("OK")
-        if skipped:
-            infos.append("skipped=%d" % skipped)
-        if expectedFails:
-            infos.append("expected failures=%d" % expectedFails)
-        if unexpectedSuccesses:
-            infos.append("unexpected successes=%d" % unexpectedSuccesses)
-        if infos:
-            self.stream.writeln(" (%s)" % (", ".join(infos),))
-        else:
-            self.stream.write("\n")
+        self.stream.writeln("\nRunning tests... ")
+        self.stream.writeln(result.separator2)
+        for group in groups:
+            self.run_suites(result, group.suites)
+        # result.printErrors()
+        # self.stream.writeln(result.separator2)
+        # result.printTotal()
+        # self.stream.writeln()
+        # result.printInfos()
+        # self.stream.writeln(f"Generating HTML reports...{Style.DIM}")
+        # result.generate_reports(self)
+        self.stream.writeln(f"{Style.RESET_ALL}")
+        # if self.open_in_browser:
+        #     import webbrowser
+        #     for report in result.report_files:
+        #         webbrowser.open_new_tab('file://' + report)
         return result
