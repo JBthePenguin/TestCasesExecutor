@@ -6,6 +6,7 @@ Contain utils functions
 Functions:
     raise_error(error_type, error_msg)
     check_type(obj, desired_classes, obj_msg)
+    format_duration(duration)
 
 Variables:
     PREFIX, MUTED, BOLD, RED, S_RESET, C_RESET: str
@@ -58,3 +59,13 @@ def check_type(obj, desired_classes, obj_msg):
         raise_error(TypeError, "".join([
             f"{obj_msg} must be {end_msg}, ",
             f"not '{obj.__class__.__name__}': {obj}"]))
+
+
+def format_duration(duration):
+    """Format the elapsed time in seconds,
+    or milliseconds if the duration is less than 1 second."""
+    if duration >= 1:
+        duration_str = f"{str(round(duration, 3))} s"
+    else:
+        duration_str = f"{str(round(duration * 1000, 2))} ms"
+    return duration_str

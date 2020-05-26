@@ -1,6 +1,7 @@
 import time
 from unittest import TestResult
-from testcases_executor.tc_utils import GREEN, MAGENTA, C_RESET
+from testcases_executor.tc_utils import (
+    format_duration, GREEN, MAGENTA, C_RESET, BOLD, S_RESET)
 
 
 class TestCasesResult(TestResult):
@@ -15,16 +16,7 @@ class TestCasesResult(TestResult):
         # self.showAll = verbosity > 1
         # self.dots = verbosity == 1
         self.descriptions = descriptions
-
-    @staticmethod
-    def _format_duration(duration):
-        """Format the elapsed time in seconds,
-        or milliseconds if the duration is less than 1 second."""
-        if duration >= 1:
-            duration_str = f"{str(round(duration, 3))} s"
-        else:
-            duration_str = f"{str(round(duration * 1000, 2))} ms"
-        return duration_str
+        self.durations = {'groups': {}, 'testcases': {}, 'tests': {}}
 
     def getDescription(self, test):
         """Return the test description with the test method name."""
@@ -38,11 +30,16 @@ class TestCasesResult(TestResult):
         self.stream.write(" ... ")
         self.stream.flush()
 
-    def addSuccess(self, test):
+    def save_t_duration(self, test):
         t_duration = time.time() - self.test_t_start
+        self.durations['tests'][test] = t_duration
+        return t_duration
+
+    def addSuccess(self, test):
+        t_duration = self.save_t_duration(test)
         super().addSuccess(test)
         status = f"{GREEN}OK{C_RESET}"
-        duration_str = f"{self._format_duration(t_duration)}"
+        duration_str = format_duration(t_duration)
         self.stream.writeln(
             f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
         self.stream.flush()
@@ -100,3 +97,13 @@ class TestCasesResult(TestResult):
                 "%s: %s" % (flavour, self.getDescription(test)))
             self.stream.writeln(self.separator2)
             self.stream.writeln("%s" % err)
+
+    def printTotal(self):
+        run = self.testsRun
+        s_test = "test"
+        if run > 1:
+            s_test += "s"
+        ran_text = f"{BOLD}Ran {run} {s_test}{S_RESET}"
+        full_time_str = format_duration(self.durations['total'])
+        self.stream.writeln(
+            f"\n{ran_text} in {MAGENTA}{full_time_str}{C_RESET}")
