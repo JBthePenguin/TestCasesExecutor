@@ -58,51 +58,42 @@ class TestCasesRunner(TextTestRunner):
         self.start_time = datetime.now()
         for testcase, suite in suites:
             test_methods = [test_method for test_method in suite._tests]
-            self.stream.writeln(f"{result.separator2}")
+            self.stream.writeln(result.separator2)
             self.stream.writeln(  # test case title
                 f"\n{BOLD} --- {testcase.__name__} ---{S_RESET}")
             self.stream.writeln(
-                f" {MUTED}{testcase.__module__}.py{S_RESET}\n")
+                f"{MUTED} {testcase.__module__}.py{S_RESET}\n")
             suite(result)  # run tests
             tc_duration = 0  # calculate  and display time for TestCase
             for test_method in test_methods:
                 tc_duration += result.durations['tests'][test_method]
             result.durations['testcases'][testcase] = tc_duration
-            # for t_result in result.successes + result.failures + (
-            #         result.errors + result.skipped):
-            #     if t_result.test_name.split('.')[-1] == test_case.__name__:
-            #         t_case_time += t_result.elapsed_time
             self.stream.writeln(
                 f"\n ... {MAGENTA}{format_duration(tc_duration)}{S_RESET}\n")
-            # self.stream.writeln(f"{Fore.RESET}\n{result.separator2}")
 
     def run(self, groups):
         """ Runs the given testcase or testsuite. """
         result = self._makeResult()
         result.failfast = self.failfast
-        self.stream.writeln(f"\nRunning tests...\n\n{result.separator1}")
-        # self.stream.writeln(result.separator1)
-        start_time = datetime.now()
+        self.stream.writeln("\nRunning tests...\n")
+        result.start_time = datetime.now()
         for group in groups:
-            self.stream.writeln(f"{result.separator1}")
-            self.stream.writeln(f"\n{BOLD}{MUTED} {group.name}{S_RESET}\n")
-            # self.stream.writeln(result.separator2)
+            self.stream.writeln(f"{result.separator1}\n")
+            self.stream.writeln(f"{BOLD}{MUTED} {group.name}{S_RESET}\n")
             self.run_suites(result, group.suites)
             g_duration = 0
             for testcase in group.testcases:
                 g_duration += result.durations['testcases'][testcase]
-            self.stream.writeln(f"{result.separator2}")
+            self.stream.writeln(result.separator2)
             self.stream.writeln(
                 f"\n ... {MUTED}{format_duration(g_duration)}{S_RESET}\n")
-            self.stream.writeln(result.separator1)
             result.durations['groups'][group] = g_duration
         self.stream.writeln(result.separator1)
         total_duration = sum(result.durations['groups'].values())
         result.durations['total'] = total_duration
-        # result.printErrors()
-        # self.stream.writeln(result.separator2)
+        result.printErrors()
+        self.stream.writeln(f"{result.separator1}\n{result.separator1}")
         result.printTotal()
-        # self.stream.writeln()
         result.printInfos()
         # self.stream.writeln(f"Generating HTML reports...{Style.DIM}")
         # result.generate_reports(self)

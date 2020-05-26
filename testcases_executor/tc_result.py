@@ -1,7 +1,8 @@
 import time
 from unittest import TestResult
 from testcases_executor.tc_utils import (
-    format_duration, GREEN, BLUE, RED, YELLOW, MAGENTA, C_RESET, BOLD, S_RESET)
+    format_duration, GREEN, BLUE, RED, YELLOW, MAGENTA, C_RESET,
+    BOLD, MUTED, S_RESET)
 
 
 class TestCasesResult(TestResult):
@@ -14,6 +15,7 @@ class TestCasesResult(TestResult):
         super().__init__(stream, descriptions, verbosity)
         self.stream = stream
         self.descriptions = descriptions
+        self.start_time = 0
         self.durations = {'groups': {}, 'testcases': {}, 'tests': {}}
 
     def getDescription(self, test):
@@ -94,11 +96,30 @@ class TestCasesResult(TestResult):
 
     def printErrorList(self, flavour, errors):
         for test, err in errors:
+            if flavour == "ERROR":
+                t_color = RED
+            else:
+                t_color = YELLOW
+            tc_name = test.__class__.__name__
+            method_name = test._testMethodName
+            test_str = f"{BOLD}{tc_name}{S_RESET}.{method_name}"
+            # print(err.splitlines())
             self.stream.writeln(self.separator1)
+            # c_flavour = f"{t_color}{flavour}"
+            # test_name = f"{test_info.test_id}".split('.')[-2:]
+            # test_str = f"{BOLD}{test_name[0]}{S_RESET}"
+            # test_str += f".{test_name[1]}"
+            time_str = f"{MAGENTA}"
+            time_str += f"{format_duration(self.durations['tests'][test])}"
+            # error_name = f"{t_color}{test_info.err[0].__name__}"
+            # traceback = test_info.get_error_info()
             self.stream.writeln(
-                "%s: %s" % (flavour, self.getDescription(test)))
+                f"{t_color}{flavour}{S_RESET}: {test_str}")
             self.stream.writeln(self.separator2)
-            self.stream.writeln("%s" % err)
+            self.stream.writeln(
+                f"{t_color}{err.splitlines()[-1]}{C_RESET}")
+            self.stream.writeln(self.separator2)
+            self.stream.writeln(f"{MUTED}{err}{S_RESET}")
 
     def printTotal(self):
         run = self.testsRun
@@ -136,4 +157,4 @@ class TestCasesResult(TestResult):
             infos.append(
                 f"{GREEN}{u_suc}{unexpectedSuccesses}{C_RESET}")
         if infos:
-            self.stream.writeln(" ({})".format(" , ".join(infos)))
+            self.stream.writeln(f" ({' , '.join(infos)})")

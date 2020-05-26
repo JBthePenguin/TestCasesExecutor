@@ -5,7 +5,6 @@ from fake_app.operator.mul_numbers import MulTwo, MulThree
 class TestMulTwo(TestCase):
     """TestCase for MulTwo."""
 
-    @expectedFailure
     def test_int_result(self):
         """Assert the return of the method int_result."""
         self.assertEqual(MulTwo('a', 3.5).int_result(), 10)
