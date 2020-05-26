@@ -1,7 +1,7 @@
 import time
 from unittest import TestResult
 from testcases_executor.tc_utils import (
-    format_duration, GREEN, MAGENTA, C_RESET, BOLD, S_RESET)
+    format_duration, GREEN, BLUE, RED, YELLOW, MAGENTA, C_RESET, BOLD, S_RESET)
 
 
 class TestCasesResult(TestResult):
@@ -13,8 +13,6 @@ class TestCasesResult(TestResult):
     def __init__(self, stream, descriptions, verbosity):
         super().__init__(stream, descriptions, verbosity)
         self.stream = stream
-        # self.showAll = verbosity > 1
-        # self.dots = verbosity == 1
         self.descriptions = descriptions
         self.durations = {'groups': {}, 'testcases': {}, 'tests': {}}
 
@@ -45,47 +43,51 @@ class TestCasesResult(TestResult):
         self.stream.flush()
 
     def addError(self, test, err):
+        t_duration = self.save_t_duration(test)
         super().addError(test, err)
-        # if self.showAll:
-        self.stream.writeln("ERROR")
-        # elif self.dots:
-        #    self.stream.write('E')
+        status = f"{RED}ERROR{C_RESET}"
+        duration_str = format_duration(t_duration)
+        self.stream.writeln(
+            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
         self.stream.flush()
 
     def addFailure(self, test, err):
+        t_duration = self.save_t_duration(test)
         super().addFailure(test, err)
-        # if self.showAll:
-        self.stream.writeln("FAIL")
-        #elif self.dots:
-        #    self.stream.write('F')
+        status = f"{YELLOW}FAIL{C_RESET}"
+        duration_str = format_duration(t_duration)
+        self.stream.writeln(
+            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
         self.stream.flush()
 
     def addSkip(self, test, reason):
+        t_duration = self.save_t_duration(test)
         super().addSkip(test, reason)
-        # if self.showAll:
-        self.stream.writeln("skipped {0!r}".format(reason))
-        # elif self.dots:
-        #    self.stream.write("s")
+        status = f"{BLUE}SKIP{C_RESET}"
+        duration_str = format_duration(t_duration)
+        self.stream.writeln(
+            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
         self.stream.flush()
 
     def addExpectedFailure(self, test, err):
+        t_duration = self.save_t_duration(test)
         super().addExpectedFailure(test, err)
-        # if self.showAll:
-        self.stream.writeln("expected failure")
-        # elif self.dots:
-        # self.stream.write("x")
+        status = f"{RED}expected failure{C_RESET}"
+        duration_str = format_duration(t_duration)
+        self.stream.writeln(
+            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
         self.stream.flush()
 
     def addUnexpectedSuccess(self, test):
+        t_duration = self.save_t_duration(test)
         super().addUnexpectedSuccess(test)
-        # if self.showAll:
-        self.stream.writeln("unexpected success")
-        # elif self.dots:
-        self.stream.write("u")
+        status = f"{GREEN}unexpected success{C_RESET}"
+        duration_str = format_duration(t_duration)
+        self.stream.writeln(
+            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
         self.stream.flush()
 
     def printErrors(self):
-        # if self.dots or self.showAll:
         self.stream.writeln()
         self.printErrorList('ERROR', self.errors)
         self.printErrorList('FAIL', self.failures)
@@ -107,3 +109,31 @@ class TestCasesResult(TestResult):
         full_time_str = format_duration(self.durations['total'])
         self.stream.writeln(
             f"\n{ran_text} in {MAGENTA}{full_time_str}{C_RESET}")
+
+    def printInfos(self):
+        """Print infos at the end of all tests."""
+        expectedFails = len(self.expectedFailures)
+        unexpectedSuccesses = len(self.unexpectedSuccesses)
+        skipped = len(self.skipped)
+        infos = []
+        if not self.wasSuccessful():
+            self.stream.writeln(f"\n{RED}FAILED{C_RESET}")
+            failed, errors = map(len, (self.failures, self.errors))
+            if failed:
+                infos.append(f"{YELLOW}Failures={failed}{C_RESET}")
+            if errors:
+                infos.append(f"{RED}Errors={errors}{C_RESET}")
+        else:
+            self.stream.writeln(f"\n{GREEN}OK{C_RESET}")
+        if skipped:
+            infos.append(f"{BLUE}Skipped={skipped}{C_RESET}")
+        if expectedFails:
+            e_fail = "Expected Failures="
+            infos.append(
+                f"{RED}{e_fail}{expectedFails}{C_RESET}")
+        if unexpectedSuccesses:
+            u_suc = "Unexpected Successes="
+            infos.append(
+                f"{GREEN}{u_suc}{unexpectedSuccesses}{C_RESET}")
+        if infos:
+            self.stream.writeln(" ({})".format(" , ".join(infos)))

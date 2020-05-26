@@ -60,7 +60,7 @@ class TestCasesRunner(TextTestRunner):
             test_methods = [test_method for test_method in suite._tests]
             self.stream.writeln(f"{result.separator2}")
             self.stream.writeln(  # test case title
-                f"{BOLD} --- {testcase.__name__} ---{S_RESET}")
+                f"\n{BOLD} --- {testcase.__name__} ---{S_RESET}")
             self.stream.writeln(
                 f" {MUTED}{testcase.__module__}.py{S_RESET}\n")
             suite(result)  # run tests
@@ -103,7 +103,7 @@ class TestCasesRunner(TextTestRunner):
         # self.stream.writeln(result.separator2)
         result.printTotal()
         # self.stream.writeln()
-        # result.printInfos()
+        result.printInfos()
         # self.stream.writeln(f"Generating HTML reports...{Style.DIM}")
         # result.generate_reports(self)
         self.stream.writeln(S_RESET)
