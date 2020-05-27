@@ -57,6 +57,14 @@ class TestCasesResult(TestResult):
         Called when an expected failure/error occurred.
     addUnexpectedSuccess(test):
         Called when a test was expected to fail, but succeed.
+    printErrors():
+        Display errors and failures.
+    printErrorList(flavour, errors, e_color):
+        Display errors or failures list.
+    printTotal(run, duration):
+        Display total, number of tests and duration.
+    printInfos():
+        Display at the end, PASS or FAILED and infos (number failed...).
     """
 
     def __init__(self, stream):
@@ -102,7 +110,7 @@ class TestCasesResult(TestResult):
             test: TestCase method
                 the test method runned.
             status: str
-                OK, ERROR, FAIL SKIP....
+                OK, ERROR, FAIL, SKIP....
         """
         t_duration = test_t_stop - self.test_t_start
         self.durations['tests'][test] = t_duration
@@ -191,11 +199,26 @@ class TestCasesResult(TestResult):
         super().addUnexpectedSuccess(test)
 
     def printErrors(self):
+        """
+        Display errors and failures.
+        """
         self.stream.writeln()
         self.printErrorList('ERROR', self.errors, RED)
         self.printErrorList('FAIL', self.failures, YELLOW)
 
     def printErrorList(self, flavour, errors, e_color):
+        """
+        Display errors or failures list.
+
+        Parameters
+        ----------
+            flavour: str
+                'ERROR' or 'FAIL'.
+            errors: list
+                tuples with test in 1st item, err(str) in 2nd.
+            e_color: str
+                represent a color, green for succces, ...
+        """
         for test, err in errors:
             tc_name = test.__class__.__name__
             method_name = test._testMethodName
@@ -210,6 +233,16 @@ class TestCasesResult(TestResult):
             self.stream.writeln(f"{MUTED}{err}{S_RESET}")
 
     def printTotal(self, run, duration):
+        """
+        Display total, number of tests and duration.
+
+        Parameters
+        ----------
+            run: int
+                number of tests runned.
+            duration: time
+                duration for all tests.
+        """
         s_test = "test"
         if run > 1:
             s_test += "s"
@@ -218,7 +251,9 @@ class TestCasesResult(TestResult):
             f"{ran_text} in {MAGENTA}{format_duration(duration)}{C_RESET}")
 
     def printInfos(self):
-        """Print infos at the end of all tests."""
+        """
+        Display at the end, PASS or FAILED and infos (number failed...).
+        """
         expectedFails = len(self.expectedFailures)
         unexpectedSuccesses = len(self.unexpectedSuccesses)
         skipped = len(self.skipped)
@@ -231,7 +266,7 @@ class TestCasesResult(TestResult):
             if errors:
                 infos.append(f"{RED}Errors={errors}{C_RESET}")
         else:
-            self.stream.writeln(f"\n{GREEN}OK{C_RESET}")
+            self.stream.writeln(f"\n{GREEN}PASS{C_RESET}")
         if skipped:
             infos.append(f"{BLUE}Skipped={skipped}{C_RESET}")
         if expectedFails:

@@ -62,10 +62,17 @@ def check_type(obj, desired_classes, obj_msg):
 
 
 def format_duration(duration):
-    """Format the elapsed time in seconds,
-    or milliseconds if the duration is less than 1 second."""
+    """
+    Check if an object's class is one of the desired.
+
+        Parameters:
+            duration(time): duration in second
+
+        Return:
+            string represent duration in ms or s
+    """
     if duration >= 1:
         duration_str = f"{str(round(duration, 3))} s"
     else:
-        duration_str = f"{str(round(duration * 1000, 2))} ms"
+        duration_str = f"{str(round(duration * 1000, 3))} ms"
     return duration_str
