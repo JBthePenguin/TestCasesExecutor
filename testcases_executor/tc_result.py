@@ -1,3 +1,18 @@
+"""
+Module testcases_executor.tc_result
+
+Contain necessary class to make result for groups of TestCases.
+
+Class:
+    TestCasesResult
+
+Imports:
+    time
+    from unittest: TestResult
+    from testcases_executor.tc_utils: (
+        format_duration, GREEN, BLUE, RED, YELLOW, MAGENTA, C_RESET,
+        BOLD, MUTED, S_RESET)
+"""
 import time
 from unittest import TestResult
 from testcases_executor.tc_utils import (
@@ -6,31 +21,89 @@ from testcases_executor.tc_utils import (
 
 
 class TestCasesResult(TestResult):
-    """Override HtmlTestResult to change desription and format duration,
-    and get a non alphabetical order for test methods."""
-    separator1 = '=' * 70
-    separator2 = '-' * 70
+    """
+    A subclass of unittest.TestResult .
+
+    Use to save and display tests result.
+
+    Attributes
+    ----------
+    separator1 (2): str
+        Used to separate parts in shell display
+    stream: unittest.runner._WritelnDecorator
+        object passed in init parameter -> TestCasesRunner.stream
+    start_time: datetime (default=0)
+        Used to save start datetime.
+    test_methods: list
+        [(group, [(testcase, test methods), ...]), ...]
+    durations: dict
+        {'groups': {g: dur}, 'testcases': {tc: dur}, 'tests': {t: dur}}
+
+    Methods
+    ----------
+    startTest(test):
+        Called before execute each method test, set test start time.
+    addFoo(test_t_stop, test, status):
+        Calcul and save test duration, display it with status.
+    addSuccess(test):
+        Called when a test has completed successfully.
+    addError(test, err):
+        Called when an error has occurred.
+    addFailure(test, err):
+        Called when a fail has occurred.
+    addSkip(test, reason):
+        Called when a test is skipped.
+    addExpectedFailure(test, err):
+        Called when an expected failure/error occurred.
+    addUnexpectedSuccess(test):
+        Called when a test was expected to fail, but succeed.
+    """
 
     def __init__(self, stream):
+        """
+        Init TestResult, constructs all attributes for group result object.
+
+        Parameters
+        ----------
+            stream: unittest.runner._WritelnDecorator
+                sys.stderr with 'writeln' method.
+        """
         super().__init__()
+        self.separator1 = '=' * 70
+        self.separator2 = '-' * 70
         self.stream = stream
         self.start_time = 0
         self.test_methods = []
         self.durations = {'groups': {}, 'testcases': {}, 'tests': {}}
 
-    def getTestName(self, test):
-        """Return the test description with the test method name."""
-        return test._testMethodName
-
     def startTest(self, test):
-        """ Called before execute each method. """
+        """
+        Called before execute each method test, set test start time.
+
+        Parameters
+        ----------
+            test: TestCase method
+                the test method runned.
+        """
         super().startTest(test)
-        self.stream.write(self.getTestName(test))
+        self.stream.write(test._testMethodName)
         self.stream.write(" ... ")
         self.stream.flush()
         self.test_t_start = time.time()
 
     def addFoo(self, test_t_stop, test, status):
+        """
+        Calcul and save test duration, display it with status.
+
+        Parameters
+        ----------
+            test_t_stop: time
+                test time stop.
+            test: TestCase method
+                the test method runned.
+            status: str
+                OK, ERROR, FAIL SKIP....
+        """
         t_duration = test_t_stop - self.test_t_start
         self.durations['tests'][test] = t_duration
         duration_str = format_duration(t_duration)
@@ -39,25 +112,81 @@ class TestCasesResult(TestResult):
         self.stream.flush()
 
     def addSuccess(self, test):
+        """
+        Called when a test has completed successfully.
+
+        Parameters
+        ----------
+            test: TestCase method
+                the test method runned.
+        """
         self.addFoo(time.time(), test, f"{GREEN}OK{C_RESET}")
 
     def addError(self, test, err):
+        """
+        Called when an error has occurred.
+
+        Parameters
+        ----------
+            test: TestCase method
+                the test method runned.
+            err: tuple
+                values as returned by sys.exc_info().
+        """
         self.addFoo(time.time(), test, f"{RED}ERROR{C_RESET}")
         super().addError(test, err)
 
     def addFailure(self, test, err):
+        """
+        Called when a fail has occurred.
+
+        Parameters
+        ----------
+            test: TestCase method
+                the test method runned.
+            err: tuple
+                values as returned by sys.exc_info().
+        """
         self.addFoo(time.time(), test, f"{YELLOW}FAIL{C_RESET}")
         super().addFailure(test, err)
 
     def addSkip(self, test, reason):
+        """
+        Called when a test is skipped.
+
+        Parameters
+        ----------
+            test: TestCase method
+                the test method runned.
+            reason: str
+                represent the reason of skipped.
+        """
         self.addFoo(time.time(), test, f"{BLUE}SKIP{C_RESET}")
         super().addSkip(test, reason)
 
     def addExpectedFailure(self, test, err):
+        """
+        Called when an expected failure/error occurred.
+
+        Parameters
+        ----------
+            test: TestCase method
+                the test method runned.
+            err: tuple
+                values as returned by sys.exc_info().
+        """
         self.addFoo(time.time(), test, f"{RED}expected failure{C_RESET}")
         super().addExpectedFailure(test, err)
 
     def addUnexpectedSuccess(self, test):
+        """
+        Called when a test was expected to fail, but succeed.
+
+        Parameters
+        ----------
+            test: TestCase method
+                the test method runned.
+        """
         self.addFoo(time.time(), test, f"{GREEN}unexpected success{C_RESET}")
         super().addUnexpectedSuccess(test)
 

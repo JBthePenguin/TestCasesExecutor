@@ -28,9 +28,9 @@ class TestCasesRunner(TextTestRunner):
 
     Methods
     ----------
-    run_group_suites():
+    run_group_suites(result, group):
         Run suites for a group, update result durations and test_methods.
-    run():
+    run(groups):
         Run all groups's suites, update result and return it.
     """
 
