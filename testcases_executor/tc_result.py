@@ -16,6 +16,7 @@ class TestCasesResult(TestResult):
         self.stream = stream
         self.descriptions = descriptions
         self.start_time = 0
+        self.test_methods = []
         self.durations = {'groups': {}, 'testcases': {}, 'tests': {}}
 
     def getDescription(self, test):
@@ -103,16 +104,7 @@ class TestCasesResult(TestResult):
             tc_name = test.__class__.__name__
             method_name = test._testMethodName
             test_str = f"{BOLD}{tc_name}{S_RESET}.{method_name}"
-            # print(err.splitlines())
             self.stream.writeln(self.separator1)
-            # c_flavour = f"{t_color}{flavour}"
-            # test_name = f"{test_info.test_id}".split('.')[-2:]
-            # test_str = f"{BOLD}{test_name[0]}{S_RESET}"
-            # test_str += f".{test_name[1]}"
-            time_str = f"{MAGENTA}"
-            time_str += f"{format_duration(self.durations['tests'][test])}"
-            # error_name = f"{t_color}{test_info.err[0].__name__}"
-            # traceback = test_info.get_error_info()
             self.stream.writeln(
                 f"{t_color}{flavour}{S_RESET}: {test_str}")
             self.stream.writeln(self.separator2)
@@ -121,15 +113,13 @@ class TestCasesResult(TestResult):
             self.stream.writeln(self.separator2)
             self.stream.writeln(f"{MUTED}{err}{S_RESET}")
 
-    def printTotal(self):
-        run = self.testsRun
+    def printTotal(self, run, duration):
         s_test = "test"
         if run > 1:
             s_test += "s"
-        ran_text = f"{BOLD}Ran {run} {s_test}{S_RESET}"
-        full_time_str = format_duration(self.durations['total'])
+        ran_text = f"Ran {run} {s_test}{S_RESET}"
         self.stream.writeln(
-            f"\n{ran_text} in {MAGENTA}{full_time_str}{C_RESET}")
+            f"{ran_text} in {MAGENTA}{format_duration(duration)}{C_RESET}")
 
     def printInfos(self):
         """Print infos at the end of all tests."""
