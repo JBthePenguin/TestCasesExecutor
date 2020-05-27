@@ -11,105 +11,72 @@ class TestCasesResult(TestResult):
     separator1 = '=' * 70
     separator2 = '-' * 70
 
-    def __init__(self, stream, descriptions, verbosity):
-        super().__init__(stream, descriptions, verbosity)
+    def __init__(self, stream):
+        super().__init__()
         self.stream = stream
-        self.descriptions = descriptions
         self.start_time = 0
         self.test_methods = []
         self.durations = {'groups': {}, 'testcases': {}, 'tests': {}}
 
-    def getDescription(self, test):
+    def getTestName(self, test):
         """Return the test description with the test method name."""
         return test._testMethodName
 
     def startTest(self, test):
         """ Called before execute each method. """
-        self.test_t_start = time.time()
         super().startTest(test)
-        self.stream.write(self.getDescription(test))
+        self.stream.write(self.getTestName(test))
         self.stream.write(" ... ")
         self.stream.flush()
+        self.test_t_start = time.time()
 
-    def save_t_duration(self, test):
-        t_duration = time.time() - self.test_t_start
+    def addFoo(self, test_t_stop, test, status):
+        t_duration = test_t_stop - self.test_t_start
         self.durations['tests'][test] = t_duration
-        return t_duration
+        duration_str = format_duration(t_duration)
+        self.stream.writeln(
+            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
+        self.stream.flush()
 
     def addSuccess(self, test):
-        t_duration = self.save_t_duration(test)
-        super().addSuccess(test)
-        status = f"{GREEN}OK{C_RESET}"
-        duration_str = format_duration(t_duration)
-        self.stream.writeln(
-            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
-        self.stream.flush()
+        self.addFoo(time.time(), test, f"{GREEN}OK{C_RESET}")
 
     def addError(self, test, err):
-        t_duration = self.save_t_duration(test)
+        self.addFoo(time.time(), test, f"{RED}ERROR{C_RESET}")
         super().addError(test, err)
-        status = f"{RED}ERROR{C_RESET}"
-        duration_str = format_duration(t_duration)
-        self.stream.writeln(
-            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
-        self.stream.flush()
 
     def addFailure(self, test, err):
-        t_duration = self.save_t_duration(test)
+        self.addFoo(time.time(), test, f"{YELLOW}FAIL{C_RESET}")
         super().addFailure(test, err)
-        status = f"{YELLOW}FAIL{C_RESET}"
-        duration_str = format_duration(t_duration)
-        self.stream.writeln(
-            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
-        self.stream.flush()
 
     def addSkip(self, test, reason):
-        t_duration = self.save_t_duration(test)
+        self.addFoo(time.time(), test, f"{BLUE}SKIP{C_RESET}")
         super().addSkip(test, reason)
-        status = f"{BLUE}SKIP{C_RESET}"
-        duration_str = format_duration(t_duration)
-        self.stream.writeln(
-            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
-        self.stream.flush()
 
     def addExpectedFailure(self, test, err):
-        t_duration = self.save_t_duration(test)
+        self.addFoo(time.time(), test, f"{RED}expected failure{C_RESET}")
         super().addExpectedFailure(test, err)
-        status = f"{RED}expected failure{C_RESET}"
-        duration_str = format_duration(t_duration)
-        self.stream.writeln(
-            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
-        self.stream.flush()
 
     def addUnexpectedSuccess(self, test):
-        t_duration = self.save_t_duration(test)
+        self.addFoo(time.time(), test, f"{GREEN}unexpected success{C_RESET}")
         super().addUnexpectedSuccess(test)
-        status = f"{GREEN}unexpected success{C_RESET}"
-        duration_str = format_duration(t_duration)
-        self.stream.writeln(
-            f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
-        self.stream.flush()
 
     def printErrors(self):
         self.stream.writeln()
-        self.printErrorList('ERROR', self.errors)
-        self.printErrorList('FAIL', self.failures)
+        self.printErrorList('ERROR', self.errors, RED)
+        self.printErrorList('FAIL', self.failures, YELLOW)
 
-    def printErrorList(self, flavour, errors):
+    def printErrorList(self, flavour, errors, e_color):
         for test, err in errors:
-            if flavour == "ERROR":
-                t_color = RED
-            else:
-                t_color = YELLOW
             tc_name = test.__class__.__name__
             method_name = test._testMethodName
             test_str = f"{BOLD}{tc_name}{S_RESET}.{method_name}"
             self.stream.writeln(self.separator1)
             self.stream.writeln(
-                f"{t_color}{flavour}{S_RESET}: {test_str}")
+                f"{e_color}{flavour}{S_RESET}: {test_str}")
             self.stream.writeln(self.separator2)
             self.stream.writeln(
-                f"{t_color}{err.splitlines()[-1]}{C_RESET}")
+                f"{e_color}{err.splitlines()[-1]}{C_RESET}")
             self.stream.writeln(self.separator2)
             self.stream.writeln(f"{MUTED}{err}{S_RESET}")
 

@@ -77,7 +77,7 @@ class TestCasesRunner(TextTestRunner):
             groups : TestCasesGroups
                 used items to get and run group's tests suites.
         """
-        result = self._makeResult()  # init result
+        result = self.resultclass(self.stream)
         result.failfast = self.failfast
         self.stream.writeln("\nRunning tests...\n")
         self.stream.writeln(result.separator1)
@@ -95,14 +95,13 @@ class TestCasesRunner(TextTestRunner):
             self.stream.writeln(f"{result.separator2}\n {MUTED}")
             result.printTotal(n_tests, g_duration)  # display them
             self.stream.writeln(f"\n{result.separator1}")
+        self.stream.writeln(result.separator1)
         result.printErrors()  # display errors
         self.stream.writeln(
-            f"{result.separator1}\n{result.separator1}\n{BOLD}")
-        self.stream.writeln(result.separator1)  # calcul, save total duration
+            f"{BOLD}{result.separator1}\n")  # calcul, save total duration
         total_duration = sum(result.durations['groups'].values())
         result.durations['total'] = total_duration
         result.printTotal(result.testsRun, total_duration)  # display it
         result.printInfos()  # display final infos
-        self.stream.writeln(S_RESET)
-        self.stream.writeln(f"{result.separator1}\n{result.separator1}\n")
+        self.stream.writeln(f"\n{BOLD}{result.separator1}\n{S_RESET}")
         return result
