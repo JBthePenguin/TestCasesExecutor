@@ -101,9 +101,9 @@ class TestCasesGroup():
     Attributes
     ----------
     name : str
-        string not empty and capitalize.
+        string not empty.
     arg_name : str
-        string name with '_' to replace all non alphanuneric charact.
+        string name not empty and without space.
     testases : list
         instances subclass of unittest.TestCase .
     suites : list
@@ -122,18 +122,27 @@ class TestCasesGroup():
         Parameters
         ----------
             group_tup : tuple
-                name and testcases's list or tuple.
+                name, argument name and testcases's list or tuple.
 
         Raises
         ----------
-            ValueError: name empty string, subclass not used once.
+            ValueError: name empty string, arg with space, class not used once.
             TypeError: testcase not a subclass of unittest.TestCase .
         """
-        group_name, group_tc = group_tup
+        group_name, group_arg_name, group_tc = group_tup
         check_type(group_name, (str, ), "Group's name")
         if not group_name:  # name empty string
             raise_error(
-                ValueError, "Group's name must be an non empty string.")
+                ValueError, "Group's name must be non empty string.")
+        check_type(group_arg_name, (str, ), "Group's argument name")
+        if not group_arg_name:  # arg name empty string
+            raise_error(
+                ValueError, "Group's argument name must be non empty string.")
+        if " " in group_arg_name:  # arg name contain space
+            raise_error(
+                ValueError, "".join([
+                    "Group's argument name must not contain space: ",
+                    f"{group_arg_name}."]))
         check_type(group_tc, (list, tuple), "Group's testcases")
         for testcase in group_tc:
             error_type = None
@@ -150,10 +159,11 @@ class TestCasesGroup():
                 raise_error(ValueError, "".join([
                     "Testcase's subclass must used once in group: ",
                     f"'{testcase.__name__}'."]))
-        g_name, self.testcases = group_tup
-        self.name = g_name.capitalize()
-        self.arg_name = "".join(
-            [c if c.isalnum() else "_" for c in g_name.lower()])
+        self.name, self.arg_name, self.testcases = group_tup
+        # g_name, self.testcases = group_tup
+        # self.name = g_name.capitalize()
+        # self.arg_name = "".join(
+        #     [c if c.isalnum() else "_" for c in g_name.lower()])
         if isinstance(self.testcases, tuple):  # convert to list
             self.testcases = list(self.testcases)
         self.suites = []
@@ -199,11 +209,11 @@ class TestCasesGroups(list):
         Parameters
         ----------
             tc_groups : list or tuple (default: import_groups())
-                tuples with 2 items each for items
+                tuples with 3 items each for items
 
         Raises
         ----------
-            IndexError: group tup not contain 2 items.
+            IndexError: group tup not contain 3 items.
             ValueError: group's name or testcase not used once.
         """
         sys.tracebacklimit = 0
@@ -211,29 +221,38 @@ class TestCasesGroups(list):
         super().__init__()
         for group_item in tc_groups:
             check_type(group_item, (tuple, ), "Item of groups")
-            if len(group_item) != 2:
-                raise_error(IndexError, "".join([  # not contain 2 items
-                    "Group tuple must contain 2 items (group's name, ",
+            if len(group_item) != 3:
+                raise_error(IndexError, "".join([  # not contain 3 items
+                    "Group tuple must contain 3 items (group's name, ",
+                    "group's argument name to run all of his testcases, "
                     f"testcases list or tuple), not {len(group_item)}"]))
             self.append(TestCasesGroup(group_item))
         error_value = None
-        group_names = [g.name for g in self]
-        for group_name in group_names:
-            if group_names.count(group_name) != 1:  # name not used once
-                error_value = f"Group's name must used once, '{group_name}'."
+        g_names = [g.name for g in self]
+        for g_name in g_names:
+            if g_names.count(g_name) != 1:  # name not used once
+                error_value = f"Group's name must used once, '{g_name}'."
                 break
         if error_value is None:
-            all_testcases = []
-            for group in self:
-                all_testcases.extend(group.testcases)
-            for testcase in all_testcases:
-                if all_testcases.count(testcase) != 1:
-                    error_value = "".join([  # testcase not used once
-                        "Testcase must used only in one group, ",
-                        f"'{testcase.__name__}'"])
+            g_arg_names = [g.name for g in self]
+            for g_arg_name in g_arg_names:
+                if g_arg_names.count(g_arg_name) != 1:  # argname not used once
+                    error_value = "".join([
+                        "Group's argument name must used once, ",
+                        f"'{g_arg_name}'."])
                     break
-        if error_value is not None:
-            raise_error(ValueError, error_value)
+            if error_value is None:
+                all_testcases = []
+                for group in self:
+                    all_testcases.extend(group.testcases)
+                for testcase in all_testcases:
+                    if all_testcases.count(testcase) != 1:
+                        error_value = "".join([  # testcase not used once
+                            "Testcase must used only in one group, ",
+                            f"'{testcase.__name__}'"])
+                        break
+                if error_value is not None:
+                    raise_error(ValueError, error_value)
         sys.tracebacklimit = 1000
 
     def construct_suites(self, args):

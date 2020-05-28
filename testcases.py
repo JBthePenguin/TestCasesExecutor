@@ -7,6 +7,6 @@ from fake_app.tests.test_operator.test_mul_numbers import (
     TestMulTwo, TestMulThree)
 
 groups = (
-    ('conv', [TestFromInt, TestFromFloat, TestFromStr]),
-    ('op with two', [TestSumTwo, TestMulTwo]),
-    ('op with three', (TestSumThree, TestMulThree)))
+    ('Convertor', 'conv', [TestFromInt, TestFromFloat, TestFromStr]),
+    ('Operator with two numbers', 'op_two', [TestSumTwo, TestMulTwo]),
+    ('Operator with three numbers', 'op_three', (TestSumThree, TestMulThree)))

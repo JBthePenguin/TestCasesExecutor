@@ -69,13 +69,17 @@ class TestCasesRunner(TextTestRunner):
                 f"\n ... {MAGENTA}{format_duration(tc_duration)}{S_RESET}\n")
         result.test_methods.append((group, tc_group))
 
-    def run(self, groups):
+    def run(self, groups):  # pylint: disable=arguments-differ
         """
         Run all groups's suites, update result and return it.
 
         Parameters
             groups : TestCasesGroups
                 used items to get and run group's tests suites.
+
+        Return
+            result : TestCasesResult
+                representing all tests results.
         """
         result = self.resultclass(self.stream)
         result.failfast = self.failfast

@@ -69,10 +69,11 @@ def format_duration(duration):
             duration(time): duration in second
 
         Return:
-            string represent duration in ms or s
+            string represent duration in s if it's >1, else in ms.
     """
     if duration >= 1:
-        duration_str = f"{str(round(duration, 3))} s"
+        d_unit = 's'
     else:
-        duration_str = f"{str(round(duration * 1000, 3))} ms"
-    return duration_str
+        duration *= 1000
+        d_unit = 'ms'
+    return f"{str(round(duration, 3))} {d_unit}"
