@@ -170,45 +170,57 @@ class TestGroup(TestCase):
         mock_error_one.side_effect = Exception("raise_error called")
         mock_error_two.side_effect = Exception("raise_error called")
         name_no_str = (  # group's name not str, tup[0]
-            (1, 2), mock_error_one,
+            (1, 2, 3), mock_error_one,
             TypeError, "Group's name must be 'str', not 'int': 1")
         name_empty = (  # group's name empty str, tup[0]
-            ("", 2), mock_error_two,
-            ValueError, "Group's name must be an non empty string.")
+            ("", 2, 3), mock_error_two,
+            ValueError, "Group's name must be non empty string.")
+        arg_name_no_str = (  # group's argument name not str, tup[1]
+            ("group test", 1, 2), mock_error_one,
+            TypeError, "Group's argument name must be 'str', not 'int': 1")
+        arg_name_empty = (  # group's argument name empty str, tup[1]
+            ("group test", "", 1), mock_error_two,
+            ValueError, "Group's argument name must be non empty string.")
+        arg_name_space = (  # group's argument name with space, tup[1]
+            ("group test", "with space", 1), mock_error_two,
+            ValueError,
+            "Group's argument name must not contain space: with space.")
         tc_no_list_tup = (  # testcases not a list or tuple, tup[1]
-            ("group test", 2), mock_error_one,
+            ("group test", "test", 2), mock_error_one,
             TypeError,
             "Group's testcases must be 'list' or 'tuple', not 'int': 2")
         item_no_class = (  # item of testcases not a class
-            ("group test", (1, )), mock_error_two,
+            ("group test", "test", (1, )), mock_error_two,
             TypeError,
             "".join([
                 "Item of group's testcases list or tuple must be ",
                 "a class (unittest.TestCase subclass): 1"]))
         item_no_subclass = (  # item of testcases not a subclass
-            ("group test", [int, ]), mock_error_two,
+            ("group test", "test", [int, ]), mock_error_two,
             TypeError,
             "".join([
                 "Item of group's testcases list or tuple must be ",
                 "a unittest.TestCase subclass: <class 'int'>"]))
         item_no_used_once = (  # testcase not used once
-            ("group test", [SubclassTCone, SubclassTCone]), mock_error_two,
-            ValueError,
+            ("group test", "test", [SubclassTCone, SubclassTCone]),
+            mock_error_two, ValueError,
             "Testcase's subclass must used once in group: 'SubclassTCone'.")
         for group_tup, mock_error, e_type, e_msg in [
-                name_no_str, name_empty, tc_no_list_tup,
-                item_no_class, item_no_subclass, item_no_used_once]:
+                name_no_str, name_empty, arg_name_no_str, arg_name_empty,
+                arg_name_space, tc_no_list_tup, item_no_class,
+                item_no_subclass, item_no_used_once]:
             try:
                 TestCasesGroup(group_tup)
             except Exception:
                 mock_error.assert_called_once_with(e_type, e_msg)
                 mock_error.reset_mock()
         # init success
-        obj = TestCasesGroup(("group test", (SubclassTCone, SubclassTCtwo)))
+        obj = TestCasesGroup(
+            ("Group test", "test", (SubclassTCone, SubclassTCtwo)))
         mock_error_one.assert_not_called()
         mock_error_two.assert_not_called()
         self.assertEqual(obj.name, "Group test")
-        self.assertEqual(obj.arg_name, "group_test")
+        self.assertEqual(obj.arg_name, "test")
         self.assertListEqual(obj.testcases, [SubclassTCone, SubclassTCtwo])
         self.assertListEqual(obj.suites, [])
 
@@ -239,7 +251,8 @@ class TestGroup(TestCase):
         mock_loader().loadTestsFromTestCase.return_value = [
             "test_foo", "test_bar"]
         mock_suite.return_value = ["test_foo"]
-        obj = TestCasesGroup(("group test", (SubclassTCone, SubclassTCtwo)))
+        obj = TestCasesGroup(
+            ("group test", "g_test", (SubclassTCone, SubclassTCtwo)))
         obj.update_suites(SubclassTCone)  # with just testcase
         mock_suite.assert_not_called()
         mock_loader().loadTestsFromTestCase.assert_called_once_with(
@@ -268,9 +281,10 @@ class TestGroups(TestCase):
         Assert group.update_suites called with good parameter depending args.
     """
 
+    @patch("testcases_executor.tc_groups.sys")
     @patch("testcases_executor.tc_groups.raise_error")
     @patch("testcases_executor.tc_utils.raise_error")
-    def test_init_groups(self, mock_error_one, mock_error_two):
+    def test_init_groups(self, mock_error_one, mock_error_two, mock_sys):
         """
         Assert if TestCasesGroups's object initialized is the desired list.
 
@@ -280,6 +294,8 @@ class TestGroups(TestCase):
             Mock of tc_utils.raise_error function (call in check_type in init).
         mock_error_two : Mock
             Mock of tc_groups.raise_error function (call in init).
+        mock_sys : Mock
+            Mock of sys to keep default tracebacklimit.
 
         Assertions:
         ----------
@@ -290,7 +306,7 @@ class TestGroups(TestCase):
         assertIsInstance:
             Assert if obj is a list and items TestCasesGroup.
         assertEqual:
-            Assert if len obj is 2, if obj[i] name and arg name are correct.
+            Assert if len obj is 3, if obj[i] name and arg name are correct.
         assertListEqual:
             Assert if obj[i].testcases is the correct list.
         """
@@ -304,26 +320,33 @@ class TestGroups(TestCase):
             [2, ], mock_error_one,
             TypeError,
             "Item of groups must be 'tuple', not 'int': 2")
-        item_no_two_items = (  # groups's item not contain 2 items
-            [(1, 2, 3), ], mock_error_two,
+        item_no_three_items = (  # groups's item not contain 3 items
+            [(1, 2, 3, 4), ], mock_error_two,
             IndexError, "".join([
-                "Group tuple must contain 2 items (group's name, ",
-                "testcases list or tuple), not 3"]))
+                "Group tuple must contain 3 items (group's name, ",
+                "group's argument name to run all of his testcases, ",
+                "testcases list or tuple), not 4"]))
         name_no_used_once = (  # group's name not used once
             (
-                ("group test", [SubclassTCone, ]),
-                ('group test', (SubclassTCtwo, ))),
+                ("group test", "test", [SubclassTCone, ]),
+                ('group test', "test", (SubclassTCtwo, ))),
             mock_error_two, ValueError,
             "Group's name must used once, 'Group test'.")
+        arg_name_no_used_once = (  # group's arg name not used once
+            (
+                ("group test", "test", [SubclassTCone, ]),
+                ('group test 2', "test", (SubclassTCtwo, ))),
+            mock_error_two, ValueError,
+            "Group's argument name must used once, 'test'.")
         tc_no_used_once = (  # testcase not used once
             (
-                ("group test", [SubclassTCone, ]),
-                ('group test two', (SubclassTCtwo, SubclassTCone))),
+                ("group test", "test", [SubclassTCone, ]),
+                ('group test 2', "test2", (SubclassTCtwo, SubclassTCone))),
             mock_error_two, ValueError,
             "Testcase must used only in one group, 'SubclassTCone'")
         for tc_groups, mock_error, e_type, e_msg in [
-                groups_no_list_tup, item_no_tup, item_no_two_items,
-                name_no_used_once, tc_no_used_once]:
+                groups_no_list_tup, item_no_tup, item_no_three_items,
+                name_no_used_once, arg_name_no_used_once, tc_no_used_once]:
             try:
                 TestCasesGroups(tc_groups)
             except Exception:
@@ -331,8 +354,8 @@ class TestGroups(TestCase):
                 mock_error.reset_mock()
         # init success
         obj = TestCasesGroups([
-            ("group test", [SubclassTCone, ]),
-            ('group test*2', (SubclassTCtwo, ))])
+            ("Group test", "test", [SubclassTCone, ]),
+            ('Group test 2', "test2", (SubclassTCtwo, ))])
         mock_error_one.assert_not_called()
         mock_error_two.assert_not_called()
         self.assertIsInstance(obj, list)
@@ -340,10 +363,10 @@ class TestGroups(TestCase):
         for group in obj:
             self.assertIsInstance(group, TestCasesGroup)
         self.assertEqual(obj[0].name, "Group test")
-        self.assertEqual(obj[0].arg_name, "group_test")
+        self.assertEqual(obj[0].arg_name, "test")
         self.assertListEqual(obj[0].testcases, [SubclassTCone, ])
-        self.assertEqual(obj[1].name, "Group test*2")
-        self.assertEqual(obj[1].arg_name, "group_test_2")
+        self.assertEqual(obj[1].name, "Group test 2")
+        self.assertEqual(obj[1].arg_name, "test2")
         self.assertListEqual(obj[1].testcases, [SubclassTCtwo, ])
 
     @patch("builtins.vars")
@@ -390,8 +413,8 @@ class TestGroups(TestCase):
                 ([1, 2, 3], FakeArgs(True, True))]:
             mock_sys.argv = argv
             obj = TestCasesGroups([
-                ("group test", [SubclassTCone, ]),
-                ('group test 2', (SubclassTCtwo, ))])
+                ("group test", "g_test", [SubclassTCone, ]),
+                ('group test 2', "g_test2", (SubclassTCtwo, ))])
             group_one, group_two = obj[0], obj[1]
             obj.construct_suites(args)
             self.assertEqual(mock_update_suites.call_count, 2)
@@ -406,11 +429,11 @@ class TestGroups(TestCase):
                 ((True, False, None, ['test_foo']), 2, (
                     SubclassTCone, (SubclassTCtwo, ['test_foo'])), "all")]:
             mock_vars.return_value = {
-                'group_test': vars_val[0], 'group_test_2': vars_val[1],
+                'g_test': vars_val[0], 'g_test2': vars_val[1],
                 'SubclassTCone': vars_val[2], 'SubclassTCtwo': vars_val[3]}
             obj = TestCasesGroups([
-                ("group test", [SubclassTCone, ]),
-                ('group test 2', (SubclassTCtwo, ))])
+                ("group test", "g_test", [SubclassTCone, ]),
+                ('group test 2', "g_test2", (SubclassTCtwo, ))])
             if new_obj == "one":
                 obj[0].suites = [1]
             elif new_obj == "two":

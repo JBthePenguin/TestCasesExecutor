@@ -160,10 +160,6 @@ class TestCasesGroup():
                     "Testcase's subclass must used once in group: ",
                     f"'{testcase.__name__}'."]))
         self.name, self.arg_name, self.testcases = group_tup
-        # g_name, self.testcases = group_tup
-        # self.name = g_name.capitalize()
-        # self.arg_name = "".join(
-        #     [c if c.isalnum() else "_" for c in g_name.lower()])
         if isinstance(self.testcases, tuple):  # convert to list
             self.testcases = list(self.testcases)
         self.suites = []
@@ -224,7 +220,7 @@ class TestCasesGroups(list):
             if len(group_item) != 3:
                 raise_error(IndexError, "".join([  # not contain 3 items
                     "Group tuple must contain 3 items (group's name, ",
-                    "group's argument name to run all of his testcases, "
+                    "group's argument name to run all of his testcases, ",
                     f"testcases list or tuple), not {len(group_item)}"]))
             self.append(TestCasesGroup(group_item))
         error_value = None
