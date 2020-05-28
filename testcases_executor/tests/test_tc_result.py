@@ -42,6 +42,10 @@ class TestTestCasesResult(TestCase):
         Assert TestCasesResult.addExpectedFailure call addFoo, same on super.
     test_addUnexpectedSuccess():
         Assert TestCasesResult.addUnexpectedSuccess call addFoo, same on super.
+    test_printErrors():
+        Assert stream.writeln called once, printErrorList 2 with parameters.
+    test_printErrorList():
+        Assert stream.writeln calls and parameters.
     """
 
     @patch("testcases_executor.tc_result.TestResult.__init__")
@@ -307,3 +311,17 @@ class TestTestCasesResult(TestCase):
         obj.addFoo.assert_has_calls(
             [call(103, 'test', '\x1b[32munexpected success\x1b[39m')])
         mock_add_unex_suc.assert_called_once_with('test')
+
+    def test_printErrors(self):
+        """
+        Assert stream.writeln called once, printErrorList 2 with parameters.
+        """
+        obj = TestCasesResult(stream='stream')
+        obj.stream = Mock()
+        obj.printErrorList = Mock()
+        obj.printErrors()
+        obj.stream.writeln.assert_called_once_with()
+        self.assertEqual(2, obj.printErrorList.call_count)
+        obj.printErrorList.assert_has_calls([
+            call('ERROR', obj.errors, '\x1b[31m'),
+            call('FAIL', obj.failures, '\x1b[33m')])
