@@ -8,13 +8,11 @@ Classes:
 
 Imports:
     from unittest: TestCase, TestResult
-    from unittest.mock: patch
-    from argparse: HelpFormatter
-    from testcases_executor.tc_parser: TestCasesHelpFormatter, TestCasesParser
+    from unittest.mock: patch, call, Mock
+    from testcases_executor.tc_result: TestCasesResult
 """
 from unittest import TestCase, TestResult
-from unittest.mock import patch, call
-from argparse import HelpFormatter, ArgumentParser
+from unittest.mock import patch, call, Mock
 from testcases_executor.tc_result import TestCasesResult
 
 
@@ -65,3 +63,47 @@ class TestTestCasesResult(TestCase):
         self.assertEqual(obj.test_methods, [])
         self.assertEqual(
             obj.durations, {'groups': {}, 'testcases': {}, 'tests': {}})
+
+    @patch("testcases_executor.tc_result.time.time")
+    @patch("testcases_executor.tc_result.TestResult.startTest")
+    def test_startTest(self, mock_start_test, mock_time):
+        """
+        Assert if TestCasesResult.startTest write good things in stream.
+
+        Parameters:
+        ----------
+        mock_start_test : Mock
+            Mock of unittest.TestResult.startTest .
+        mock_time : Mock
+            Mock of time.
+
+        Classes:
+        ----------
+        FakeTest:
+            A fake test with property _testMethodName.
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert if TestResult.startTest is called with test in parameter,
+            stream.flush without parameter.
+        assertEqual:
+            Assert if stream.write called 2 and value of test_t_start property.
+        assert_has_calls:
+            Assert stream.write calls parameters.
+        """
+        class FakeTest():
+
+            def __init__(self):
+                self._testMethodName = 'test'
+
+        test = FakeTest()
+        obj = TestCasesResult(stream='stream')
+        obj.stream = Mock()
+        mock_time.return_value = 103
+        obj.startTest(test)
+        mock_start_test.assert_called_once_with(test)
+        self.assertEqual(2, obj.stream.write.call_count)
+        obj.stream.write.assert_has_calls([call('test'), call(" ... ")])
+        obj.stream.flush.assert_called_once_with()
+        self.assertEqual(obj.test_t_start, 103)
