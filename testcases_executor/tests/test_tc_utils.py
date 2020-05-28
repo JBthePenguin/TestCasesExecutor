@@ -9,11 +9,13 @@ Classes:
 Imports:
     from unittest: TestCase
     from unittest.mock: patch
-    from testcases_executor.tc_utils: raise_error, check_type, BOLD, RED
+    from testcases_executor.tc_utils: (
+        raise_error, check_type, format_duration, BOLD, RED)
 """
 from unittest import TestCase
 from unittest.mock import patch
-from testcases_executor.tc_utils import raise_error, check_type, BOLD, RED
+from testcases_executor.tc_utils import (
+    raise_error, check_type, format_duration, BOLD, RED)
 
 
 class TestUtilsFunctions(TestCase):
@@ -28,6 +30,8 @@ class TestUtilsFunctions(TestCase):
         Assert if type and message of error raised by raise_error.
     test_check_type():
         Assert if error is raised or not by check_type.
+    test_format_duration():
+        Assert if format_duration return str in s or ms depending of parameter.
     """
 
     @patch("builtins.print")
@@ -85,3 +89,15 @@ class TestUtilsFunctions(TestCase):
             mock_raise_error.assert_called_once_with(
                 TypeError, f"{obj_msg} must be {end_msg}, not 'tuple': (1, 2)")
             mock_raise_error.reset_mock()
+
+    def test_format_duration(self):
+        """
+        Assert if format_duration return str in s or ms depending of parameter.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if format_duration returns (parameter > and < 1).
+        """
+        self.assertEqual(format_duration(1.23591), "1.236 s")
+        self.assertEqual(format_duration(0.00591847), "5.918 ms")
