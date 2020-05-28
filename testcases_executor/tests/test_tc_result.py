@@ -107,3 +107,24 @@ class TestTestCasesResult(TestCase):
         obj.stream.write.assert_has_calls([call('test'), call(" ... ")])
         obj.stream.flush.assert_called_once_with()
         self.assertEqual(obj.test_t_start, 103)
+
+    def test_addFoo(self):
+        """
+        Assert if TestCasesResult.addFoo save duration write it with status.
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert if stream.write called with good parameter,
+            stream.flush without.
+        assertEqual:
+            Assert if value with key test in durations property with key tests.
+        """
+        obj = TestCasesResult(stream='stream')
+        obj.test_t_start = 1000.00234862
+        obj.stream = Mock()
+        obj.addFoo(1000.00523, 'test', 'OK')
+        obj.stream.writeln.assert_called_once_with(
+            "OK ... \x1b[35m2.881 ms\x1b[39m")
+        obj.stream.flush.assert_called_once_with()
+        self.assertEqual(obj.durations['tests']['test'], 0.002881)

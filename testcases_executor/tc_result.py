@@ -113,7 +113,7 @@ class TestCasesResult(TestResult):
                 OK, ERROR, FAIL, SKIP....
         """
         t_duration = test_t_stop - self.test_t_start
-        self.durations['tests'][test] = t_duration
+        self.durations['tests'][test] = round(t_duration, 6)
         duration_str = format_duration(t_duration)
         self.stream.writeln(
             f"{status} ... {MAGENTA}{duration_str}{C_RESET}")
