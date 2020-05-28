@@ -30,10 +30,18 @@ class TestTestCasesResult(TestCase):
         Assert if TestCasesResult.startTest write good things in stream.
     test_addFoo():
         Assert if TestCasesResult.addFoo save duration write it with status.
-    test_addSuccess()
+    test_addSuccess():
         Assert if TestCasesResult.addSuccess call addFoo with good parameters.
-    test_addError()
+    test_addError():
         Assert if TestCasesResult.addError call addFoo, TestResult.addError .
+    test_addFailure():
+        Assert TestCasesResult.addFailure call addFoo, TestResult.addFailure .
+    test_addSkip():
+        Assert TestCasesResult.addSkip call addFoo, TestResult.addSkip .
+    test_addExpectedFailure():
+        Assert TestCasesResult.addExpectedFailure call addFoo, same on super.
+    test_addUnexpectedSuccess():
+        Assert TestCasesResult.addUnexpectedSuccess call addFoo, same on super.
     """
 
     @patch("testcases_executor.tc_result.TestResult.__init__")
@@ -183,3 +191,119 @@ class TestTestCasesResult(TestCase):
         obj.addFoo.assert_has_calls(
             [call(103, 'test', '\x1b[31mERROR\x1b[39m')])
         mock_add_error.assert_called_once_with('test', 'error')
+
+    @patch("testcases_executor.tc_result.time.time")
+    @patch("testcases_executor.tc_result.TestResult.addFailure")
+    def test_addFailure(self, mock_add_fail, mock_time):
+        """
+        Assert TestCasesResult.addFailure call addFoo, TestResult.addFailure .
+
+        Parameters:
+        ----------
+        mock_add_fail : Mock
+            Mock of TestResult.addFailure .
+        mock_time : Mock
+            Mock of time.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if obj.addFoo call one.
+        assert_has_calls:
+            Assert obj.addFoo call parameters.
+        """
+        mock_time.return_value = 103
+        obj = TestCasesResult(stream='stream')
+        obj.addFoo = Mock()
+        obj.addFailure('test', 'error')
+        self.assertEqual(1, obj.addFoo.call_count)
+        obj.addFoo.assert_has_calls(
+            [call(103, 'test', '\x1b[33mFAIL\x1b[39m')])
+        mock_add_fail.assert_called_once_with('test', 'error')
+
+    @patch("testcases_executor.tc_result.time.time")
+    @patch("testcases_executor.tc_result.TestResult.addSkip")
+    def test_addSkip(self, mock_add_skip, mock_time):
+        """
+        Assert TestCasesResult.addSkip call addFoo, TestResult.addSkip .
+
+        Parameters:
+        ----------
+        mock_add_skip : Mock
+            Mock of TestResult.addSkip .
+        mock_time : Mock
+            Mock of time.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if obj.addFoo call one.
+        assert_has_calls:
+            Assert obj.addFoo call parameters.
+        """
+        mock_time.return_value = 103
+        obj = TestCasesResult(stream='stream')
+        obj.addFoo = Mock()
+        obj.addSkip('test', 'reason')
+        self.assertEqual(1, obj.addFoo.call_count)
+        obj.addFoo.assert_has_calls(
+            [call(103, 'test', '\x1b[36mSKIP\x1b[39m')])
+        mock_add_skip.assert_called_once_with('test', 'reason')
+
+    @patch("testcases_executor.tc_result.time.time")
+    @patch("testcases_executor.tc_result.TestResult.addExpectedFailure")
+    def test_addExpectedFailure(self, mock_add_ex_fail, mock_time):
+        """
+        Assert TestCasesResult.addExpectedFailure call addFoo, same on super.
+
+        Parameters:
+        ----------
+        mock_add_ex_fail : Mock
+            Mock of TestResult.addExpectedFailure .
+        mock_time : Mock
+            Mock of time.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if obj.addFoo call one.
+        assert_has_calls:
+            Assert obj.addFoo call parameters.
+        """
+        mock_time.return_value = 103
+        obj = TestCasesResult(stream='stream')
+        obj.addFoo = Mock()
+        obj.addExpectedFailure('test', 'error')
+        self.assertEqual(1, obj.addFoo.call_count)
+        obj.addFoo.assert_has_calls(
+            [call(103, 'test', '\x1b[31mexpected failure\x1b[39m')])
+        mock_add_ex_fail.assert_called_once_with('test', 'error')
+
+    @patch("testcases_executor.tc_result.time.time")
+    @patch("testcases_executor.tc_result.TestResult.addUnexpectedSuccess")
+    def test_addUnexpectedSuccess(self, mock_add_unex_suc, mock_time):
+        """
+        Assert TestCasesResult.addUnexpectedSuccess call addFoo, same on super.
+
+        Parameters:
+        ----------
+        mock_add_unex_suc : Mock
+            Mock of TestResult.addUnexpectedSuccess .
+        mock_time : Mock
+            Mock of time.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if obj.addFoo call one.
+        assert_has_calls:
+            Assert obj.addFoo call parameters.
+        """
+        mock_time.return_value = 103
+        obj = TestCasesResult(stream='stream')
+        obj.addFoo = Mock()
+        obj.addUnexpectedSuccess('test')
+        self.assertEqual(1, obj.addFoo.call_count)
+        obj.addFoo.assert_has_calls(
+            [call(103, 'test', '\x1b[32munexpected success\x1b[39m')])
+        mock_add_unex_suc.assert_called_once_with('test')
