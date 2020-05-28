@@ -31,7 +31,9 @@ class TestTestCasesResult(TestCase):
     test_addFoo():
         Assert if TestCasesResult.addFoo save duration write it with status.
     test_addSuccess()
-        Assert addFoo is called with good parameters.
+        Assert if TestCasesResult.addSuccess call addFoo with good parameters.
+    test_addError()
+        Assert if TestCasesResult.addError call addFoo, TestResult.addError .
     """
 
     @patch("testcases_executor.tc_result.TestResult.__init__")
@@ -128,3 +130,56 @@ class TestTestCasesResult(TestCase):
             "OK ... \x1b[35m2.881 ms\x1b[39m")
         obj.stream.flush.assert_called_once_with()
         self.assertEqual(obj.durations['tests']['test'], 0.002881)
+
+    @patch("testcases_executor.tc_result.time.time")
+    def test_addSuccess(self, mock_time):
+        """
+        Assert if TestCasesResult.addSuccess call addFoo with good parameters.
+
+        Parameters:
+        ----------
+        mock_time : Mock
+            Mock of time.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if obj.addFoo call one.
+        assert_has_calls:
+            Assert obj.addFoo call parameters.
+        """
+        mock_time.return_value = 103
+        obj = TestCasesResult(stream='stream')
+        obj.addFoo = Mock()
+        obj.addSuccess('test')
+        self.assertEqual(1, obj.addFoo.call_count)
+        obj.addFoo.assert_has_calls([call(103, 'test', '\x1b[32mOK\x1b[39m')])
+
+    @patch("testcases_executor.tc_result.time.time")
+    @patch("testcases_executor.tc_result.TestResult.addError")
+    def test_addError(self, mock_add_error, mock_time):
+        """
+        Assert if TestCasesResult.addError call addFoo, TestResult.addError .
+
+        Parameters:
+        ----------
+        mock_add_error : Mock
+            Mock of TestResult.addError .
+        mock_time : Mock
+            Mock of time.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if obj.addFoo call one.
+        assert_has_calls:
+            Assert obj.addFoo call parameters.
+        """
+        mock_time.return_value = 103
+        obj = TestCasesResult(stream='stream')
+        obj.addFoo = Mock()
+        obj.addError('test', 'error')
+        self.assertEqual(1, obj.addFoo.call_count)
+        obj.addFoo.assert_has_calls(
+            [call(103, 'test', '\x1b[31mERROR\x1b[39m')])
+        mock_add_error.assert_called_once_with('test', 'error')
