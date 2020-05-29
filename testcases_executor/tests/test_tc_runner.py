@@ -68,6 +68,15 @@ class TestTestRunner(TestCase):
             Fake suite with property _tests, to pass init during test.
         FakeGroup:
             Fake group with suites property.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert stream.writeln calls, result durations and test_methods.
+        assert_has_calls:
+            Assert stream.writeln call parameters.
+        assertTupleEqual:
+            Assert tuple added to result.test_methods .
         """
         class FakeResult():
 
@@ -102,6 +111,7 @@ class TestTestRunner(TestCase):
         suite_one, suite_two = FakeSuiteOne, FakeSuiteTwo
 
         class FakeGroup():
+
             def __init__(self):
                 self.suites = [
                     (test_one, suite_one), (test_two, suite_two)]
@@ -130,8 +140,98 @@ class TestTestRunner(TestCase):
                 (test_one, ['test1', 'test2', 'test3']),
                 (test_two, ['test4'])]))
 
-    def test_run(self):
+    @patch("testcases_executor.tc_runner.datetime")
+    def test_run(self, mock_datetime):
         """
         Assert stream.writeln calls, if groups suites runned, result updated.
+
+        Classes:
+        ----------
+        FakeResult:
+            Fake a result to get properties to assert if updated correctly.
+        FakeGroup:
+            Fake group with name property.
+
+        Functions:
+        ----------
+        add_item_result(result, group):
+            Use in run_group_suites.side_effect to update test_methods 2 times.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert writeln, run_group_suites, printTotal calls and new result.
+        assert_has_calls:
+            Assert writeln, run_group_suites, printTotalcall parameters.
+        assert_called_once_with:
+            Assert resultclass, printErrors, printInfos called with parameter.
         """
-        pass
+        class FakeResult():
+
+            def __init__(self):
+                self.separator1 = 'separator1'
+                self.separator2 = 'separator2'
+                self.start_time = 0
+                self.durations = {
+                    'testcases': {
+                        'TestOne': 3, 'TestTwo': 2,
+                        'TestThree': 2, 'TestFour': 6},
+                    'groups': {}}
+                self.test_methods = []
+                self.failfast = None
+                self.printTotal = Mock()
+                self.printErrors = Mock()
+                self.printInfos = Mock()
+                self.testsRun = 7
+
+        class FakeGroup():
+
+            def __init__(self, g_name):
+                self.name = g_name
+
+        group_one, group_two = FakeGroup('group one'), FakeGroup('group two')
+        mock_datetime.now.return_value = 'now'
+        result = FakeResult()
+
+        def add_item_result(result, group):
+            if len(result.test_methods) == 0:
+                result.test_methods.append(('group_one', [
+                    ('TestOne', ['test1', 'test2', 'test3']),
+                    ('TestTwo', ['test4']), ('TestThree', ['test5'])]))
+            else:
+                result.test_methods.append(('group_two', [
+                    ('TestFour', ['test6', 'test7'])]))
+
+        obj = TestCasesRunner()
+        obj.resultclass = Mock()
+        obj.resultclass.return_value = result
+        obj.run_group_suites = Mock()
+        obj.run_group_suites.side_effect = add_item_result
+        obj.stream = Mock()
+        new_result = obj.run([group_one, group_two])
+        obj.resultclass.assert_called_once_with(obj.stream)
+        self.assertEqual(13, obj.stream.writeln.call_count)
+        obj.stream.writeln.assert_has_calls([
+            call('\nRunning tests...\n'),
+            call('separator1'),
+            call('separator1\n'),
+            call('\x1b[1m\x1b[2m group one\x1b[0m\n'),
+            call('separator2\n \x1b[2m'),
+            call('\nseparator1'),
+            call('separator1\n'),
+            call('\x1b[1m\x1b[2m group two\x1b[0m\n'),
+            call('separator2\n \x1b[2m'),
+            call('\nseparator1'),
+            call('separator1'),
+            call('\x1b[1mseparator1\n'),
+            call('\n\x1b[1mseparator1\n\x1b[0m')])
+        self.assertEqual(obj.run_group_suites.call_count, 2)
+        obj.run_group_suites.assert_has_calls([
+            call(result, group_one),
+            call(result, group_two)])
+        self.assertEqual(result.printTotal.call_count, 3)
+        result.printTotal.assert_has_calls([
+            call(5, 7), call(2, 6), call(7, 13)])
+        result.printErrors.assert_called_once_with()
+        result.printInfos.assert_called_once_with()
+        self.assertEqual(new_result, result)
