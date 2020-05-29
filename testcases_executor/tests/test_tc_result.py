@@ -315,6 +315,13 @@ class TestTestCasesResult(TestCase):
     def test_printErrors(self):
         """
         Assert stream.writeln called once, printErrorList 2 with parameters.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if obj.printErrorList call 2.
+        assert_has_calls:
+            Assert obj.printErrorList call parameters.
         """
         obj = TestCasesResult(stream='stream')
         obj.stream = Mock()
@@ -325,3 +332,37 @@ class TestTestCasesResult(TestCase):
         obj.printErrorList.assert_has_calls([
             call('ERROR', obj.errors, '\x1b[31m'),
             call('FAIL', obj.failures, '\x1b[33m')])
+
+    def test_printErrorList(self):
+        """
+        Assert stream.writeln calls and parameters.
+        """
+        class FakeTestOne():
+            def __init__(self):
+                self._testMethodName = 'test_one'
+
+        class FakeTestTwo():
+            def __init__(self):
+                self._testMethodName = 'test_two'
+
+        errors = [
+            (FakeTestOne(), "error one\nline 2"),
+            (FakeTestTwo(), "error two\nline 2")
+        ]
+        obj = TestCasesResult(stream='stream')
+        obj.stream = Mock()
+        obj.printErrorList('flavour', errors, '\x1b[31m')
+        self.assertEqual(12, obj.stream.writeln.call_count)
+        obj.stream.writeln.assert_has_calls([
+            call(obj.separator1),
+            call('\x1b[31mflavour\x1b[0m: \x1b[1mFakeTestOne\x1b[0m.test_one'),
+            call(obj.separator2),
+            call('\x1b[31mline 2\x1b[39m'),
+            call(obj.separator2),
+            call('\x1b[2merror one\nline 2\x1b[0m'),
+            call(obj.separator1),
+            call('\x1b[31mflavour\x1b[0m: \x1b[1mFakeTestTwo\x1b[0m.test_two'),
+            call(obj.separator2),
+            call('\x1b[31mline 2\x1b[39m'),
+            call(obj.separator2),
+            call('\x1b[2merror two\nline 2\x1b[0m')])
