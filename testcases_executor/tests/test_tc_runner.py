@@ -58,7 +58,41 @@ class TestTestRunner(TestCase):
         """
         Assert stream.writeln calls, if suites runned, properties updated.
         """
-        pass
+        class FakeResult():
+            def __init__(self):
+                self.separator2 = 'separator2'
+                self.durations = {'tests': {
+                    'test1': 0.3, 'test2': 0.2, 'test3': 0.2, 'test4': 0.6}}
+
+        class FakeTestOne():
+            pass
+            # def __init__(self, tc_name, tc_module):
+            #     self.__name__, self.__module__ = tc_name, tc_module
+
+        class FakeTestTwo():
+            pass
+
+        class FakeSuite():
+            pass
+            # def __init__(self, tests):
+            #     self._tests = tests
+
+        # FakeSuite.__init__ = Mock()
+        # test_one, test_two = FakeTestOne, FakeTestTwo
+        # suite_one = FakeSuite()
+        # suite_two = FakeSuite()
+        # suite_one = FakeSuite(['test1', 'test2', 'test3'])
+        # suite_two = FakeSuite(['test4'])
+
+        class FakeGroup():
+            def __init__(self):
+                self.suites = [
+                    (test_one, suite_one), (test_two, suite_two)]
+
+        # result, group = FakeResult(), FakeGroup()
+        # obj = TestCasesRunner()
+        # obj.stream = Mock()
+        # obj.run_group_suites(result, group)
 
     def test_run(self):
         """
