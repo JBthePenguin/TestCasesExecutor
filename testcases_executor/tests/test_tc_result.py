@@ -46,6 +46,10 @@ class TestTestCasesResult(TestCase):
         Assert stream.writeln called once, printErrorList 2 with parameters.
     test_printErrorList():
         Assert stream.writeln calls and parameters.
+    test_printTotal():
+        Assert stream.writeln called once with good parameter.
+    test_printInfos():
+        Assert stream.writeln called once or two with parameters.
     """
 
     @patch("testcases_executor.tc_result.TestResult.__init__")
@@ -112,8 +116,7 @@ class TestTestCasesResult(TestCase):
                 self._testMethodName = 'test'
 
         test = FakeTest()
-        obj = TestCasesResult(stream='stream')
-        obj.stream = Mock()
+        obj = TestCasesResult(stream=Mock())
         mock_time.return_value = 103
         obj.startTest(test)
         mock_start_test.assert_called_once_with(test)
@@ -134,9 +137,8 @@ class TestTestCasesResult(TestCase):
         assertEqual:
             Assert if value with key test in durations property with key tests.
         """
-        obj = TestCasesResult(stream='stream')
+        obj = TestCasesResult(stream=Mock())
         obj.test_t_start = 1000.00234862
-        obj.stream = Mock()
         obj.addFoo(1000.00523, 'test', 'OK')
         obj.stream.writeln.assert_called_once_with(
             "OK ... \x1b[35m2.881 ms\x1b[39m")
@@ -323,8 +325,7 @@ class TestTestCasesResult(TestCase):
         assert_has_calls:
             Assert obj.printErrorList call parameters.
         """
-        obj = TestCasesResult(stream='stream')
-        obj.stream = Mock()
+        obj = TestCasesResult(stream=Mock())
         obj.printErrorList = Mock()
         obj.printErrors()
         obj.stream.writeln.assert_called_once_with()
@@ -336,6 +337,18 @@ class TestTestCasesResult(TestCase):
     def test_printErrorList(self):
         """
         Assert stream.writeln calls and parameters.
+
+        Classes:
+        ----------
+        FakeTestOne, FakeTestTwo:
+            Fake tests with property _testMethodName.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if stream.write called 12 times.
+        assert_has_calls:
+            Assert stream.write calls parameters.
         """
         class FakeTestOne():
             def __init__(self):
@@ -349,8 +362,7 @@ class TestTestCasesResult(TestCase):
             (FakeTestOne(), "error one\nline 2"),
             (FakeTestTwo(), "error two\nline 2")
         ]
-        obj = TestCasesResult(stream='stream')
-        obj.stream = Mock()
+        obj = TestCasesResult(stream=Mock())
         obj.printErrorList('flavour', errors, '\x1b[31m')
         self.assertEqual(12, obj.stream.writeln.call_count)
         obj.stream.writeln.assert_has_calls([
@@ -366,3 +378,50 @@ class TestTestCasesResult(TestCase):
             call('\x1b[31mline 2\x1b[39m'),
             call(obj.separator2),
             call('\x1b[2merror two\nline 2\x1b[0m')])
+
+    def test_printTotal(self):
+        """
+        Assert stream.writeln called once with good parameter.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert if stream.write called 2 times.
+        assert_has_calls:
+            Assert stream.write calls parameters.
+        """
+        obj = TestCasesResult(stream=Mock())
+        obj.printTotal(3, 1.58732149)
+        obj.printTotal(1, 0.08632151)
+        self.assertEqual(2, obj.stream.writeln.call_count)
+        obj.stream.writeln.assert_has_calls([
+            call('Ran 3 tests\x1b[0m in \x1b[35m1.587 s\x1b[39m'),
+            call('Ran 1 test\x1b[0m in \x1b[35m86.322 ms\x1b[39m')])
+
+    def test_printInfos(self):
+        """
+        Assert stream.writeln called once or two with parameters.
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert if stream.write called once with parameter (tests PASS).
+        assertEqual:
+            Assert if stream.write called 2 times (tests FAILED).
+        assert_has_calls:
+            Assert stream.write calls parameters.
+        """
+        obj = TestCasesResult(stream=Mock())
+        obj.wasSuccessful = Mock()
+        obj.wasSuccessful.return_value = True
+        obj.printInfos()
+        obj.stream.writeln.assert_called_once_with('\n\x1b[32mPASS\x1b[39m')
+        obj.stream.reset_mock()
+        obj.wasSuccessful.return_value = False
+        obj.errors = [1, 2, 3]
+        obj.skipped = [1]
+        obj.printInfos()
+        self.assertEqual(2, obj.stream.writeln.call_count)
+        obj.stream.writeln.assert_has_calls([
+            call('\n\x1b[31mFAILED\x1b[39m'),
+            call(' (\x1b[31mErrors=3\x1b[39m , \x1b[36mSkipped=1\x1b[39m)')])
