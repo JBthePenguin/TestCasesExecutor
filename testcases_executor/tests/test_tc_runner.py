@@ -57,42 +57,78 @@ class TestTestRunner(TestCase):
     def test_run_group_suites(self):
         """
         Assert stream.writeln calls, if suites runned, properties updated.
+
+        Classes:
+        ----------
+        FakeResult:
+            Fake a result to get properties to assert if updated correctly.
+        FakeTestOne, FakeTestTwo:
+            Fake tests to get __name__ and __module__ properties.
+        FakeSuiteOne, FakeSuiteTwo:
+            Fake suite with property _tests, to pass init during test.
+        FakeGroup:
+            Fake group with suites property.
         """
         class FakeResult():
+
             def __init__(self):
                 self.separator2 = 'separator2'
-                self.durations = {'tests': {
-                    'test1': 0.3, 'test2': 0.2, 'test3': 0.2, 'test4': 0.6}}
+                self.durations = {
+                    'tests': {
+                        'test1': 0.3, 'test2': 0.2,
+                        'test3': 0.2, 'test4': 0.6},
+                    'testcases': {}}
+                self.test_methods = []
 
         class FakeTestOne():
             pass
-            # def __init__(self, tc_name, tc_module):
-            #     self.__name__, self.__module__ = tc_name, tc_module
 
         class FakeTestTwo():
             pass
 
-        class FakeSuite():
-            pass
-            # def __init__(self, tests):
-            #     self._tests = tests
+        class FakeSuiteOne():
+            _tests = ['test1', 'test2', 'test3']
 
-        # FakeSuite.__init__ = Mock()
-        # test_one, test_two = FakeTestOne, FakeTestTwo
-        # suite_one = FakeSuite()
-        # suite_two = FakeSuite()
-        # suite_one = FakeSuite(['test1', 'test2', 'test3'])
-        # suite_two = FakeSuite(['test4'])
+            def __init__(self, result):
+                pass
+
+        class FakeSuiteTwo():
+            _tests = ['test4']
+
+            def __init__(self, result):
+                pass
+
+        test_one, test_two = FakeTestOne, FakeTestTwo
+        suite_one, suite_two = FakeSuiteOne, FakeSuiteTwo
 
         class FakeGroup():
             def __init__(self):
                 self.suites = [
                     (test_one, suite_one), (test_two, suite_two)]
 
-        # result, group = FakeResult(), FakeGroup()
-        # obj = TestCasesRunner()
-        # obj.stream = Mock()
-        # obj.run_group_suites(result, group)
+        result, group = FakeResult(), FakeGroup()
+        obj = TestCasesRunner()
+        obj.stream = Mock()
+        obj.run_group_suites(result, group)
+        self.assertEqual(8, obj.stream.writeln.call_count)
+        obj.stream.writeln.assert_has_calls([
+            call('separator2'),
+            call('\n\x1b[1m --- FakeTestOne ---\x1b[0m'),
+            call(
+                '\x1b[2m testcases_executor.tests.test_tc_runner.py\x1b[0m\n'),
+            call('\n ... \x1b[35m700.0 ms\x1b[0m\n'),
+            call('separator2'),
+            call('\n\x1b[1m --- FakeTestTwo ---\x1b[0m'),
+            call(
+                '\x1b[2m testcases_executor.tests.test_tc_runner.py\x1b[0m\n'),
+            call('\n ... \x1b[35m600.0 ms\x1b[0m\n')])
+        self.assertEqual(result.durations['testcases'][test_one], 0.7)
+        self.assertEqual(result.durations['testcases'][test_two], 0.6)
+        self.assertEqual(len(result.test_methods), 1)
+        self.assertTupleEqual(result.test_methods[0], (
+            group, [
+                (test_one, ['test1', 'test2', 'test3']),
+                (test_two, ['test4'])]))
 
     def test_run(self):
         """
