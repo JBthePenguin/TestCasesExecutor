@@ -1,0 +1,29 @@
+<div class="row card bg-dark text-light text-center">
+    <!-- title - start time - duration -->
+    <div class="card-header">
+        <h3 class="card-title">{{ title }}</h3>
+        <h5 class="card-subtitle text-white-50">
+            <ul class="list-inline">
+                <li class="list-inline-item"><i class="fa fa-clock-o"></i> {{ header.start_time }}</li>
+                <li class="list-inline-item"><i class="fa fa-hourglass-half"></i> {{ header.duration }}</li>
+            </ul>
+            <h4>
+            <ul class="list-inline">
+                <li class="list-inline-item"><span class="badge badge-light"><strong>Ran {{ header.total }} test{% if header.total > 1 %}s{% endif %}</strong></span></li>
+                <li class="list-inline-item"><span class="badge badge-light"><strong class="text-{{ header.status_color }}">{{ header.status }}</strong></span></li>
+            </ul>
+            </h4>
+        </h5>
+    </div>
+    <!-- infos -->
+    <div class="card-body bg-secondary p-1">
+        <h4 class="my-1">
+            <ul class="list-inline mb-0">
+                <li class="list-inline-item"><span class="badge badge-success"><i class="fa fa-thumbs-o-up"></i> <strong>Pass</strong> <span class="badge badge-pill badge-dark">{{ header.success }}</span></span></li>
+                <li class="list-inline-item"><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i> <strong>Fail</strong> <span class="badge badge-pill badge-dark">{{ header.failures }}</span></span></li>
+                <li class="list-inline-item"><span class="badge badge-danger"><i class="fa fa-times-circle"></i> <strong>Error</strong> <span class="badge badge-pill badge-dark">{{ header.errors }}</span></span></li>
+                <li class="list-inline-item"><span class="badge badge-info"><i class="fa fa-cut"></i> <strong>Skip</strong> <span class="badge badge-pill badge-dark">{{ header.skips }}</span></span></li>
+            </ul>
+        </h4>
+    </div>
+</div>

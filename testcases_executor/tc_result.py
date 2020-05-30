@@ -266,7 +266,7 @@ class TestCasesResult(TestResult):
             if errors:
                 infos.append(f"{RED}Errors={errors}{C_RESET}")
         else:
-            self.stream.writeln(f"\n{GREEN}PASS{C_RESET}")
+            self.stream.writeln(f"\n{GREEN}PASSED{C_RESET}")
         if skipped:
             infos.append(f"{BLUE}Skipped={skipped}{C_RESET}")
         if expectedFails:
