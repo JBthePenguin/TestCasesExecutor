@@ -13,6 +13,7 @@ Imports:
 from testcases_executor.tc_groups import TestCasesGroups
 from testcases_executor.tc_parser import TestCasesParser
 from testcases_executor.tc_runner import TestCasesRunner
+from testcases_executor.tc_reporter.html_report import HtmlReport
 
 
 def main():
@@ -24,6 +25,7 @@ def main():
     args = parser.parse_args()
     tc_groups.construct_suites(args)
     result = TestCasesRunner().run(tc_groups)
+    HtmlReport(result)
 
 
 if __name__ == "__main__":

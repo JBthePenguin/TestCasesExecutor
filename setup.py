@@ -8,12 +8,14 @@ setuptools.setup(
     version="0.0.1",
     author="JBthePenguin",
     author_email="jbthepenguin@netcourrier.com",
-    description="An executor of groups of unittest.TestCase instances.",
+    description="An executor of groups of unittest.TestCase subclasses.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/JBthePenguin/TestCasesExecutor",
-    packages=["testcases_executor", "testcases_executor.tests"],
-    install_requires=[],
+    packages=[
+        "testcases_executor", "testcases_executor.tests",
+        "testcases_executor.tc_reporter"],
+    install_requires=['jinja2'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: GPL v3",

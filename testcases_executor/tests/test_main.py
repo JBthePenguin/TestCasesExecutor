@@ -28,10 +28,11 @@ class TestMainFunctions(TestCase):
         Assert if groups is constructed, parsed and testscases runned.
     """
 
+    @patch('testcases_executor.__main__.HtmlReport')
     @patch('testcases_executor.__main__.TestCasesGroups')
     @patch('testcases_executor.__main__.TestCasesParser')
     @patch('testcases_executor.__main__.TestCasesRunner')
-    def test_main(self, mock_runner, mock_parser, mock_groups):
+    def test_main(self, mock_runner, mock_parser, mock_groups, mock_report):
         """
         Assert if groups is constructed, parsed and testscases runned.
 
@@ -45,6 +46,8 @@ class TestMainFunctions(TestCase):
             Mock of TestCasesParser.
         mock_groups : Mock
             Mock of TestCasesGroups.
+        mock_report : Mock
+            Mock of HtmlReport.
 
         Assertions:
         ----------
@@ -52,7 +55,7 @@ class TestMainFunctions(TestCase):
             Assert if groups, parser.parse_args called once.
         assert_called_once_with:
             parser -> groups, groups.construct_suites -> parse.parse_args,
-            runner -> groups
+            runner -> groups, report-> runner.run (result)
         """
         main()
         self.assertEqual(mock_groups.call_count, 1)
@@ -61,3 +64,4 @@ class TestMainFunctions(TestCase):
         mock_groups().construct_suites.assert_called_once_with(
             mock_parser().parse_args())
         mock_runner().run.assert_called_once_with(mock_groups())
+        mock_report.assert_called_once_with(mock_runner().run(mock_groups()))

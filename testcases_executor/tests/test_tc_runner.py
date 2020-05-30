@@ -7,8 +7,9 @@ Classes:
     TestTestRunner(TestCase)
 
 Imports:
-    from unittest: TestCase, TestResult
+    from unittest: TestCase, TextTestRunner
     from unittest.mock: patch, call, Mock
+    from testcases_executor.tc_runner: TestCasesRunner
     from testcases_executor.tc_result: TestCasesResult
 """
 from unittest import TestCase, TextTestRunner
