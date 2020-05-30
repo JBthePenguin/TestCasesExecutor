@@ -28,7 +28,7 @@ class TestMainFunctions(TestCase):
         Assert if groups is constructed, parsed and testscases runned.
     """
 
-    @patch('testcases_executor.__main__.HtmlReport')
+    @patch('testcases_executor.__main__.TestCasesHtmlReport')
     @patch('testcases_executor.__main__.TestCasesGroups')
     @patch('testcases_executor.__main__.TestCasesParser')
     @patch('testcases_executor.__main__.TestCasesRunner')
@@ -47,7 +47,7 @@ class TestMainFunctions(TestCase):
         mock_groups : Mock
             Mock of TestCasesGroups.
         mock_report : Mock
-            Mock of HtmlReport.
+            Mock of TestCasesHtmlReport.
 
         Assertions:
         ----------

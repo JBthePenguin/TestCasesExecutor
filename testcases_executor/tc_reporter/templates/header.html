@@ -1,5 +1,5 @@
 <div class="row card bg-dark text-light text-center">
-    <!-- title - start time - duration -->
+    <!-- title - start time - duration - total - status -->
     <div class="card-header">
         <h3 class="card-title">{{ title }}</h3>
         <h5 class="card-subtitle text-white-50">
@@ -15,15 +15,22 @@
             </h4>
         </h5>
     </div>
-    <!-- infos -->
+    <!-- numbers of pass, fails, errors, skips -->
     <div class="card-body bg-secondary p-1">
         <h4 class="my-1">
             <ul class="list-inline mb-0">
-                <li class="list-inline-item"><span class="badge badge-success"><i class="fa fa-thumbs-o-up"></i> <strong>Pass</strong> <span class="badge badge-pill badge-dark">{{ header.success }}</span></span></li>
+                <li class="list-inline-item"><span class="badge badge-success"><i class="fa fa-thumbs-o-up"></i> <strong>Pass</strong> <span class="badge badge-pill badge-dark">{{ header.successes }}</span></span></li>
                 <li class="list-inline-item"><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i> <strong>Fail</strong> <span class="badge badge-pill badge-dark">{{ header.failures }}</span></span></li>
                 <li class="list-inline-item"><span class="badge badge-danger"><i class="fa fa-times-circle"></i> <strong>Error</strong> <span class="badge badge-pill badge-dark">{{ header.errors }}</span></span></li>
                 <li class="list-inline-item"><span class="badge badge-info"><i class="fa fa-cut"></i> <strong>Skip</strong> <span class="badge badge-pill badge-dark">{{ header.skips }}</span></span></li>
             </ul>
+        <!-- numbers of unexpected successes, expected fails -->
+        {% if (header.expectedfails != 0) or (header.unexpectedsuccesses != 0) %}
+            <ul class="list-inline mt-1 mb-0">
+                <li class="list-inline-item"><span class="badge badge-success"><strong>Unexpected Successes</strong> <span class="badge badge-pill badge-dark">{{ header.unexpectedsuccesses }}</span></span></li>
+                <li class="list-inline-item"><span class="badge badge-danger"><strong>Expected Failures</strong> <span class="badge badge-pill badge-dark">{{ header.expectedfails }}</span></span></li>
+            </ul>
+        {% endif %}
         </h4>
     </div>
 </div>

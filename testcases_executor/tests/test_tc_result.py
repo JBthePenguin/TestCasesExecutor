@@ -415,7 +415,7 @@ class TestTestCasesResult(TestCase):
         obj.wasSuccessful = Mock()
         obj.wasSuccessful.return_value = True
         obj.printInfos()
-        obj.stream.writeln.assert_called_once_with('\n\x1b[32mPASS\x1b[39m')
+        obj.stream.writeln.assert_called_once_with('\n\x1b[32mPASSED\x1b[39m')
         obj.stream.reset_mock()
         obj.wasSuccessful.return_value = False
         obj.errors = [1, 2, 3]
