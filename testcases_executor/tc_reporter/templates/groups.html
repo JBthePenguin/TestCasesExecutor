@@ -1,1 +1,10 @@
-Groups
+{% for group, tc_methods in groups %}
+    <div class="row">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ group.name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted"><i class="fa fa-hourglass-half"></i> {{ group.duration }}</h6>
+
+        </div>
+    </div>
+{% endfor %}

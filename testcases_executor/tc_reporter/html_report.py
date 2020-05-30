@@ -26,6 +26,8 @@ class TestCasesHtmlReport():
     ----------
     get_header():
         Called to get context with necessary datas for header.
+    get_groups():
+        Called to get context with necessary datas for all groups.
     """
 
     def __init__(self, result):
@@ -39,7 +41,8 @@ class TestCasesHtmlReport():
         """
         result.stream.writeln("Generating html report ...\n")
         # load template
-        env = Environment(loader=PackageLoader('testcases_executor.tc_reporter'))
+        env = Environment(
+            loader=PackageLoader('testcases_executor.tc_reporter'))
         template = env.get_template('report_template.html')
         # dir destination
         dir_reports = './html_reports'
@@ -50,7 +53,8 @@ class TestCasesHtmlReport():
         with open(report_path, 'w') as report_file:
             report_file.write(template.render(
                 title=f"{os.path.basename(os.getcwd())} Tests Results",
-                header=self.get_header(result)))
+                header=self.get_header(result),
+                groups=self.get_groups(result)))
         result.stream.writeln(
             f"---> {BOLD}{MUTED}{os.path.relpath(report_path)}{S_RESET}\n")
 
@@ -87,3 +91,28 @@ class TestCasesHtmlReport():
             'status_color': status_color, 'successes': n_success,
             'failures': n_fails, 'errors': n_errors, 'skips': n_skips,
             'expectedfails': n_exp_fails, 'unexpectedsuccesses': n_unexp_succ}
+
+    def get_groups(self, result):
+        """
+        Called to get context with necessary datas for all groups.
+
+        Parameters
+        ----------
+            result: tc_result.TestCasesResult
+                result of tests.
+
+        Return
+        ----------
+            context: dict
+                time, duration, status, number of tests, successes, ...
+        """
+        groups = []
+        for group, tc_methods in result.test_methods:
+            total = 0
+            for testcase, t_methods in tc_methods:
+                total += len(t_methods)
+            group_dict = {
+                'name': group.name, 'total': total,
+                'duration': format_duration(result.durations['groups'][group])}
+            groups.append((group_dict, tc_methods))
+        return groups
