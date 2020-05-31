@@ -12,7 +12,8 @@
             <div class="card-body pb-0">
               <ul class="list-inline">
                   <li class="list-inline-item"><h5><span class="badge badge-secondary"><i class="fa fa-hourglass-half"></i> <strong>{{ group.duration }}</strong></span></h5></li>
-                  <li class="list-inline-item"><h5><span class="badge badge-light"><strong>{{ group.total }} test{% if group.total > 1 %}s{% endif %}</strong></span></h5></li>
+                  <li class="list-inline-item"><h5><span class="badge badge-light"><strong>{{ group.n_tests.total }} test{% if group.n_tests.total > 1 %}s{% endif %}</strong></span></h5></li>
+                  <li class="list-inline-item"><h5><span class="badge badge-light"><strong class="text-{{ group.status_color }}">{{ group.status }}</strong></span></h5></li>
               </ul>
             </div>
         </div>

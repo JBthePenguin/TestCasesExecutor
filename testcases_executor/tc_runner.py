@@ -100,6 +100,7 @@ class TestCasesRunner(TextTestRunner):
             result.durations['groups'][group] = g_duration
             self.stream.writeln(f"{result.separator2}\n {MUTED}")
             result.printTotal(n_tests, g_duration)  # display them
+            result.printInfos((group, g_tests))
             self.stream.writeln(f"\n{result.separator1}")
         self.stream.writeln(result.separator1)
         result.printErrors()  # display errors

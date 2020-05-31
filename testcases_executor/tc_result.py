@@ -86,7 +86,7 @@ class TestCasesResult(TestResult):
         self.test_methods = []
         self.durations = {'groups': {}, 'testcases': {}, 'tests': {}}
         self.n_tests = {'groups': {}}
-        self.status = {}
+        self.status = {'groups': {}}
 
     def startTest(self, test):
         """
@@ -254,25 +254,69 @@ class TestCasesResult(TestResult):
         self.stream.writeln(
             f"{ran_text} in {MAGENTA}{format_duration(duration)}{C_RESET}")
 
-    def printInfos(self):
+    def printInfos(self, group_tests=None):
         """
         Display at the end, PASS or FAILED and infos (number errors...).
         """
-        failed = len(self.failures)
-        errors = len(self.errors)
-        expectedFails = len(self.expectedFailures)
-        unexpectedSuccesses = len(self.unexpectedSuccesses)
-        skipped = len(self.skipped)
+        if group_tests is not None:
+            group, test_methods = group_tests
+            failed = 0
+            errors = 0
+            expectedFails = 0
+            unexpectedSuccesses = 0
+            skipped = 0
+            t_failed = [fail[0] for fail in self.failures]
+            t_errors = [err[0] for err in self.errors]
+            t_expectedFails = [e_fail[0] for e_fail in self.expectedFailures]
+            t_skipped = [skp[0] for skp in self.skipped]
+            for test_method in test_methods:
+                if test_method in t_failed:
+                    failed += 1
+                elif test_method in t_errors:
+                    errors += 1
+                elif test_method in t_expectedFails:
+                    expectedFails += 1
+                elif test_method in self.unexpectedSuccesses:
+                    unexpectedSuccesses += 1
+                elif test_method in t_skipped:
+                    skipped += 1
+            self.n_tests['groups'][group]['failed'] = failed
+            self.n_tests['groups'][group]['errors'] = errors
+            self.n_tests['groups'][group]['expectedFails'] = expectedFails
+            self.n_tests['groups'][group]['unexpectedSuccesses'] = unexpectedSuccesses
+            self.n_tests['groups'][group]['skipped'] = skipped
+            if errors or failed:
+                wasSuccessful = False
+            else:
+                wasSuccessful = True
+        else:
+            failed = len(self.failures)
+            errors = len(self.errors)
+            expectedFails = len(self.expectedFailures)
+            unexpectedSuccesses = len(self.unexpectedSuccesses)
+            skipped = len(self.skipped)
+            self.n_tests['total']['failed'] = failed
+            self.n_tests['total']['errors'] = errors
+            self.n_tests['total']['expectedFails'] = expectedFails
+            self.n_tests['total']['unexpectedSuccesses'] = unexpectedSuccesses
+            self.n_tests['total']['skipped'] = skipped
+            wasSuccessful = self.wasSuccessful()
         infos = []
-        if not self.wasSuccessful():
-            self.status['total'] = 'FAILED'
+        if not wasSuccessful:
+            if group_tests is not None:
+                self.status['groups'][group] = 'FAILED'
+            else:
+                self.status['total'] = 'FAILED'
             self.stream.writeln(f"\n{RED}FAILED{C_RESET}")
             if failed:
                 infos.append(f"{YELLOW}Failures={failed}{C_RESET}")
             if errors:
                 infos.append(f"{RED}Errors={errors}{C_RESET}")
         else:
-            self.status['total'] = 'PASSED'
+            if group_tests is not None:
+                self.status['groups'][group] = 'PASSED'
+            else:
+                self.status['total'] = 'PASSED'
             self.stream.writeln(f"\n{GREEN}PASSED{C_RESET}")
         if skipped:
             infos.append(f"{BLUE}Skipped={skipped}{C_RESET}")
@@ -286,8 +330,3 @@ class TestCasesResult(TestResult):
                 f"{GREEN}{u_suc}{unexpectedSuccesses}{C_RESET}")
         if infos:
             self.stream.writeln(f" ({' , '.join(infos)})")
-        self.n_tests['total']['failed'] = failed
-        self.n_tests['total']['errors'] = errors
-        self.n_tests['total']['expectedFails'] = expectedFails
-        self.n_tests['total']['unexpectedSuccesses'] = unexpectedSuccesses
-        self.n_tests['total']['skipped'] = skipped

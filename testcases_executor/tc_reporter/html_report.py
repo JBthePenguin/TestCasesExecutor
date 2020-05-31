@@ -100,9 +100,16 @@ class TestCasesHtmlReport():
         """
         groups = []
         for group, tc_methods in result.test_methods:
+            # status
+            status = result.status['groups'][group]
+            if status == 'PASSED':
+                status_color = 'success'
+            else:
+                status_color = 'danger'
             group_dict = {
-                'name': group.name,
-                'total': result.n_tests['groups'][group]['total'],
+                'name': group.name, 'status': status,
+                'status_color': status_color,
+                'n_tests': result.n_tests['groups'][group],
                 'duration': format_duration(result.durations['groups'][group])}
             groups.append((group_dict, tc_methods))
         return groups
