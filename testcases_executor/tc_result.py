@@ -85,7 +85,8 @@ class TestCasesResult(TestResult):
         self.start_time = 0
         self.test_methods = []
         self.durations = {'groups': {}, 'testcases': {}, 'tests': {}}
-        self.group_n_tests = {}
+        self.n_tests = {'groups': {}}
+        self.status = {}
 
     def startTest(self, test):
         """
@@ -255,20 +256,23 @@ class TestCasesResult(TestResult):
 
     def printInfos(self):
         """
-        Display at the end, PASS or FAILED and infos (number failed...).
+        Display at the end, PASS or FAILED and infos (number errors...).
         """
+        failed = len(self.failures)
+        errors = len(self.errors)
         expectedFails = len(self.expectedFailures)
         unexpectedSuccesses = len(self.unexpectedSuccesses)
         skipped = len(self.skipped)
         infos = []
         if not self.wasSuccessful():
+            self.status['total'] = 'FAILED'
             self.stream.writeln(f"\n{RED}FAILED{C_RESET}")
-            failed, errors = map(len, (self.failures, self.errors))
             if failed:
                 infos.append(f"{YELLOW}Failures={failed}{C_RESET}")
             if errors:
                 infos.append(f"{RED}Errors={errors}{C_RESET}")
         else:
+            self.status['total'] = 'PASSED'
             self.stream.writeln(f"\n{GREEN}PASSED{C_RESET}")
         if skipped:
             infos.append(f"{BLUE}Skipped={skipped}{C_RESET}")
@@ -282,3 +286,8 @@ class TestCasesResult(TestResult):
                 f"{GREEN}{u_suc}{unexpectedSuccesses}{C_RESET}")
         if infos:
             self.stream.writeln(f" ({' , '.join(infos)})")
+        self.n_tests['total']['failed'] = failed
+        self.n_tests['total']['errors'] = errors
+        self.n_tests['total']['expectedFails'] = expectedFails
+        self.n_tests['total']['unexpectedSuccesses'] = unexpectedSuccesses
+        self.n_tests['total']['skipped'] = skipped

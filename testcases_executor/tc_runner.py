@@ -90,12 +90,13 @@ class TestCasesRunner(TextTestRunner):
             self.stream.writeln(f"{result.separator1}\n")
             self.stream.writeln(f"{BOLD}{MUTED} {group.name}{S_RESET}\n")
             self.run_group_suites(result, group)  # run group's suites
-            n_tests = 0   # calcul number of group's tests
+            g_tests = []   # calcul number of group's tests
             g_duration = 0   # calcul, save group duration
             for testcase, t_methods in result.test_methods[-1][1]:
-                n_tests += len(t_methods)
+                g_tests.extend(t_methods)
                 g_duration += result.durations['testcases'][testcase]
-            result.group_n_tests[group] = n_tests
+            n_tests = len(g_tests)
+            result.n_tests['groups'][group] = {'total': n_tests}
             result.durations['groups'][group] = g_duration
             self.stream.writeln(f"{result.separator2}\n {MUTED}")
             result.printTotal(n_tests, g_duration)  # display them
@@ -104,9 +105,11 @@ class TestCasesRunner(TextTestRunner):
         result.printErrors()  # display errors
         self.stream.writeln(
             f"{BOLD}{result.separator1}\n")  # calcul, save total duration
+        total_tests = result.testsRun
+        result.n_tests['total'] = {'total': total_tests}
         total_duration = sum(result.durations['groups'].values())
         result.durations['total'] = total_duration
-        result.printTotal(result.testsRun, total_duration)  # display it
+        result.printTotal(total_tests, total_duration)  # display it
         result.printInfos()  # display final infos
         self.stream.writeln(f"\n{BOLD}{result.separator1}\n{S_RESET}")
         return result

@@ -1,34 +1,38 @@
 <div class="row card bg-dark text-light text-center">
     <!-- title - start time - duration - total - status -->
-    <div class="card-header">
+    <div class="card-header pb-0">
         <h3 class="card-title">{{ title }}</h3>
         <h5 class="card-subtitle text-white-50">
             <i class="fa fa-clock-o"></i> {{ header.start_time }}
-            <h4 class="my-2">
+            <h4 class="mt-2">
                 <ul class="list-inline">
                     <li class="list-inline-item"><span class="badge badge-secondary"><i class="fa fa-hourglass-half"></i> <strong>{{ header.duration }}</strong></span></li>
-                    <li class="list-inline-item"><span class="badge badge-light"><strong>{{ header.total }} test{% if header.total > 1 %}s{% endif %}</strong></span></li>
-                    <li class="list-inline-item"><span class="badge badge-light"><strong class="text-{{ header.status_color }}">{{ header.status }}</strong></span></li>
+                    <li class="list-inline-item"><span class="badge badge-light"><strong>{{ header.n_tests.total }} test{% if header.n_tests.total > 1 %}s{% endif %}</strong></span></li>
                 </ul>
             </h4>
         </h5>
     </div>
     <!-- numbers of pass, fails, errors, skips -->
-    <div class="card-body bg-secondary p-1">
+    <div class="card-body p-1">
+        <h4><span class="badge badge-light"><strong class="text-{{ header.status_color }}">{{ header.status }}</strong></span></h4>
         <h4 class="my-1">
             <ul class="list-inline mb-0">
-                <li class="list-inline-item"><span class="badge badge-success"><i class="fa fa-thumbs-o-up"></i> <strong>Pass</strong> <span class="badge badge-pill badge-dark">{{ header.successes }}</span></span></li>
-                <li class="list-inline-item"><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i> <strong>Fail</strong> <span class="badge badge-pill badge-dark">{{ header.failures }}</span></span></li>
-                <li class="list-inline-item"><span class="badge badge-danger"><i class="fa fa-times-circle"></i> <strong>Error</strong> <span class="badge badge-pill badge-dark">{{ header.errors }}</span></span></li>
-                <li class="list-inline-item"><span class="badge badge-info"><i class="fa fa-cut"></i> <strong>Skip</strong> <span class="badge badge-pill badge-dark">{{ header.skips }}</span></span></li>
+            {% if header.n_tests.failed %}
+                <li class="list-inline-item"><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i> <strong>Fail</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.failed }}</span></span></li>
+            {% endif %}
+            {% if header.n_tests.errors %}
+                <li class="list-inline-item"><span class="badge badge-danger"><i class="fa fa-times-circle"></i> <strong>Error</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.errors }}</span></span></li>
+            {% endif %}
+            {% if header.n_tests.skipped %}
+                <li class="list-inline-item"><span class="badge badge-info"><i class="fa fa-cut"></i> <strong>Skipped</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.skipped }}</span></span></li>
+            {% endif %}
+            {% if header.n_tests.unexpectedSuccesses %}
+                <li class="list-inline-item"><span class="badge badge-success"><strong>Unexpected Successes</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.unexpectedSuccesses }}</span></span></li>
+            {% endif %}
+            {% if header.n_tests.expectedFails %}
+                <li class="list-inline-item"><span class="badge badge-danger"><strong>Expected Failures</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.expectedFails }}</span></span></li>
+            {% endif %}
             </ul>
-        <!-- numbers of unexpected successes, expected fails -->
-        {% if (header.expectedfails != 0) or (header.unexpectedsuccesses != 0) %}
-            <ul class="list-inline mt-1 mb-0">
-                <li class="list-inline-item"><span class="badge badge-success"><strong>Unexpected Successes</strong> <span class="badge badge-pill badge-dark">{{ header.unexpectedsuccesses }}</span></span></li>
-                <li class="list-inline-item"><span class="badge badge-danger"><strong>Expected Failures</strong> <span class="badge badge-pill badge-dark">{{ header.expectedfails }}</span></span></li>
-            </ul>
-        {% endif %}
         </h4>
     </div>
 </div>

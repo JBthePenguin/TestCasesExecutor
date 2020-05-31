@@ -72,25 +72,17 @@ class TestCasesHtmlReport():
             context: dict
                 time, duration, status, number of tests, successes, ...
         """
-        # number of items for each list
-        n_errors, n_fails = len(result.errors), len(result.failures)
-        n_skips = len(result.skipped)
-        n_exp_fails = len(result.expectedFailures)
-        n_unexp_succ = len(result.unexpectedSuccesses)
-        n_success = result.testsRun - sum([
-            n_errors, n_fails, n_skips, n_exp_fails, n_unexp_succ])
         # status
-        if result.wasSuccessful():
-            status, status_color = 'PASSED', 'success'
+        status = result.status['total']
+        if status == 'PASSED':
+            status_color = 'success'
         else:
-            status, status_color = 'FAILED', 'danger'
+            status_color = 'danger'
         return {  # header context
             'start_time': result.start_time.strftime("%Y-%m-%d %H:%M:%S"),
             'duration': format_duration(result.durations['total']),
-            'total': result.testsRun, 'status': status,
-            'status_color': status_color, 'successes': n_success,
-            'failures': n_fails, 'errors': n_errors, 'skips': n_skips,
-            'expectedfails': n_exp_fails, 'unexpectedsuccesses': n_unexp_succ}
+            'status': status, 'status_color': status_color,
+            'n_tests': result.n_tests['total']}
 
     def get_groups(self, result):
         """
@@ -109,7 +101,8 @@ class TestCasesHtmlReport():
         groups = []
         for group, tc_methods in result.test_methods:
             group_dict = {
-                'name': group.name, 'total': result.group_n_tests[group],
+                'name': group.name,
+                'total': result.n_tests['groups'][group]['total'],
                 'duration': format_duration(result.durations['groups'][group])}
             groups.append((group_dict, tc_methods))
         return groups
