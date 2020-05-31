@@ -3,15 +3,13 @@
     <div class="card-header">
         <h3 class="card-title">{{ title }}</h3>
         <h5 class="card-subtitle text-white-50">
-            <ul class="list-inline">
-                <li class="list-inline-item"><i class="fa fa-clock-o"></i> {{ header.start_time }}</li>
-                <li class="list-inline-item"><i class="fa fa-hourglass-half"></i> {{ header.duration }}</li>
-            </ul>
-            <h4>
-            <ul class="list-inline">
-                <li class="list-inline-item"><span class="badge badge-light"><strong>Ran {{ header.total }} test{% if header.total > 1 %}s{% endif %}</strong></span></li>
-                <li class="list-inline-item"><span class="badge badge-light"><strong class="text-{{ header.status_color }}">{{ header.status }}</strong></span></li>
-            </ul>
+            <i class="fa fa-clock-o"></i> {{ header.start_time }}
+            <h4 class="my-2">
+                <ul class="list-inline">
+                    <li class="list-inline-item"><span class="badge badge-secondary"><i class="fa fa-hourglass-half"></i> <strong>{{ header.duration }}</strong></span></li>
+                    <li class="list-inline-item"><span class="badge badge-light"><strong>{{ header.total }} test{% if header.total > 1 %}s{% endif %}</strong></span></li>
+                    <li class="list-inline-item"><span class="badge badge-light"><strong class="text-{{ header.status_color }}">{{ header.status }}</strong></span></li>
+                </ul>
             </h4>
         </h5>
     </div>
