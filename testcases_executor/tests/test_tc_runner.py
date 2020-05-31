@@ -179,6 +179,7 @@ class TestTestRunner(TestCase):
                         'TestThree': 2, 'TestFour': 6},
                     'groups': {}}
                 self.test_methods = []
+                self.group_n_tests = {}
                 self.failfast = None
                 self.printTotal = Mock()
                 self.printErrors = Mock()
@@ -230,6 +231,10 @@ class TestTestRunner(TestCase):
         obj.run_group_suites.assert_has_calls([
             call(result, group_one),
             call(result, group_two)])
+        result.group_n_tests[group_one] = 5
+        result.durations['groups'][group_one] = 7
+        result.group_n_tests[group_two] = 2
+        result.durations['groups'][group_two] = 6
         self.assertEqual(result.printTotal.call_count, 3)
         result.printTotal.assert_has_calls([
             call(5, 7), call(2, 6), call(7, 13)])

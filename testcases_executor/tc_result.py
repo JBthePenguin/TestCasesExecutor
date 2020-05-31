@@ -38,6 +38,8 @@ class TestCasesResult(TestResult):
         [(group, [(testcase, test methods), ...]), ...]
     durations: dict
         {'groups': {g: dur}, 'testcases': {tc: dur}, 'tests': {t: dur}}
+    group_n_tests: dict
+        {group: number of tests}
 
     Methods
     ----------
@@ -83,6 +85,7 @@ class TestCasesResult(TestResult):
         self.start_time = 0
         self.test_methods = []
         self.durations = {'groups': {}, 'testcases': {}, 'tests': {}}
+        self.group_n_tests = {}
 
     def startTest(self, test):
         """

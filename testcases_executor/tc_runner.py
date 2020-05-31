@@ -95,6 +95,7 @@ class TestCasesRunner(TextTestRunner):
             for testcase, t_methods in result.test_methods[-1][1]:
                 n_tests += len(t_methods)
                 g_duration += result.durations['testcases'][testcase]
+            result.group_n_tests[group] = n_tests
             result.durations['groups'][group] = g_duration
             self.stream.writeln(f"{result.separator2}\n {MUTED}")
             result.printTotal(n_tests, g_duration)  # display them

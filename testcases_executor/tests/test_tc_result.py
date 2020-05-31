@@ -79,6 +79,7 @@ class TestTestCasesResult(TestCase):
         self.assertEqual(obj.stream, 'stream')
         self.assertEqual(obj.start_time, 0)
         self.assertEqual(obj.test_methods, [])
+        self.assertEqual(obj.group_n_tests, {})
         self.assertEqual(
             obj.durations, {'groups': {}, 'testcases': {}, 'tests': {}})
 

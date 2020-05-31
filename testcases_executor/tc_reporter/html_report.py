@@ -108,11 +108,8 @@ class TestCasesHtmlReport():
         """
         groups = []
         for group, tc_methods in result.test_methods:
-            total = 0
-            for testcase, t_methods in tc_methods:
-                total += len(t_methods)
             group_dict = {
-                'name': group.name, 'total': total,
+                'name': group.name, 'total': result.group_n_tests[group],
                 'duration': format_duration(result.durations['groups'][group])}
             groups.append((group_dict, tc_methods))
         return groups
