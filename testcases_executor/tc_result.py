@@ -262,7 +262,7 @@ class TestCasesResult(TestResult):
 
         Parameters
         ----------
-            group_tests: tuple
+            group_tests: tuple or None
                 group for first item, associated tests methods for second one.
 
         Return

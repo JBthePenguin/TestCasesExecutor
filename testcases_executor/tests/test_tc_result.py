@@ -48,6 +48,8 @@ class TestTestCasesResult(TestCase):
         Assert stream.writeln calls and parameters.
     test_printTotal():
         Assert stream.writeln called once with good parameter.
+    test_get_n_tests():
+        Assert get_n_tests return good value depending of tests's lists.
     test_printInfos():
         Assert stream.writeln called once or two with parameters.
     """
@@ -79,9 +81,10 @@ class TestTestCasesResult(TestCase):
         self.assertEqual(obj.stream, 'stream')
         self.assertEqual(obj.start_time, 0)
         self.assertEqual(obj.test_methods, [])
-        self.assertEqual(obj.group_n_tests, {})
         self.assertEqual(
             obj.durations, {'groups': {}, 'testcases': {}, 'tests': {}})
+        self.assertEqual(obj.n_tests, {'groups': {}})
+        self.assertEqual(obj.status, {'groups': {}})
 
     @patch("testcases_executor.tc_result.time.time")
     @patch("testcases_executor.tc_result.TestResult.startTest")
@@ -399,6 +402,39 @@ class TestTestCasesResult(TestCase):
             call('Ran 3 tests\x1b[0m in \x1b[35m1.587 s\x1b[39m'),
             call('Ran 1 test\x1b[0m in \x1b[35m86.322 ms\x1b[39m')])
 
+    def test_get_n_tests(self):
+        """
+        Assert get_n_tests return good value depending of tests's lists.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert returned values.
+        """
+        # group_tests -> None
+        obj = TestCasesResult(stream='stream')
+        obj.failures, obj.errors, obj.skipped = [], [1, 2], []
+        obj.unexpectedSuccesses, obj.expectedFailures = [], [1, 2, 3]
+        failed, errors, exp_fails, unexp_succ, skipped = obj.get_n_tests(None)
+        self.assertEqual(failed, 0)
+        self.assertEqual(errors, 2)
+        self.assertEqual(skipped, 0)
+        self.assertEqual(unexp_succ, 0)
+        self.assertEqual(exp_fails, 3)
+        # group_tests -> not None
+        obj = TestCasesResult(stream='stream')
+        group_tests = ('group test', ['t1', 't2', 't3', 't4', 't5', 't6'])
+        obj.failures, obj.errors = [('t1', ), ('t6', )], []
+        obj.skipped = [('t4', )]
+        obj.unexpectedSuccesses, obj.expectedFailures = [], [('t2', )]
+        failed, errors, exp_fails, unexp_succ, skipped = obj.get_n_tests(
+            group_tests)
+        self.assertEqual(failed, 2)
+        self.assertEqual(errors, 0)
+        self.assertEqual(skipped, 1)
+        self.assertEqual(unexp_succ, 0)
+        self.assertEqual(exp_fails, 1)
+
     def test_printInfos(self):
         """
         Assert stream.writeln called once or two with parameters.
@@ -406,23 +442,43 @@ class TestTestCasesResult(TestCase):
         Assertions:
         ----------
         assert_called_once_with:
-            Assert if stream.write called once with parameter (tests PASS).
+            Assert if get_n_tests, stream.write called once with parameter.
         assertEqual:
-            Assert if stream.write called 2 times (tests FAILED).
+            Assert if stream.write called 2 times, status dict value.
         assert_has_calls:
             Assert stream.write calls parameters.
+        assertDictEqual:
+            Assert n_tests dict items.
         """
+        # group_tests -> None
         obj = TestCasesResult(stream=Mock())
-        obj.wasSuccessful = Mock()
-        obj.wasSuccessful.return_value = True
+        obj.n_tests['total'] = {}
+        obj.get_n_tests = Mock()
+        obj.get_n_tests.return_value = (0, 0, 0, 0, 3)
         obj.printInfos()
-        obj.stream.writeln.assert_called_once_with('\n\x1b[32mPASSED\x1b[39m')
-        obj.stream.reset_mock()
-        obj.wasSuccessful.return_value = False
-        obj.errors = [1, 2, 3]
-        obj.skipped = [1]
-        obj.printInfos()
+        obj.get_n_tests.assert_called_once_with(None)
         self.assertEqual(2, obj.stream.writeln.call_count)
         obj.stream.writeln.assert_has_calls([
-            call('\n\x1b[31mFAILED\x1b[39m'),
-            call(' (\x1b[31mErrors=3\x1b[39m , \x1b[36mSkipped=1\x1b[39m)')])
+            call('\x1b[32mPASSED\x1b[39m'),
+            call(' (\x1b[36mSkipped=3\x1b[39m)')])
+        self.assertDictEqual(obj.n_tests['total'], {
+            'failed': 0, 'errors': 0, 'skipped': 3,
+            'expectedFails': 0, 'unexpectedSuccesses': 0})
+        self.assertEqual(obj.status['total'], 'PASSED')
+        # group_tests -> not None
+        obj = TestCasesResult(stream=Mock())
+        obj.n_tests['groups']['group tests'] = {}
+        obj.get_n_tests = Mock()
+        obj.get_n_tests.return_value = (0, 2, 1, 0, 0)
+        obj.printInfos(('group tests', ))
+        obj.get_n_tests.assert_called_once_with(('group tests', ))
+        self.assertEqual(2, obj.stream.writeln.call_count)
+        obj.stream.writeln.assert_has_calls([
+            call('\x1b[31mFAILED\x1b[39m'),
+            call("".join([
+                ' (\x1b[31mErrors=2\x1b[39m , ',
+                '\x1b[31mExpected Failures=1\x1b[39m)']))])
+        self.assertDictEqual(obj.n_tests['groups']['group tests'], {
+            'failed': 0, 'errors': 2, 'skipped': 0,
+            'expectedFails': 1, 'unexpectedSuccesses': 0})
+        self.assertEqual(obj.status['groups']['group tests'], 'FAILED')
