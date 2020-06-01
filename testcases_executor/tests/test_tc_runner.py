@@ -179,7 +179,7 @@ class TestTestRunner(TestCase):
                         'TestThree': 2, 'TestFour': 6},
                     'groups': {}}
                 self.test_methods = []
-                self.group_n_tests = {}
+                self.n_tests = {'groups': {}}
                 self.failfast = None
                 self.printTotal = Mock()
                 self.printErrors = Mock()
@@ -225,19 +225,22 @@ class TestTestRunner(TestCase):
             call('separator2\n \x1b[2m'),
             call('\nseparator1'),
             call('separator1'),
-            call('\x1b[1mseparator1\n'),
-            call('\n\x1b[1mseparator1\n\x1b[0m')])
+            call('\x1b[1mseparator1\nseparator1\n'),
+            call('\n\x1b[1mseparator1\nseparator1\n\x1b[0m')])
         self.assertEqual(obj.run_group_suites.call_count, 2)
         obj.run_group_suites.assert_has_calls([
             call(result, group_one),
             call(result, group_two)])
-        result.group_n_tests[group_one] = 5
+        result.n_tests['groups'][group_one] = 5
         result.durations['groups'][group_one] = 7
-        result.group_n_tests[group_two] = 2
+        result.n_tests['groups'][group_two] = 2
         result.durations['groups'][group_two] = 6
         self.assertEqual(result.printTotal.call_count, 3)
         result.printTotal.assert_has_calls([
             call(5, 7), call(2, 6), call(7, 13)])
         result.printErrors.assert_called_once_with()
-        result.printInfos.assert_called_once_with()
+        self.assertEqual(result.printInfos.call_count, 3)
+        result.printInfos.assert_has_calls([
+            call((group_one, ['test1', 'test2', 'test3', 'test4', 'test5'])),
+            call((group_two, ['test6', 'test7'])), call()])
         self.assertEqual(new_result, result)
