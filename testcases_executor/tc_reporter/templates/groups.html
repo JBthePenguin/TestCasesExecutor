@@ -1,23 +1,21 @@
 {% for group, tc_methods in groups %}
     <div class="row my-2">
         <div class="card bg-dark text-light col-12 col-md-10 mx-auto rounded">
-            <div class="card-header text-center">
+            <div class="card-header text-center pb-0">
                 <h4 class="card-title"><strong>{{ group.name }}</strong></h4>
                 <h5 class="card-subtitle text-white-50">
                     <ul class="list-inline">
-                        <li class="list-inline-item"><span class="badge badge-secondary"><i class="fa fa-hourglass-half"></i> <strong>{{ group.duration }}</strong></span></li>
+                        <li class="list-inline-item"><span class="badge badge-light"><i class="fa fa-hourglass-half"></i> <strong>{{ group.duration }}</strong></span></li>
                         <li class="list-inline-item"><span class="badge badge-light"><strong>{{ group.n_tests.total }} test{% if group.n_tests.total > 1 %}s{% endif %}</strong></span></li>
                         <li class="list-inline-item"><span class="badge badge-light"><strong class="text-{{ group.status_color }}">{{ group.status }}</strong></span></li>
                     </ul>
                 </h5>
             </div>
-            <ul class="list-group list-group-flush">
-            {% for testcase, test_methods in tc_methods %}
-                <li class="list-group-item">{% include 'testcase.html' %}</li>
-            {% endfor %}
-            </ul>
-            <div class="card-body pb-0">
-              <ul class="list-inline">
+        {% for testcase, test_methods in tc_methods %}
+            {% include 'testcase.html' %}
+        {% endfor %}
+            <div class="card-body py-0">
+              <ul class="list-inline mb-0">
                   <h5>
                   {% if group.n_tests.failed %}
                       <li class="list-inline-item"><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i> <strong>Fail</strong> <span class="badge badge-pill badge-dark">{{ group.n_tests.failed }}</span></span></li>

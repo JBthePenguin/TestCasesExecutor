@@ -1,8 +1,22 @@
-<div class="card bg-dark">
-    <div class="card-header">
-        <h5 class="card-title">{{ testcase.__name__ }}</h5>
-        <h6 class="card-subtitle text-white-50"><i class="fa fa-file-code-o"></i> {{ testcase.__module__ }}.py</h6>
+<div class="card bg-light rounded col-12 col-md-10 mx-auto my-1">
+    <div class="card-subtitle mt-1 mb-0">
+        <h6 class="text-black-50 mb-0"><i class="fa fa-file-code-o"></i> {{ testcase.module}}.py</h6>
     </div>
-    <div class="card-body table-responsive pt-0 pb-0">
+    <div class="card-title mb-0">
+        <h5 class="text-dark">{{ testcase.name }}</h5>
+    </div>
+    <div class="card-body table-responsive py-0">
+        <table class='table table-sm table-dark table-hover mb-1'>
+            <tbody>
+            {% for t_method in test_methods %}
+                <tr>
+                    <td class="pl-2">{{ t_method._testMethodName }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            <caption class="py-0 mb-0 mt-1">
+                <h5 class="mb-0"><span class="badge badge-light text-dark"><i class="fa fa-hourglass-half"></i> {{ testcase.duration }}</span></h5>
+            </caption>
+        </table>
     </div>
 </div>

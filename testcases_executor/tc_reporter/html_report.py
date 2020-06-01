@@ -99,7 +99,7 @@ class TestCasesHtmlReport():
                 time, duration, status, number of tests, successes, ...
         """
         groups = []
-        for group, tc_methods in result.test_methods:
+        for group, g_tests in result.test_methods:
             # status
             status = result.status['groups'][group]
             if status == 'PASSED':
@@ -111,5 +111,12 @@ class TestCasesHtmlReport():
                 'status_color': status_color,
                 'n_tests': result.n_tests['groups'][group],
                 'duration': format_duration(result.durations['groups'][group])}
+            tc_methods = []
+            for testcase, t_methods in g_tests:
+                tc_dict = {
+                    'name': testcase.__name__, 'module': testcase.__module__,
+                    'duration': format_duration(
+                        result.durations['testcases'][testcase])}
+                tc_methods.append((tc_dict, t_methods))
             groups.append((group_dict, tc_methods))
         return groups
