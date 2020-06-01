@@ -3,17 +3,38 @@
         <div class="card bg-dark text-light col-12 col-md-10 mx-auto rounded">
             <div class="card-header text-center">
                 <h4 class="card-title"><strong>{{ group.name }}</strong></h4>
+                <h5 class="card-subtitle text-white-50">
+                    <ul class="list-inline">
+                        <li class="list-inline-item"><span class="badge badge-secondary"><i class="fa fa-hourglass-half"></i> <strong>{{ group.duration }}</strong></span></li>
+                        <li class="list-inline-item"><span class="badge badge-light"><strong>{{ group.n_tests.total }} test{% if group.n_tests.total > 1 %}s{% endif %}</strong></span></li>
+                        <li class="list-inline-item"><span class="badge badge-light"><strong class="text-{{ group.status_color }}">{{ group.status }}</strong></span></li>
+                    </ul>
+                </h5>
             </div>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item">Cras justo odio</li>
-              <li class="list-group-item">Dapibus ac facilisis in</li>
-              <li class="list-group-item">Vestibulum at eros</li>
+            {% for testcase, test_methods in tc_methods %}
+                <li class="list-group-item">{% include 'testcase.html' %}</li>
+            {% endfor %}
             </ul>
             <div class="card-body pb-0">
               <ul class="list-inline">
-                  <li class="list-inline-item"><h5><span class="badge badge-secondary"><i class="fa fa-hourglass-half"></i> <strong>{{ group.duration }}</strong></span></h5></li>
-                  <li class="list-inline-item"><h5><span class="badge badge-light"><strong>{{ group.n_tests.total }} test{% if group.n_tests.total > 1 %}s{% endif %}</strong></span></h5></li>
-                  <li class="list-inline-item"><h5><span class="badge badge-light"><strong class="text-{{ group.status_color }}">{{ group.status }}</strong></span></h5></li>
+                  <h5>
+                  {% if group.n_tests.failed %}
+                      <li class="list-inline-item"><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i> <strong>Fail</strong> <span class="badge badge-pill badge-dark">{{ group.n_tests.failed }}</span></span></li>
+                  {% endif %}
+                  {% if group.n_tests.errors %}
+                      <li class="list-inline-item"><span class="badge badge-danger"><i class="fa fa-times-circle"></i> <strong>Error</strong> <span class="badge badge-pill badge-dark">{{ group.n_tests.errors }}</span></span></li>
+                  {% endif %}
+                  {% if group.n_tests.skipped %}
+                      <li class="list-inline-item"><span class="badge badge-info"><i class="fa fa-cut"></i> <strong>Skipped</strong> <span class="badge badge-pill badge-dark">{{ group.n_tests.skipped }}</span></span></li>
+                  {% endif %}
+                  {% if group.n_tests.unexpectedSuccesses %}
+                      <li class="list-inline-item"><span class="badge badge-success"><strong>Unexpected Successes</strong> <span class="badge badge-pill badge-dark">{{ group.n_tests.unexpectedSuccesses }}</span></span></li>
+                  {% endif %}
+                  {% if group.n_tests.expectedFails %}
+                      <li class="list-inline-item"><span class="badge badge-danger"><strong>Expected Failures</strong> <span class="badge badge-pill badge-dark">{{ group.n_tests.expectedFails }}</span></span></li>
+                  {% endif %}
+                  </h5>
               </ul>
             </div>
         </div>

@@ -38,8 +38,8 @@ class TestCasesResult(TestResult):
         [(group, [(testcase, test methods), ...]), ...]
     durations: dict
         {'groups': {g: dur}, 'testcases': {tc: dur}, 'tests': {t: dur}}
-    group_n_tests: dict
-        {group: number of tests}
+    n_tests: dict
+        {group: {status: number of tests}}
 
     Methods
     ----------
