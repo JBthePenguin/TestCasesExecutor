@@ -65,7 +65,9 @@ class TestCasesResult(TestResult):
         Display errors or failures list.
     printTotal(run, duration):
         Display total, number of tests and duration.
-    printInfos():
+    get_n_tests(group_tests):
+        Get and return all numbers tests by status depending if group or final.
+    printInfos(group_tests=None):
         Display at the end, PASS or FAILED and infos (number failed...).
     """
 
@@ -254,79 +256,83 @@ class TestCasesResult(TestResult):
         self.stream.writeln(
             f"{ran_text} in {MAGENTA}{format_duration(duration)}{C_RESET}")
 
+    def get_n_tests(self, group_tests):
+        """
+        Get and return all numbers tests by status depending if group or final.
+
+        Parameters
+        ----------
+            group_tests: tuple
+                group for first item, associated tests methods for second one.
+
+        Return
+        ----------
+            failed, errors, exp_fails, unexp_succ, skipped: int
+                numbers of tests for each status.
+        """
+        if group_tests is not None:  # for a group
+            group, test_methods = group_tests
+            failed, errors, exp_fails, unexp_succ, skipped = 0, 0, 0, 0, 0
+            for t_failed in [fail[0] for fail in self.failures]:
+                if t_failed in test_methods:
+                    failed += 1
+            for t_errors in [err[0] for err in self.errors]:
+                if t_errors in test_methods:
+                    errors += 1
+            for t_e_fails in [e_fail[0] for e_fail in self.expectedFailures]:
+                if t_e_fails in test_methods:
+                    exp_fails += 1
+            for t_u_succ in self.unexpectedSuccesses:
+                if t_u_succ in test_methods:
+                    unexp_succ += 1
+            for t_skip in [skp[0] for skp in self.skipped]:
+                if t_skip in test_methods:
+                    skipped += 1
+        else:  # for final total
+            failed, errors, exp_fails, unexp_succ, skipped = map(len, (
+                self.failures, self.errors, self.expectedFailures,
+                self.unexpectedSuccesses, self.skipped))
+        return failed, errors, exp_fails, unexp_succ, skipped
+
     def printInfos(self, group_tests=None):
         """
-        Display at the end, PASS or FAILED and infos (number errors...).
+        Save and display for group or final, status and infos.
+
+        Parameters
+        ----------
+            group_tests: tuple (default: None)
+                group for first item, associated tests methods for second one.
         """
-        if group_tests is not None:
-            group, test_methods = group_tests
-            failed = 0
-            errors = 0
-            expectedFails = 0
-            unexpectedSuccesses = 0
-            skipped = 0
-            t_failed = [fail[0] for fail in self.failures]
-            t_errors = [err[0] for err in self.errors]
-            t_expectedFails = [e_fail[0] for e_fail in self.expectedFailures]
-            t_skipped = [skp[0] for skp in self.skipped]
-            for test_method in test_methods:
-                if test_method in t_failed:
-                    failed += 1
-                elif test_method in t_errors:
-                    errors += 1
-                elif test_method in t_expectedFails:
-                    expectedFails += 1
-                elif test_method in self.unexpectedSuccesses:
-                    unexpectedSuccesses += 1
-                elif test_method in t_skipped:
-                    skipped += 1
-            self.n_tests['groups'][group]['failed'] = failed
-            self.n_tests['groups'][group]['errors'] = errors
-            self.n_tests['groups'][group]['expectedFails'] = expectedFails
-            self.n_tests['groups'][group]['unexpectedSuccesses'] = unexpectedSuccesses
-            self.n_tests['groups'][group]['skipped'] = skipped
-            if errors or failed:
-                wasSuccessful = False
-            else:
-                wasSuccessful = True
+        failed, errors, exp_fails, unexp_succ, skipped = self.get_n_tests(
+            group_tests)
+        total_dict = {
+            'failed': failed, 'errors': errors, 'skipped': skipped,
+            'expectedFails': exp_fails,
+            'unexpectedSuccesses': unexp_succ
+        }
+        if group_tests is not None:  # save number of tests by category
+            self.n_tests['groups'][group_tests[0]].update(total_dict)
         else:
-            failed = len(self.failures)
-            errors = len(self.errors)
-            expectedFails = len(self.expectedFailures)
-            unexpectedSuccesses = len(self.unexpectedSuccesses)
-            skipped = len(self.skipped)
-            self.n_tests['total']['failed'] = failed
-            self.n_tests['total']['errors'] = errors
-            self.n_tests['total']['expectedFails'] = expectedFails
-            self.n_tests['total']['unexpectedSuccesses'] = unexpectedSuccesses
-            self.n_tests['total']['skipped'] = skipped
-            wasSuccessful = self.wasSuccessful()
+            self.n_tests['total'].update(total_dict)
         infos = []
-        if not wasSuccessful:
-            if group_tests is not None:
-                self.status['groups'][group] = 'FAILED'
-            else:
-                self.status['total'] = 'FAILED'
-            self.stream.writeln(f"\n{RED}FAILED{C_RESET}")
+        if errors or failed:  # status not successful
+            status, status_color = 'FAILED', RED
             if failed:
                 infos.append(f"{YELLOW}Failures={failed}{C_RESET}")
             if errors:
                 infos.append(f"{RED}Errors={errors}{C_RESET}")
+        else:  # status success
+            status, status_color = 'PASSED', GREEN
+        if group_tests is not None:
+            self.status['groups'][group_tests[0]] = status
         else:
-            if group_tests is not None:
-                self.status['groups'][group] = 'PASSED'
-            else:
-                self.status['total'] = 'PASSED'
-            self.stream.writeln(f"\n{GREEN}PASSED{C_RESET}")
+            self.status['total'] = status
+        self.stream.writeln(f"{status_color}{status}{C_RESET}")
         if skipped:
             infos.append(f"{BLUE}Skipped={skipped}{C_RESET}")
-        if expectedFails:
-            e_fail = "Expected Failures="
-            infos.append(
-                f"{RED}{e_fail}{expectedFails}{C_RESET}")
-        if unexpectedSuccesses:
-            u_suc = "Unexpected Successes="
-            infos.append(
-                f"{GREEN}{u_suc}{unexpectedSuccesses}{C_RESET}")
+        if exp_fails:
+            infos.append(f"{RED}Expected Failures={exp_fails}{C_RESET}")
+        if unexp_succ:
+            infos.append(f"{GREEN}Unexpected Successes={unexp_succ}{C_RESET}")
         if infos:
             self.stream.writeln(f" ({' , '.join(infos)})")
