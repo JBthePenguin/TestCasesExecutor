@@ -9,9 +9,7 @@
         <table class='table table-sm table-dark table-hover mb-1'>
             <tbody>
             {% for t_method in test_methods %}
-                <tr>
-                    <td class="pl-2">{{ t_method._testMethodName }}</td>
-                </tr>
+                {% include 'test_line.html' %}
             {% endfor %}
             </tbody>
             <caption class="py-0 mb-0 mt-1">

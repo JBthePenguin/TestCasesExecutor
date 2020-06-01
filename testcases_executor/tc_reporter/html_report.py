@@ -117,6 +117,13 @@ class TestCasesHtmlReport():
                     'name': testcase.__name__, 'module': testcase.__module__,
                     'duration': format_duration(
                         result.durations['testcases'][testcase])}
-                tc_methods.append((tc_dict, t_methods))
+                test_methods = []
+                for t_method in t_methods:
+                    t_method_dict = {
+                        'name': t_method._testMethodName,
+                        'duration': format_duration(
+                            result.durations['tests'][t_method])}
+                    test_methods.append(t_method_dict)
+                tc_methods.append((tc_dict, test_methods))
             groups.append((group_dict, tc_methods))
         return groups

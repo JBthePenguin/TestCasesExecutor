@@ -5,8 +5,8 @@
                 <h4 class="card-title"><strong>{{ group.name }}</strong></h4>
                 <h5 class="card-subtitle text-white-50">
                     <ul class="list-inline">
+                        <li class="list-inline-item"><span class="badge badge-light"><strong>Ran {{ group.n_tests.total }} test{% if group.n_tests.total > 1 %}s{% endif %}</strong></span></li>
                         <li class="list-inline-item"><span class="badge badge-light"><i class="fa fa-hourglass-half"></i> <strong>{{ group.duration }}</strong></span></li>
-                        <li class="list-inline-item"><span class="badge badge-light"><strong>{{ group.n_tests.total }} test{% if group.n_tests.total > 1 %}s{% endif %}</strong></span></li>
                         <li class="list-inline-item"><span class="badge badge-light"><strong class="text-{{ group.status_color }}">{{ group.status }}</strong></span></li>
                     </ul>
                 </h5>
