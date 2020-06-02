@@ -17,7 +17,19 @@ from jinja2 import Environment, PackageLoader
 from testcases_executor.tc_utils import format_duration, BOLD, MUTED, S_RESET
 
 
-class ContextHeader(dict):
+class ContextInfos(dict):
+    def __init__(self, status, n_tests, duration):
+        super().__init__()
+        if status == 'PASSED':
+            self['status_color'] = 'success'
+        else:
+            self['status_color'] = 'danger'
+        self.update({
+            'status': status, 'n_tests': n_tests,
+            'duration': format_duration(duration)})
+
+
+class ContextHeader(ContextInfos):
     """
     A subclass of dict.
 
@@ -52,18 +64,11 @@ class ContextHeader(dict):
             n_tests: dict
                 same as parameter.
         """
-        super().__init__()
-        if status == 'PASSED':
-            self['status_color'] = 'success'
-        else:
-            self['status_color'] = 'danger'
-        self.update({
-            'status': status, 'duration': format_duration(duration),
-            'start_time': start_time.strftime("%Y-%m-%d %H:%M:%S"),
-            'n_tests': n_tests})
+        super().__init__(status, n_tests, duration)
+        self['start_time'] = start_time.strftime("%Y-%m-%d %H:%M:%S")
 
 
-class ContextGroup(dict):
+class ContextGroup(ContextInfos):
     """
     A subclass of dict.
 
@@ -82,55 +87,33 @@ class ContextGroup(dict):
         ----------
             (ContextGroup, )
         """
-        super().__init__()
-        if status == 'PASSED':
-            self['status_color'] = 'success'
-        else:
-            self['status_color'] = 'danger'
-        self.update({
-            'name': g_name, 'status': status, 'n_tests': n_tests,
-            'duration': format_duration(duration)})
+        super().__init__(status, n_tests, duration)
+        self['name'] = g_name
 
 
 class ContextMethod(dict):
 
-    def __init__(self, t_method, duration, result):
+    def __init__(self, t_method, duration, t_errors):
         super().__init__()
-        if t_method in [fail[0] for fail in result.failures]:
+        if t_method in t_errors['failures']:
             self.update({
                 'status_name': "FAIL", 'status_icon': "thumbs-o-down",
-                'status_color': "warning"})
-            for test, err in result.failures:
-                if test == t_method:
-                    self['error'] = err
-                    break
-        elif t_method in [err[0] for err in result.errors]:
+                'status_color': "warning", 'error': t_errors[t_method]})
+        elif t_method in t_errors['errors']:
             self.update({
                 'status_name': "ERROR", 'status_icon': "times-circle",
-                'status_color': "danger"})
-            for test, err in result.errors:
-                if test == t_method:
-                    self['error'] = err
-                    break
-        elif t_method in [skp[0] for skp in result.skipped]:
+                'status_color': "danger", 'error': t_errors[t_method]})
+        elif t_method in t_errors['skipped']:
             self.update({
                 'status_name': "SKIP", 'status_icon': "cut",
-                'status_color': "info"})
-            for test, err in result.skipped:
-                if test == t_method:
-                    self['error'] = err
-                    break
-        elif t_method in [e_fail[0] for e_fail in result.expectedFailures]:
+                'status_color': "info", 'error': t_errors[t_method]})
+        elif t_method in t_errors['exp_fails']:
             self.update({
                 'status_name': "Expected Fail", 'status_icon': "stop-circle-o",
-                'status_color': "danger"})
-            for test, err in result.expectedFailures:
-                if test == t_method:
-                    self['error'] = err
-                    break
+                'status_color': "danger", 'error': t_errors[t_method]})
         else:
             self.update({'status_color': 'success', 'error': None})
-            if t_method in result.unexpectedSuccesses:
+            if t_method in t_errors['unex_suc']:
                 self.update({
                     'status_name': "Unexpected Success",
                     'status_icon': 'hand-stop-o'})
@@ -149,11 +132,11 @@ class ContextMethods(list):
     Represent methods context with datas needed in template testcase.
     """
 
-    def __init__(self, t_methods, tm_durations, result):
+    def __init__(self, t_methods, tm_durations, t_errors):
         super().__init__()
         for t_method in t_methods:
             self.append(
-                ContextMethod(t_method, tm_durations[t_method], result))
+                ContextMethod(t_method, tm_durations[t_method], t_errors))
 
 
 class ContextTestCase(dict):
@@ -177,7 +160,7 @@ class ContextTestCases(list):
     Represent testcases context with datas needed in template groups.
     """
 
-    def __init__(self, tc_tup, tc_durations, tm_durations, result):
+    def __init__(self, tc_tup, tc_durations, tm_durations, t_errors):
         """
         Init dict, get color depending of status and add necessary keys values.
 
@@ -193,7 +176,7 @@ class ContextTestCases(list):
         for testcase, t_methods in tc_tup:
             tc_context = ContextTestCase(
                 testcase.__name__, testcase.__module__, tc_durations[testcase])
-            test_methods = ContextMethods(t_methods, tm_durations, result)
+            test_methods = ContextMethods(t_methods, tm_durations, t_errors)
             self.append((tc_context, test_methods))
 
 
@@ -204,7 +187,9 @@ class ContextGroups(list):
     Represent context with datas needed in template groups.
     """
 
-    def __init__(self, result):
+    def __init__(
+            self, test_methods, status_groups, n_tests_groups, durations_groups,
+            durations_tc, durations_tests, t_errors):
         """
         Init list, get color depending of status and add necessary keys values.
 
@@ -217,14 +202,13 @@ class ContextGroups(list):
             (ContextGroup, ContextTestCases)
         """
         super().__init__()
-        for group, tc_tup in result.test_methods:
+        for group, tc_tup in test_methods:
             group_context = ContextGroup(
-                result.status['groups'][group], group.name,
-                result.n_tests['groups'][group],
-                result.durations['groups'][group])
+                status_groups[group], group.name,
+                n_tests_groups[group],
+                durations_groups[group])
             testcases_context = ContextTestCases(
-                tc_tup, result.durations['testcases'],
-                result.durations['tests'], result)
+                tc_tup, durations_tc, durations_tests, t_errors)
             self.append((group_context, testcases_context))
 
 
@@ -253,6 +237,18 @@ class TestCasesHtmlReport():
         dir_reports = './html_reports'
         if not os.path.exists(dir_reports):
             os.makedirs(dir_reports)
+        # errors_dict
+        t_errors = {}
+        for error_key, errors_list in [
+                ('failures', result.failures), ('errors', result.errors),
+                ('skipped', result.skipped),
+                ('exp_fails', result.expectedFailures)]:
+            tests = []
+            for test, err in errors_list:
+                tests.append(test)
+                t_errors[test] = err
+            t_errors[error_key] = tests
+        t_errors['unex_suc'] = result.unexpectedSuccesses
         # report_file
         report_path = os.path.join(dir_reports, 'report.html')
         with open(report_path, 'w') as report_file:
@@ -261,6 +257,10 @@ class TestCasesHtmlReport():
                 header=ContextHeader(
                     result.status['total'], result.start_time,
                     result.durations['total'], result.n_tests['total']),
-                groups=ContextGroups(result)))
+                groups=ContextGroups(
+                    result.test_methods, result.status['groups'],
+                    result.n_tests['groups'], result.durations['groups'],
+                    result.durations['testcases'], result.durations['tests'],
+                    t_errors)))
         result.stream.writeln(
             f"---> {BOLD}{MUTED}{os.path.relpath(report_path)}{S_RESET}\n")
