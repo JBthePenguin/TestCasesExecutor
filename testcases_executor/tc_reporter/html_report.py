@@ -4,6 +4,7 @@ Module testcases_executor.tc_reporter.html_report
 Contain necessary class to make html report of results for groups of TestCases.
 
 Class:
+    ContextHeader
     TestCasesHtmlReport
 
 Imports:
@@ -82,37 +83,36 @@ class ContextHeader(dict):
         Keys - Values
         ----------
             status: str
-                'PASSED' or 'FAILED'.
+                same as parameter.
+            status_color: str
+                'success' or 'danger' ( bootstrap4 colors).
             start_time: str
-                when tests started.
-            duration: float
-                duration of all tests in second.
+                start time formated.
+            duration: str
+                duration formated.
             n_tests: int
-                number of all tests
+                same as parameter.
         """
-        print(duration.__class__)
         super().__init__()
         if status == 'PASSED':
             status_color = 'success'
         else:
             status_color = 'danger'
         self['status'] = status
+        self['status_color'] = status_color
         self['start_time'] = start_time.strftime("%Y-%m-%d %H:%M:%S")
         self['duration'] = format_duration(duration)
-        self['status_color'] = status_color
         self['n_tests'] = n_tests
 
 
 class TestCasesHtmlReport():
     """
-    A class to generate a html report file.
+    A class to generate html report.
 
-    Use result datas to construct file with a base template.
+    Use result to get context datas and with a base template construct file.
 
     Methods
     ----------
-    get_header():
-        Called to get context with necessary datas for header.
     get_groups():
         Called to get context with necessary datas for all groups.
     """
@@ -143,36 +143,9 @@ class TestCasesHtmlReport():
                 header=ContextHeader(
                     result.status['total'], result.start_time,
                     result.durations['total'], result.n_tests['total']),
-                # header=self.get_header(result),
                 groups=self.get_groups(result)))
         result.stream.writeln(
             f"---> {BOLD}{MUTED}{os.path.relpath(report_path)}{S_RESET}\n")
-
-    def get_header(self, result):
-        """
-        Called to get context with necessary datas for header.
-
-        Parameters
-        ----------
-            result: tc_result.TestCasesResult
-                result of tests.
-
-        Return
-        ----------
-            context: dict
-                time, duration, status, number of tests, successes, ...
-        """
-        # status
-        status = result.status['total']
-        if status == 'PASSED':
-            status_color = 'success'
-        else:
-            status_color = 'danger'
-        return {  # header context
-            'start_time': result.start_time.strftime("%Y-%m-%d %H:%M:%S"),
-            'duration': format_duration(result.durations['total']),
-            'status': status, 'status_color': status_color,
-            'n_tests': result.n_tests['total']}
 
     def get_groups(self, result):
         """
