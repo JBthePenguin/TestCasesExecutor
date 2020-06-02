@@ -16,6 +16,30 @@ from jinja2 import Environment, PackageLoader
 from testcases_executor.tc_utils import format_duration, BOLD, MUTED, S_RESET
 
 
+def get_icon_color(t_method, result):
+    if t_method in [fail[0] for fail in result.failures]:
+        status_icon, status_color = "thumbs-o-down", "warning"
+        status_name = "FAIL"
+    elif t_method in [err[0] for err in result.errors]:
+        status_icon, status_color = "times-circle", "danger"
+        status_name = "ERROR"
+    elif t_method in [skp[0] for skp in result.skipped]:
+        status_icon, status_color = "cut", "info"
+        status_name = "SKIP"
+    elif t_method in [e_fail[0] for e_fail in result.expectedFailures]:
+        status_icon, status_color = "stop-circle-o", "danger"
+        status_name = "Expected Fail"
+    else:
+        status_color = 'success'
+        if t_method in result.unexpectedSuccesses:
+            status_icon = 'hand-stop-o'
+            status_name = "Unexpected Success"
+        else:
+            status_icon = 'thumbs-o-up'
+            status_name = "SUCCESS"
+    return status_name, status_icon, status_color
+
+
 class TestCasesHtmlReport():
     """
     A class to generate a html report file.
@@ -119,10 +143,16 @@ class TestCasesHtmlReport():
                         result.durations['testcases'][testcase])}
                 test_methods = []
                 for t_method in t_methods:
+                    status_name, status_icon, status_color = (
+                        get_icon_color(t_method, result))
                     t_method_dict = {
                         'name': t_method._testMethodName,
                         'duration': format_duration(
-                            result.durations['tests'][t_method])}
+                            result.durations['tests'][t_method]),
+                        'status_name': status_name,
+                        'status_icon': status_icon,
+                        'status_color': status_color,
+                        'doc': t_method._testMethodDoc}
                     test_methods.append(t_method_dict)
                 tc_methods.append((tc_dict, test_methods))
             groups.append((group_dict, tc_methods))

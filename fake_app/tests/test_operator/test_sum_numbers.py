@@ -1,13 +1,14 @@
-from unittest import TestCase
+from unittest import TestCase, expectedFailure
 from fake_app.operator.sum_numbers import SumTwo, SumThree
 
 
 class TestSumTwo(TestCase):
     """TestCase for SumTwo."""
 
+    @expectedFailure
     def test_int_result(self):
         """Assert the return of the method int_result."""
-        self.assertEqual(SumTwo(3, 3.5).int_result(), 6)
+        self.assertEqual(SumTwo('a', 3.5).int_result(), 6)
 
     def test_float_result(self):
         """Assert the return of the method float_result."""

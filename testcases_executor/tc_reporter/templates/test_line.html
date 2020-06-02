@@ -1,10 +1,10 @@
 <tr class="btn w-100 p-0" data-toggle="collapse" data-target="#{{ testcase.name }}{{ t_method.name }}" style="border: none;">
     <td class="text-light pl-2 w-50 text-left">{{ t_method.name }}</td>
-    <td><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i></span></td>
+    <td><span class="badge badge-{{ t_method.status_color }}"><i class="fa fa-{{ t_method.status_icon }}"></i></span></td>
     <td class="text-right w-100"><span class="badge badge-light text-dark mr-1"><i class="fa fa-hourglass-half"></i> {{ t_method.duration }}</span></td>
 </tr>
 <tr class="collapse bg-secondary" id="{{ testcase.name }}{{ t_method.name }}">
     <td colspan=3><small>
-        <div class="alert alert-warning rounded m-1" role="alert">Doc<br>FAIL: type<br>traceback</div>
+        <div class="alert alert-{{ t_method.status_color }} rounded m-1" role="alert">{{ t_method.doc }}<br>{{ t_method.status_name }}{% if t_method.status_name not in ['SUCCESS', 'Unexpected Success'] %}<br>error<br>traceback{% endif %}</div>
     </small></td>
 </tr>

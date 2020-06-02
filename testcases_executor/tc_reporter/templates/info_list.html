@@ -1,0 +1,17 @@
+<ul class="list-inline mb-0">
+{% if n_tests.failed %}
+  <li class="list-inline-item"><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i> <strong>Fail</strong> <span class="badge badge-pill badge-dark">{{ n_tests.failed }}</span></span></li>
+{% endif %}
+{% if n_tests.errors %}
+  <li class="list-inline-item"><span class="badge badge-danger"><i class="fa fa-times-circle"></i> <strong>Error</strong> <span class="badge badge-pill badge-dark">{{ n_tests.errors }}</span></span></li>
+{% endif %}
+{% if n_tests.skipped %}
+  <li class="list-inline-item"><span class="badge badge-info"><i class="fa fa-cut"></i> <strong>Skipped</strong> <span class="badge badge-pill badge-dark">{{ n_tests.skipped }}</span></span></li>
+{% endif %}
+{% if n_tests.unexpectedSuccesses %}
+  <li class="list-inline-item"><span class="badge badge-success"><i class="fa fa-hand-stop-o"></i> <strong>Unexpected Successes</strong> <span class="badge badge-pill badge-dark">{{ n_tests.unexpectedSuccesses }}</span></span></li>
+{% endif %}
+{% if n_tests.expectedFails %}
+  <li class="list-inline-item"><span class="badge badge-danger"><i class="fa fa-stop-circle-o"></i> <strong>Expected Failures</strong> <span class="badge badge-pill badge-dark">{{ n_tests.expectedFails }}</span></span></li>
+{% endif %}
+</ul>

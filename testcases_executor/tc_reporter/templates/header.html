@@ -16,23 +16,9 @@
     <div class="card-body p-1">
         <h4><span class="badge badge-light"><strong class="text-{{ header.status_color }}">{{ header.status }}</strong></span></h4>
         <h4 class="my-1">
-            <ul class="list-inline mb-0">
-            {% if header.n_tests.failed %}
-                <li class="list-inline-item"><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i> <strong>Fail</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.failed }}</span></span></li>
-            {% endif %}
-            {% if header.n_tests.errors %}
-                <li class="list-inline-item"><span class="badge badge-danger"><i class="fa fa-times-circle"></i> <strong>Error</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.errors }}</span></span></li>
-            {% endif %}
-            {% if header.n_tests.skipped %}
-                <li class="list-inline-item"><span class="badge badge-info"><i class="fa fa-cut"></i> <strong>Skipped</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.skipped }}</span></span></li>
-            {% endif %}
-            {% if header.n_tests.unexpectedSuccesses %}
-                <li class="list-inline-item"><span class="badge badge-success"><strong>Unexpected Successes</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.unexpectedSuccesses }}</span></span></li>
-            {% endif %}
-            {% if header.n_tests.expectedFails %}
-                <li class="list-inline-item"><span class="badge badge-danger"><strong>Expected Failures</strong> <span class="badge badge-pill badge-dark">{{ header.n_tests.expectedFails }}</span></span></li>
-            {% endif %}
-            </ul>
+            {% with n_tests = header.n_tests %}
+              {% include 'info_list.html' %}
+            {% endwith %}
         </h4>
     </div>
 </div>
