@@ -5,6 +5,17 @@
 </tr>
 <tr class="collapse bg-secondary" id="{{ testcase.name }}{{ t_method.name }}">
     <td colspan=3><small>
-        <div class="alert alert-{{ t_method.status_color }} rounded m-1" role="alert">{{ t_method.doc }}<br>{{ t_method.status_name }}{% if t_method.status_name not in ['SUCCESS', 'Unexpected Success'] %}<br>error<br>traceback{% endif %}</div>
+        <div class="alert alert-{{ t_method.status_color }} rounded m-1" role="alert">
+            {{ t_method.doc }}<br>{{ t_method.status_name }}
+        {% if t_method.error %}
+            <br>
+            {% if t_method.status_name == 'SKIP' %}
+                {{ t_method.error }}
+            {% else %}
+                {{ t_method.error.splitlines()[-1] }}
+                <div class="alert alert-dark rounded m-1" role="alert">{{ t_method.error.replace("\n", "<br>") }}</div>
+            {% endif %}
+        {% endif %}
+        </div>
     </small></td>
 </tr>

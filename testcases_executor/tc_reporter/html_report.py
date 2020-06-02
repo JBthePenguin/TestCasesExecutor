@@ -20,24 +20,41 @@ def get_icon_color(t_method, result):
     if t_method in [fail[0] for fail in result.failures]:
         status_icon, status_color = "thumbs-o-down", "warning"
         status_name = "FAIL"
+        for test, err in result.failures:
+            if test == t_method:
+                t_error = err
+                break
     elif t_method in [err[0] for err in result.errors]:
         status_icon, status_color = "times-circle", "danger"
         status_name = "ERROR"
+        for test, err in result.errors:
+            if test == t_method:
+                t_error = err
+                break
     elif t_method in [skp[0] for skp in result.skipped]:
         status_icon, status_color = "cut", "info"
         status_name = "SKIP"
+        for test, err in result.skipped:
+            if test == t_method:
+                t_error = err
+                break
     elif t_method in [e_fail[0] for e_fail in result.expectedFailures]:
         status_icon, status_color = "stop-circle-o", "danger"
         status_name = "Expected Fail"
+        for test, err in result.expectedFailures:
+            if test == t_method:
+                t_error = err
+                break
     else:
         status_color = 'success'
+        t_error = None
         if t_method in result.unexpectedSuccesses:
             status_icon = 'hand-stop-o'
             status_name = "Unexpected Success"
         else:
             status_icon = 'thumbs-o-up'
             status_name = "SUCCESS"
-    return status_name, status_icon, status_color
+    return status_name, status_icon, status_color, t_error
 
 
 class TestCasesHtmlReport():
@@ -143,7 +160,7 @@ class TestCasesHtmlReport():
                         result.durations['testcases'][testcase])}
                 test_methods = []
                 for t_method in t_methods:
-                    status_name, status_icon, status_color = (
+                    status_name, status_icon, status_color, t_error = (
                         get_icon_color(t_method, result))
                     t_method_dict = {
                         'name': t_method._testMethodName,
@@ -152,6 +169,7 @@ class TestCasesHtmlReport():
                         'status_name': status_name,
                         'status_icon': status_icon,
                         'status_color': status_color,
+                        'error': t_error,
                         'doc': t_method._testMethodDoc}
                     test_methods.append(t_method_dict)
                 tc_methods.append((tc_dict, test_methods))
