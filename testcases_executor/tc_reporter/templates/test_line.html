@@ -1,7 +1,7 @@
-<tr>
-    <td class="col-7 pl-2">{{ t_method.name }}</td>
-    <td class="col-1"><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i></span></td>
-    <td class="col-4 text-center"><span class="badge badge-light text-dark"><i class="fa fa-hourglass-half"></i> {{ t_method.duration }}</span></td>
+<tr class="btn w-100 p-0" data-toggle="collapse" data-target="#{{ testcase.name }}{{ t_method.name }}" style="border: none;">
+    <td class="text-light pl-2 w-50 text-left">{{ t_method.name }}</td>
+    <td><span class="badge badge-warning"><i class="fa fa-thumbs-o-down"></i></span></td>
+    <td class="text-right w-100"><span class="badge badge-light text-dark mr-1"><i class="fa fa-hourglass-half"></i> {{ t_method.duration }}</span></td>
 </tr>
 <tr class="collapse bg-secondary" id="{{ testcase.name }}{{ t_method.name }}">
     <td colspan=3><small>
