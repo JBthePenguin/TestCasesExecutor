@@ -57,6 +57,52 @@ def get_icon_color(t_method, result):
     return status_name, status_icon, status_color, t_error
 
 
+class ContextHeader(dict):
+    """
+    A subclass of dict.
+
+    Represent context with datas needed in template header.
+    """
+
+    def __init__(self, status, start_time, duration, n_tests):
+        """
+        Init dict, get color depending of status and add necessary keys values.
+
+        Parameters
+        ----------
+            status: str
+                'PASSED' or 'FAILED'.
+            start_time: datetime
+                when tests started.
+            duration: float
+                duration of all tests in second.
+            n_tests: int
+                number of all tests
+
+        Keys - Values
+        ----------
+            status: str
+                'PASSED' or 'FAILED'.
+            start_time: str
+                when tests started.
+            duration: float
+                duration of all tests in second.
+            n_tests: int
+                number of all tests
+        """
+        print(duration.__class__)
+        super().__init__()
+        if status == 'PASSED':
+            status_color = 'success'
+        else:
+            status_color = 'danger'
+        self['status'] = status
+        self['start_time'] = start_time.strftime("%Y-%m-%d %H:%M:%S")
+        self['duration'] = format_duration(duration)
+        self['status_color'] = status_color
+        self['n_tests'] = n_tests
+
+
 class TestCasesHtmlReport():
     """
     A class to generate a html report file.
@@ -94,7 +140,10 @@ class TestCasesHtmlReport():
         with open(report_path, 'w') as report_file:
             report_file.write(template.render(
                 title=f"{os.path.basename(os.getcwd())} Tests Results",
-                header=self.get_header(result),
+                header=ContextHeader(
+                    result.status['total'], result.start_time,
+                    result.durations['total'], result.n_tests['total']),
+                # header=self.get_header(result),
                 groups=self.get_groups(result)))
         result.stream.writeln(
             f"---> {BOLD}{MUTED}{os.path.relpath(report_path)}{S_RESET}\n")

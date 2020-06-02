@@ -1,7 +1,8 @@
 <div class="row card bg-dark text-light text-center">
-    <!-- title - start time - duration - total - status -->
     <div class="card-header pb-0">
+        <!-- title -->
         <h3 class="card-title">{{ title }}</h3>
+        <!-- start time - total - duration -->
         <h5 class="card-subtitle text-white-50">
             <i class="fa fa-clock-o"></i> {{ header.start_time }}
             <h4 class="mt-2">
@@ -12,8 +13,9 @@
             </h4>
         </h5>
     </div>
-    <!-- numbers of pass, fails, errors, skips -->
     <div class="card-body p-1">
+        <!-- numbers of fails, errors, skips,
+        unexpected successes, expected error -->
         <h4><span class="badge badge-light"><strong class="text-{{ header.status_color }}">{{ header.status }}</strong></span></h4>
         <h4 class="my-1">
             {% with n_tests = header.n_tests %}
