@@ -8,7 +8,7 @@
     <div class="card-body table-responsive py-0">
         <table class='table table-sm table-dark table-hover mb-1'>
             <tbody>
-            {% for t_method in test_methods %}
+            {% for t_method in testcase.t_methods %}
                 {% include 'test_line.html' %}
             {% endfor %}
             </tbody>

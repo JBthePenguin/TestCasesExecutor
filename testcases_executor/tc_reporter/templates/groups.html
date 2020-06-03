@@ -1,4 +1,4 @@
-{% for group, tc_methods in groups %}
+{% for group in groups %}
     <div class="row my-2">
         <div class="card bg-dark text-light col-12 col-md-10 mx-auto rounded">
             <div class="card-header text-center pb-0">
@@ -11,7 +11,7 @@
                     </ul>
                 </h5>
             </div>
-        {% for testcase, test_methods in tc_methods %}
+        {% for testcase in group.testcases %}
             {% include 'testcase.html' %}
         {% endfor %}
             <div class="card-body py-0">
