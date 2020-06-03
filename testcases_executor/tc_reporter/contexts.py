@@ -227,3 +227,68 @@ class ContextMethod(dict):
         self.update({
             'name': t_method._testMethodName, 'doc': t_method._testMethodDoc,
             'duration': format_duration(duration)})
+
+
+class ContextReport():
+    """
+    A class to generate the context used to construct html report file.
+
+    Use result to get necessary datas for header and groups html.
+
+    Attributes
+    ----------
+    title: str
+        report's title.
+    header: ContextHeader
+        necessary datas for header.html .
+    groups: list
+        ContextGroup instances with necessary datas for groups.html .
+    """
+
+    def __init__(self, project_name, result):
+        """
+        Init env, get template base and context to construct report file.
+
+        Parameters
+        ----------
+            project_name: str
+                name used in title.
+            result: tc_result.TestCasesResult
+                result of tests.
+        """
+        self.title = f"{project_name} Tests Results"
+        self.header = ContextHeader(
+            result.status['total'], result.start_time,
+            result.n_tests['total'], result.durations['total'])
+        # errors_dict
+        t_errors = {}
+        for error_key, errors_list in [
+                ('failures', result.failures), ('errors', result.errors),
+                ('skipped', result.skipped),
+                ('exp_fails', result.expectedFailures)]:
+            tests = []
+            for test, err in errors_list:
+                tests.append(test)
+                t_errors[test] = err
+            t_errors[error_key] = tests
+        t_errors['unex_suc'] = result.unexpectedSuccesses
+        # groups
+        self.groups = []
+        for group, tc_tup in result.test_methods:
+            g_testcases = []  # group's testcases
+            for testcase, t_methods in tc_tup:
+                tc_methods = []  # testcase's methods
+                for t_method in t_methods:
+                    t_context = ContextMethod(
+                        t_method, result.durations['tests'][t_method],
+                        t_errors)
+                    tc_methods.append(t_context)
+                tc_context = ContextTestCase(
+                    testcase.__name__, testcase.__module__,
+                    result.durations['testcases'][testcase], tc_methods)
+                g_testcases.append(tc_context)
+            group_context = ContextGroup(
+                group.name, result.status['groups'][group],
+                result.n_tests['groups'][group],
+                result.durations['groups'][group], g_testcases)
+            self.groups.append(group_context)
