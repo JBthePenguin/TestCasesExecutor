@@ -1,13 +1,14 @@
 """
 Module testcases_executor.tc_reporter.contexts
 
-Contain necessary context classes used in template to construct html report.
+Contain necessary Context classes used in template to construct html report.
 
 Classes:
     ContextInfos
     ContextHeader
     ContextGroup
     ContextMethod
+    ContextReport
 
 Imports:
     from testcases_executor.tc_utils: format_duration
@@ -19,7 +20,7 @@ class ContextInfos(dict):
     """
     A subclass of dict.
 
-    Represent infos context used to init ContextHeader and ContextGroup.
+    Represent infos context, used to init info_list.html .
 
     Keys - Values
     ----------
@@ -60,7 +61,7 @@ class ContextHeader(ContextInfos):
     """
     A subclass of ContextInfos.
 
-    Represent context with datas needed in template header.html .
+    Represent context header with datas needed in template header.html .
 
     Keys - Values
     ----------
@@ -91,7 +92,7 @@ class ContextGroup(ContextInfos):
     """
     A subclass of ContextInfos.
 
-    Represent context with datas needed in template groups.html .
+    Represent context group with datas needed in template groups.html .
 
     Keys - Values
     ----------
@@ -165,7 +166,7 @@ class ContextMethod(dict):
     """
     A subclass of dict.
 
-    Represent a testcase context with datas needed in template testcase.html .
+    Represent a method context with datas needed in template test_line.html .
 
     Keys - Values
     ----------
@@ -179,8 +180,6 @@ class ContextMethod(dict):
         test method's name.
     doc: str
         test method's docstring.
-    t_methods: list
-        ContextMethod objects.
     duration: str
         duration formated in second or millisecond.
     """
@@ -196,7 +195,7 @@ class ContextMethod(dict):
             duration: float
                 duration of all tests in second.
             t_errors: dict
-                key t_method -> error, errors failures skipped... -> list tests
+                key t_method -> error, key errors failures... -> list tests.
         """
         super().__init__()
         if t_method in t_errors['failures']:
@@ -243,11 +242,18 @@ class ContextReport():
         necessary datas for header.html .
     groups: list
         ContextGroup instances with necessary datas for groups.html .
+    t_errors: dict
+        key t_method -> error, key errors failures skipped... -> list tests.
+
+    Method
+    ----------
+    make_errors_dict():
+        Construct t_errors attribute used to init ContextMethod.
     """
 
     def __init__(self, project_name, result):
         """
-        Init env, get template base and context to construct report file.
+        Constructs all attributes context used result object.
 
         Parameters
         ----------
@@ -256,24 +262,14 @@ class ContextReport():
             result: tc_result.TestCasesResult
                 result of tests.
         """
-        self.title = f"{project_name} Tests Results"
-        self.header = ContextHeader(
+        self.title = f"{project_name} Tests Results"  # title
+        self.header = ContextHeader(  # header
             result.status['total'], result.start_time,
             result.n_tests['total'], result.durations['total'])
-        # errors_dict
-        t_errors = {}
-        for error_key, errors_list in [
-                ('failures', result.failures), ('errors', result.errors),
-                ('skipped', result.skipped),
-                ('exp_fails', result.expectedFailures)]:
-            tests = []
-            for test, err in errors_list:
-                tests.append(test)
-                t_errors[test] = err
-            t_errors[error_key] = tests
-        t_errors['unex_suc'] = result.unexpectedSuccesses
-        # groups
-        self.groups = []
+        self.make_errors_dict(  # errors_dict
+            result.failures, result.errors, result.skipped,
+            result.expectedFailures, result.unexpectedSuccesses)
+        self.groups = []  # groups
         for group, tc_tup in result.test_methods:
             g_testcases = []  # group's testcases
             for testcase, t_methods in tc_tup:
@@ -281,7 +277,7 @@ class ContextReport():
                 for t_method in t_methods:
                     t_context = ContextMethod(
                         t_method, result.durations['tests'][t_method],
-                        t_errors)
+                        self.t_errors)
                     tc_methods.append(t_context)
                 tc_context = ContextTestCase(
                     testcase.__name__, testcase.__module__,
@@ -292,3 +288,24 @@ class ContextReport():
                 result.n_tests['groups'][group],
                 result.durations['groups'][group], g_testcases)
             self.groups.append(group_context)
+
+    def make_errors_dict(self, failures, errors, skipped, expFails, unexpSucc):
+        """
+        Construct t_errors attribute used to init ContextMethod.
+
+        Parameters
+        ----------
+            failures, errors, skipped, expFails, unexpSucc: lists
+                errors list from result
+        """
+        self.t_errors = {}
+        for error_key, errors_list in [
+                ('failures', failures), ('errors', errors),
+                ('skipped', skipped),
+                ('exp_fails', expFails)]:
+            tests = []
+            for test, err in errors_list:
+                tests.append(test)
+                self.t_errors[test] = err
+            self.t_errors[error_key] = tests
+        self.t_errors['unex_suc'] = unexpSucc
