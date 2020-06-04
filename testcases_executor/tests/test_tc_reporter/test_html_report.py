@@ -8,6 +8,8 @@ unittest.TestCase sublass:
 
 Imports:
     from unittest: TestCase
+    from unittest.mock: patch, Mock, mock_open, call
+    from testcases_executor.tc_reporter.html_report: TestCasesHtmlReport
 """
 from unittest import TestCase
 from unittest.mock import patch, Mock, mock_open, call
@@ -37,12 +39,39 @@ class TestTestCasesHtmlReport(TestCase):
             mock_path, mock_loader, mock_env):
         """
         Assert TestCasesHtmlReport object is initialized with good attributes.
+
+        Parameters:
+        ----------
+        mock_context : Mock
+            Mock of ContextReport .
+        mock_getcwd : Mock
+            Mock of os.getcwd .
+        mock_makedirs : Mock
+            Mock of os.makedirs .
+        mock_path : Mock
+            Mock of os.path .
+        mock_loader : Mock
+            Mock of jinja2.PackageLoader .
+        mock_env : Mock
+            Mock of jinja2.Environment .
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert stream.writeln number of calls.
+        assert_has_calls:
+            Assert stream.write calls parameters.
+        assert_called_once_with:
+            Assert env, loader, env.get_template, context, path.basename,
+            getcwd, path.join, open, open.write, template.render, makedirs,
+            called once with parameter.
+        assert_not_called:
+            Assert makedirs not called if assert_not_called is True.
+
         """
-        result = Mock()
-        obj_env = Mock()
-        report_template = Mock()
+        m = mock_open()  # make necessary mocks, set necessary return values
+        result, obj_env, report_template = Mock(), Mock(), Mock()
         report_template.render.return_value = "template render"
-        m = mock_open()
         obj_env.get_template.return_value = report_template
         mock_path.exists.return_value = True
         mock_path.join.return_value = 'path'
@@ -51,8 +80,8 @@ class TestTestCasesHtmlReport(TestCase):
         mock_getcwd.return_value = 'getcwd'
         mock_env.return_value = obj_env
         mock_loader.return_value = 'Loader'
-        with patch('builtins.open', m):
-            TestCasesHtmlReport(result)
+        with patch('builtins.open', m):  # with mock open
+            TestCasesHtmlReport(result)  # init obj and make all assertions
             self.assertEqual(result.stream.writeln.call_count, 2)
             result.stream.writeln.assert_has_calls([
                 call("Generating html report ...\n"),
@@ -73,6 +102,6 @@ class TestTestCasesHtmlReport(TestCase):
             report_template.render.assert_called_once_with(
                 title=mock_context().title, header=mock_context().header,
                 groups=mock_context().groups)
-            mock_path.exists.return_value = False
+            mock_path.exists.return_value = False  # path.exists: False
             TestCasesHtmlReport(result)
             mock_makedirs.assert_called_once_with('./html_reports')
