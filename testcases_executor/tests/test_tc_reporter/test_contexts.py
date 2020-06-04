@@ -15,6 +15,9 @@ Imports:
     from unittest: TestCase
 """
 from unittest import TestCase
+from unittest.mock import patch
+from testcases_executor.tc_reporter.contexts import (
+    ContextInfos)
 
 
 class TestContextInfos(TestCase):
@@ -29,11 +32,34 @@ class TestContextInfos(TestCase):
         Assert ContextInfos (dict) is initialized with good keys / values.
     """
 
-    def test_init_context_infos(self):
+    @patch("testcases_executor.tc_reporter.contexts.format_duration")
+    def test_init_context_infos(self, mock_format_duration):
         """
         Assert ContextInfos (dict) is initialized with good keys / values.
+
+        Parameters:
+        ----------
+        mock_format_duration : Mock
+            Mock of tc_utils.format_duration .
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert format_duration called once with 'duration'.
+        assertDictEqual:
+            Assert if obj is the desired dict.
+        assertEqual:
+            If FAILED, assert values for keys status and status_color.
         """
-        pass
+        mock_format_duration.return_value = 'duration formated'
+        obj = ContextInfos('PASSED', 'n_tests', 'duration')
+        mock_format_duration.assert_called_once_with('duration')
+        self.assertDictEqual(obj, {
+            'status': 'PASSED', 'n_tests': 'n_tests',
+            'duration': 'duration formated', 'status_color': 'success'})
+        obj = ContextInfos('FAILED', 'n_tests', 'duration')
+        self.assertEqual(obj['status'], 'FAILED')
+        self.assertEqual(obj['status_color'], 'danger')
 
 
 class TestContextHeader(TestCase):
