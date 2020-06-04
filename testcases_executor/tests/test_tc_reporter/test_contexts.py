@@ -17,7 +17,8 @@ Imports:
 from unittest import TestCase
 from unittest.mock import patch, Mock
 from testcases_executor.tc_reporter.contexts import (
-    ContextInfos, ContextHeader, ContextGroup, ContextTestCase, ContextMethod)
+    ContextInfos, ContextHeader, ContextGroup, ContextTestCase, ContextMethod,
+    ContextReport)
 
 
 class TestContextInfos(TestCase):
@@ -271,11 +272,80 @@ class TestContextReport(TestCase):
         Assert if ContextReport.t_errors is desired dict.
     """
 
-    def test_init_context_report(self):
+    @patch("testcases_executor.tc_reporter.contexts.ContextHeader")
+    @patch("testcases_executor.tc_reporter.contexts.ContextMethod")
+    @patch("testcases_executor.tc_reporter.contexts.ContextTestCase")
+    @patch("testcases_executor.tc_reporter.contexts.ContextGroup")
+    def test_init_context_report(
+            self, mock_group, mock_tc, mock_method, mock_header):
         """
         Assert ContextReport object is initialized with good attributes.
+
+        Classes:
+        ----------
+        FakeResult:
+            Fake a result to get properties to assert if updated correctly.
+        FakeGroup:
+            Fake group with name property.
         """
-        pass
+        class FakeGroup():
+
+            def __init__(self, g_name):
+                self.name = g_name
+
+        group_one, group_two = FakeGroup('group one'), FakeGroup('group two')
+
+        class FakeTestCase1():
+            pass
+
+        class FakeTestCase2():
+            pass
+
+        class FakeTestCase3():
+            pass
+
+        class FakeTestCase4():
+            pass
+
+        class FakeResult():
+
+            def __init__(self):
+                self.status = {
+                    'total': 'status total', 'groups': {
+                        group_one: 'status group 1',
+                        group_two: 'status group 2'}}
+                self.start_time = 'start time'
+                self.durations = {
+                    'testcases': {
+                        FakeTestCase1: 3, FakeTestCase2: 2,
+                        FakeTestCase3: 2, FakeTestCase4: 8},
+                    'tests': {
+                        't1': 5, 't2': 12, 't3': 1, 't4': 3, 't5': 2,
+                        't6': 0, 't7': 4},
+                    'groups': {
+                        group_one: 'duration group 1',
+                        group_two: 'duration group 2'},
+                    'total': 'duration total'}
+                self.test_methods = [
+                    (group_one, [
+                        (FakeTestCase1, ['t1', 't2', 't3']),
+                        (FakeTestCase2, ['t4']), (FakeTestCase3, ['t5'])]),
+                    (group_two, [
+                        (FakeTestCase4, ['t6', 't7'])])]
+                self.n_tests = {'groups': {
+                    group_one: 'n_tests group 1',
+                    group_two: 'n_tests group 2'}, 'total': 'n_tests total'}
+                self.failures = [('t1', 'fail t1'), ('t6', 'fail t6')]
+                self.errors = [('t3', 'error t3')]
+                self.skipped, self.expectedFailures = [], []
+                self.unexpectedSuccesses = []
+
+        result = FakeResult()
+        obj = ContextReport('project name', result)
+        self.assertDictEqual(obj.t_errors, {
+            't1': 'fail t1', 't6': 'fail t6', 'failures': ['t1', 't6'],
+            't3': 'error t3', 'errors': ['t3'], 'skipped': [],
+            'exp_fails': [], 'unex_suc': []})
 
     def test_make_errors_dict(self):
         """
