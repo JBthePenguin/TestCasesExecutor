@@ -15,7 +15,7 @@ Imports:
     from unittest: TestCase
 """
 from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, call
 from testcases_executor.tc_reporter.contexts import (
     ContextInfos, ContextHeader, ContextGroup, ContextTestCase, ContextMethod,
     ContextReport)
@@ -283,10 +283,10 @@ class TestContextReport(TestCase):
 
         Classes:
         ----------
-        FakeResult:
-            Fake a result to get properties to assert if updated correctly.
         FakeGroup:
             Fake group with name property.
+        FakeResult:
+            Fake a result to get properties to assert if updated correctly.
         """
         class FakeGroup():
 
@@ -328,27 +328,65 @@ class TestContextReport(TestCase):
                     'total': 'duration total'}
                 self.test_methods = [
                     (group_one, [
-                        (FakeTestCase1, ['t1', 't2', 't3']),
-                        (FakeTestCase2, ['t4']), (FakeTestCase3, ['t5'])]),
+                        (FakeTestCase1, ['t1', 't4', 't3']),
+                        (FakeTestCase2, ['t7']), (FakeTestCase3, ['t5'])]),
                     (group_two, [
-                        (FakeTestCase4, ['t6', 't7'])])]
+                        (FakeTestCase4, ['t6', 't2'])])]
                 self.n_tests = {'groups': {
                     group_one: 'n_tests group 1',
                     group_two: 'n_tests group 2'}, 'total': 'n_tests total'}
-                self.failures = [('t1', 'fail t1'), ('t6', 'fail t6')]
+                self.failures = [('t1', 'fail t1')]
                 self.errors = [('t3', 'error t3')]
-                self.skipped, self.expectedFailures = [], []
-                self.unexpectedSuccesses = []
+                self.skipped = [('t2', 'skip t2')]
+                self.expectedFailures = [('t6', 'fail t6')]
+                self.unexpectedSuccesses = [('t7', 'fail t7')]
 
         result = FakeResult()
+        mock_header.return_value = 'Context Header'
+        mock_method.return_value = 'Context Method'
+        mock_tc.return_value = 'Context TestCase'
+        mock_group.return_value = 'Context Group'
         obj = ContextReport('project name', result)
-        self.assertDictEqual(obj.t_errors, {
-            't1': 'fail t1', 't6': 'fail t6', 'failures': ['t1', 't6'],
-            't3': 'error t3', 'errors': ['t3'], 'skipped': [],
-            'exp_fails': [], 'unex_suc': []})
-
-    def test_make_errors_dict(self):
-        """
-        Assert if ContextReport.t_errors is desired dict.
-        """
-        pass
+        self.assertEqual(obj.title, 'project name Tests Results')
+        self.assertDictEqual(obj.t_errors, {  # make_errors_dict
+            't1': 'fail t1', 'failures': ['t1'], 't3': 'error t3',
+            'errors': ['t3'], 't2': 'skip t2', 'skipped': ['t2'],
+            't6': 'fail t6', 'exp_fails': ['t6'],
+            'unex_suc': [('t7', 'fail t7')]})
+        mock_header.assert_called_once_with(
+            'status total', 'start time', 'n_tests total', 'duration total')
+        self.assertEqual(obj.header, 'Context Header')
+        self.assertEqual(mock_method.call_count, 7)
+        mock_method.assert_has_calls([
+            call('t1', 5, obj.t_errors), call('t4', 3, obj.t_errors),
+            call('t3', 1, obj.t_errors), call('t7', 4, obj.t_errors),
+            call('t5', 2, obj.t_errors), call('t6', 0, obj.t_errors),
+            call('t2', 12, obj.t_errors)])
+        self.assertEqual(mock_tc.call_count, 4)
+        mock_tc.assert_has_calls([
+            call(
+                'FakeTestCase1',
+                'testcases_executor.tests.test_tc_reporter.test_contexts',
+                3, ['Context Method', 'Context Method', 'Context Method']),
+            call(
+                'FakeTestCase2',
+                'testcases_executor.tests.test_tc_reporter.test_contexts',
+                2, ['Context Method']),
+            call(
+                'FakeTestCase3',
+                'testcases_executor.tests.test_tc_reporter.test_contexts',
+                2, ['Context Method']),
+            call(
+                'FakeTestCase4',
+                'testcases_executor.tests.test_tc_reporter.test_contexts',
+                8, ['Context Method', 'Context Method'])])
+        self.assertEqual(mock_group.call_count, 2)
+        mock_group.assert_has_calls([
+            call(
+                'group one', 'status group 1', 'n_tests group 1',
+                'duration group 1',
+                ['Context TestCase', 'Context TestCase', 'Context TestCase']),
+            call(
+                'group two', 'status group 2', 'n_tests group 2',
+                'duration group 2', ['Context TestCase'])])
+        self.assertListEqual(obj.groups, ['Context Group', 'Context Group'])
