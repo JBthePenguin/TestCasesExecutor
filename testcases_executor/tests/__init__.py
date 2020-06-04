@@ -20,11 +20,12 @@ from testcases_executor.tests.test_tc_parser import (
 from testcases_executor.tests.test_tc_result import TestTestCasesResult
 from testcases_executor.tests.test_tc_runner import TestTestRunner
 from testcases_executor.tests.test_tc_reporter import (
-    TestTestCasesHtmlReport, TestContextInfos)
+    TestTestCasesHtmlReport, TestContextInfos, TestContextHeader,
+    TestContextGroup)
 
 
 __all__ = [
     'TestMainFunctions', 'TestUtilsFunctions', 'TestGroupsFunctions',
     'TestLoader', 'TestGroup', 'TestGroups', 'TestHelpFormatter', 'TestParser',
     'TestTestCasesResult', 'TestTestRunner', 'TestTestCasesHtmlReport',
-    'TestContextInfos']
+    'TestContextInfos', 'TestContextHeader', 'TestContextGroup']

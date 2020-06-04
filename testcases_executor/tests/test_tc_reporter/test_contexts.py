@@ -15,9 +15,9 @@ Imports:
     from unittest: TestCase
 """
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from testcases_executor.tc_reporter.contexts import (
-    ContextInfos)
+    ContextInfos, ContextHeader, ContextGroup)
 
 
 class TestContextInfos(TestCase):
@@ -74,11 +74,31 @@ class TestContextHeader(TestCase):
         Assert ContextHeader (dict) is initialized with good keys / values.
     """
 
-    def test_init_context_header(self):
+    @patch("testcases_executor.tc_reporter.contexts.ContextInfos.__init__")
+    def test_init_context_header(self, mock_context_infos):
         """
         Assert ContextHeader (dict) is initialized with good keys / values.
+
+        Parameters:
+        ----------
+        mock_context_infos : Mock
+            Mock of tc_reporter.contexts.ContextInfos.__init__ .
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert ContextInfos, strftime called once with parameters.
+        assertDictEqual:
+            Assert if obj is the desired dict.
         """
-        pass
+        mock_context_infos.return_value = {}
+        mock_start_time = Mock()
+        mock_start_time.strftime.return_value = 'datetime formatted'
+        obj = ContextHeader('status', mock_start_time, 'n_tests', 'duration')
+        mock_context_infos.assert_called_once_with(
+            'status', 'n_tests', 'duration')
+        mock_start_time.strftime.assert_called_once_with("%Y-%m-%d %H:%M:%S")
+        self.assertDictEqual(obj, {'start_time': 'datetime formatted'})
 
 
 class TestContextGroup(TestCase):
@@ -93,11 +113,30 @@ class TestContextGroup(TestCase):
         Assert ContextGroup (dict) is initialized with good keys / values.
     """
 
-    def test_init_context_group(self):
+    @patch("testcases_executor.tc_reporter.contexts.ContextInfos.__init__")
+    def test_init_context_group(self,  mock_context_infos):
         """
         Assert ContextGroup (dict) is initialized with good keys / values.
+
+        Parameters:
+        ----------
+        mock_context_infos : Mock
+            Mock of tc_reporter.contexts.ContextInfos.__init__ .
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert ContextInfos.__init__ called once with parameters.
+        assertDictEqual:
+            Assert if obj is the desired dict.
         """
-        pass
+        mock_context_infos.return_value = {}
+        obj = ContextGroup(
+            'group name', 'status', 'n_tests', 'duration', 'TestCases')
+        mock_context_infos.assert_called_once_with(
+            'status', 'n_tests', 'duration')
+        self.assertDictEqual(
+            obj, {'name': 'group name', 'testcases': 'TestCases'})
 
 
 class TestContextTestCase(TestCase):
