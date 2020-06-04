@@ -404,36 +404,31 @@ class TestTestCasesResult(TestCase):
 
     def test_get_n_tests(self):
         """
-        Assert get_n_tests return good value depending of tests's lists.
+        Assert get_n_tests return the desired dict.
 
         Assertions:
         ----------
-        assertEqual:
-            Assert returned values.
+        assertDictEqual:
+            Assert returned dict.
         """
         # group_tests -> None
         obj = TestCasesResult(stream='stream')
         obj.failures, obj.errors, obj.skipped = [], [1, 2], []
         obj.unexpectedSuccesses, obj.expectedFailures = [], [1, 2, 3]
-        failed, errors, exp_fails, unexp_succ, skipped = obj.get_n_tests(None)
-        self.assertEqual(failed, 0)
-        self.assertEqual(errors, 2)
-        self.assertEqual(skipped, 0)
-        self.assertEqual(unexp_succ, 0)
-        self.assertEqual(exp_fails, 3)
+        dict_returned = obj.get_n_tests(None)
+        self.assertDictEqual(dict_returned, {
+            'failed': 0, 'errors': 2, 'skipped': 0,
+            'expectedFails': 3, 'unexpectedSuccesses': 0})
         # group_tests -> not None
         obj = TestCasesResult(stream='stream')
         group_tests = ('group test', ['t1', 't2', 't3', 't4', 't5', 't6'])
         obj.failures, obj.errors = [('t1', ), ('t6', )], []
         obj.skipped = [('t4', )]
         obj.unexpectedSuccesses, obj.expectedFailures = [], [('t2', )]
-        failed, errors, exp_fails, unexp_succ, skipped = obj.get_n_tests(
-            group_tests)
-        self.assertEqual(failed, 2)
-        self.assertEqual(errors, 0)
-        self.assertEqual(skipped, 1)
-        self.assertEqual(unexp_succ, 0)
-        self.assertEqual(exp_fails, 1)
+        dict_returned = obj.get_n_tests(group_tests)
+        self.assertDictEqual(dict_returned, {
+            'failed': 2, 'errors': 0, 'skipped': 1,
+            'expectedFails': 1, 'unexpectedSuccesses': 0})
 
     def test_printInfos(self):
         """
@@ -454,7 +449,9 @@ class TestTestCasesResult(TestCase):
         obj = TestCasesResult(stream=Mock())
         obj.n_tests['total'] = {}
         obj.get_n_tests = Mock()
-        obj.get_n_tests.return_value = (0, 0, 0, 0, 3)
+        obj.get_n_tests.return_value = {
+            'failed': 0, 'errors': 0, 'skipped': 3,
+            'expectedFails': 0, 'unexpectedSuccesses': 0}
         obj.printInfos()
         obj.get_n_tests.assert_called_once_with(None)
         self.assertEqual(2, obj.stream.writeln.call_count)
@@ -469,7 +466,9 @@ class TestTestCasesResult(TestCase):
         obj = TestCasesResult(stream=Mock())
         obj.n_tests['groups']['group tests'] = {}
         obj.get_n_tests = Mock()
-        obj.get_n_tests.return_value = (0, 2, 1, 0, 0)
+        obj.get_n_tests.return_value = {
+            'failed': 0, 'errors': 2, 'skipped': 0,
+            'expectedFails': 1, 'unexpectedSuccesses': 0}
         obj.printInfos(('group tests', ))
         obj.get_n_tests.assert_called_once_with(('group tests', ))
         self.assertEqual(2, obj.stream.writeln.call_count)

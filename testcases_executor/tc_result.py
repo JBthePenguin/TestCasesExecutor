@@ -267,32 +267,30 @@ class TestCasesResult(TestResult):
 
         Return
         ----------
-            failed, errors, exp_fails, unexp_succ, skipped: int
+            dict
                 numbers of tests for each status.
         """
         if group_tests is not None:  # for a group
-            group, test_methods = group_tests
+            test_methods = group_tests[1]
             failed, errors, exp_fails, unexp_succ, skipped = 0, 0, 0, 0, 0
-            for t_failed in [fail[0] for fail in self.failures]:
-                if t_failed in test_methods:
+            for t_method in test_methods:
+                if t_method in [fail[0] for fail in self.failures]:
                     failed += 1
-            for t_errors in [err[0] for err in self.errors]:
-                if t_errors in test_methods:
+                elif t_method in [err[0] for err in self.errors]:
                     errors += 1
-            for t_e_fails in [e_fail[0] for e_fail in self.expectedFailures]:
-                if t_e_fails in test_methods:
+                elif t_method in [efail[0] for efail in self.expectedFailures]:
                     exp_fails += 1
-            for t_u_succ in self.unexpectedSuccesses:
-                if t_u_succ in test_methods:
+                elif t_method in self.unexpectedSuccesses:
                     unexp_succ += 1
-            for t_skip in [skp[0] for skp in self.skipped]:
-                if t_skip in test_methods:
+                elif t_method in [skp[0] for skp in self.skipped]:
                     skipped += 1
         else:  # for final total
             failed, errors, exp_fails, unexp_succ, skipped = map(len, (
                 self.failures, self.errors, self.expectedFailures,
                 self.unexpectedSuccesses, self.skipped))
-        return failed, errors, exp_fails, unexp_succ, skipped
+        return {
+            'failed': failed, 'errors': errors, 'skipped': skipped,
+            'expectedFails': exp_fails, 'unexpectedSuccesses': unexp_succ}
 
     def printInfos(self, group_tests=None):
         """
@@ -303,18 +301,13 @@ class TestCasesResult(TestResult):
             group_tests: tuple (default: None)
                 group for first item, associated tests methods for second one.
         """
-        failed, errors, exp_fails, unexp_succ, skipped = self.get_n_tests(
-            group_tests)
-        total_dict = {
-            'failed': failed, 'errors': errors, 'skipped': skipped,
-            'expectedFails': exp_fails,
-            'unexpectedSuccesses': unexp_succ
-        }
+        total_dict = self.get_n_tests(group_tests)
         if group_tests is not None:  # save number of tests by category
             self.n_tests['groups'][group_tests[0]].update(total_dict)
         else:
             self.n_tests['total'].update(total_dict)
         infos = []
+        errors, failed = total_dict['errors'], total_dict['failed']
         if errors or failed:  # status not successful
             status, status_color = 'FAILED', RED
             if failed:
@@ -328,10 +321,13 @@ class TestCasesResult(TestResult):
         else:
             self.status['total'] = status
         self.stream.writeln(f"{status_color}{status}{C_RESET}")
+        skipped = total_dict['skipped']
         if skipped:
             infos.append(f"{BLUE}Skipped={skipped}{C_RESET}")
+        exp_fails = total_dict['expectedFails']
         if exp_fails:
             infos.append(f"{RED}Expected Failures={exp_fails}{C_RESET}")
+        unexp_succ = total_dict['unexpectedSuccesses']
         if unexp_succ:
             infos.append(f"{GREEN}Unexpected Successes={unexp_succ}{C_RESET}")
         if infos:
