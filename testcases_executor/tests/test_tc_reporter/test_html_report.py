@@ -86,7 +86,8 @@ class TestTestCasesHtmlReport(TestCase):
             result.stream.writeln.assert_has_calls([
                 call("Generating html report ...\n"),
                 call('---> \x1b[1m\x1b[2mrelpath\x1b[0m\n')])
-            mock_env.assert_called_once_with(loader='Loader')
+            mock_env.assert_called_once_with(
+                loader='Loader', autoescape=True)
             mock_loader.assert_called_once_with(
                 'testcases_executor.tc_reporter')
             obj_env.get_template.assert_called_once_with(

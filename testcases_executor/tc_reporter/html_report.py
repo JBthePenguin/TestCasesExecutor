@@ -36,7 +36,8 @@ class TestCasesHtmlReport():
         """
         result.stream.writeln("Generating html report ...\n")
         env = Environment(  # load template base
-            loader=PackageLoader('testcases_executor.tc_reporter'))
+            loader=PackageLoader('testcases_executor.tc_reporter'),
+            autoescape=True)
         report_template = env.get_template('report_template.html')
         dir_reports = './html_reports'  # dir destination ...
         if not path.exists(dir_reports):
