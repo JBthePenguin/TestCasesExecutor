@@ -17,7 +17,7 @@ Imports:
 from unittest import TestCase
 from unittest.mock import patch, Mock
 from testcases_executor.tc_reporter.contexts import (
-    ContextInfos, ContextHeader, ContextGroup)
+    ContextInfos, ContextHeader, ContextGroup, ContextTestCase, ContextMethod)
 
 
 class TestContextInfos(TestCase):
@@ -151,11 +151,29 @@ class TestContextTestCase(TestCase):
         Assert ContextTestCase (dict) is initialized with good keys / values.
     """
 
-    def test_init_context_testcase(self):
+    @patch("testcases_executor.tc_reporter.contexts.format_duration")
+    def test_init_context_testcase(self, mock_format_duration):
         """
         Assert ContextTestCase (dict) is initialized with good keys / values.
+
+        Parameters:
+        ----------
+        mock_format_duration : Mock
+            Mock of tc_utils.format_duration .
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert format_duration called once with 'duration'.
+        assertDictEqual:
+            Assert if obj is the desired dict.
         """
-        pass
+        mock_format_duration.return_value = 'duration formated'
+        obj = ContextTestCase('TestCase name', 'module', 'duration', 'methods')
+        mock_format_duration.assert_called_once_with('duration')
+        self.assertDictEqual(obj, {
+            'name': 'TestCase name', 'module': 'module',
+            't_methods': 'methods', 'duration': 'duration formated'})
 
 
 class TestContextMethod(TestCase):
@@ -170,11 +188,73 @@ class TestContextMethod(TestCase):
         Assert ContextMethod (dict) is initialized with good keys / values.
     """
 
-    def test_init_context_method(self):
+    @patch("testcases_executor.tc_reporter.contexts.format_duration")
+    def test_init_context_method(self, mock_format_duration):
         """
         Assert ContextMethod (dict) is initialized with good keys / values.
+
+        Parameters:
+        ----------
+        mock_format_duration : Mock
+            Mock of tc_utils.format_duration .
+
+        Class:
+        ----------
+        FakeTestMethod:
+            objet with needed test's argument to init ContextMethod.
+
+        Assertions:
+        ----------
+        assert_called_once_with:
+            Assert format_duration called once with 'duration'.
+        assertDictEqual:
+            Assert if obj is the desired dict depending of test.
         """
-        pass
+        class FakeTestMethod():
+
+            def __init__(self, t_name):
+                self._testMethodName = t_name
+                self._testMethodDoc = f"{t_name} doc"
+
+        t1, t2 = FakeTestMethod('t1'), FakeTestMethod('t2'),
+        t3, t4 = FakeTestMethod('t3'), FakeTestMethod('t4')
+        t5, t6 = FakeTestMethod('t5'), FakeTestMethod('t6')
+        t_errors = {
+            'failures': [t2], 'errors': [t4],
+            'skipped': [t1], 'exp_fails': [t6], 'unex_suc': [t3],
+            t1: 'error t1', t2: 'error t2', t6: 'error t6', t4: 'error t4'}
+        mock_format_duration.return_value = 'duration formated'
+        obj = ContextMethod(t2, 'duration', t_errors)  # failures
+        mock_format_duration.assert_called_once_with('duration')
+        self.assertDictEqual(obj, {
+            'status_name': "FAIL", 'status_icon': "thumbs-o-down",
+            'status_color': "warning", 'error': 'error t2',
+            'name': 't2', 'doc': 't2 doc', 'duration': 'duration formated'})
+        obj = ContextMethod(t4, 'duration', t_errors)  # error
+        self.assertDictEqual(obj, {
+            'status_name': "ERROR", 'status_icon': "times-circle",
+            'status_color': "danger", 'error': 'error t4',
+            'name': 't4', 'doc': 't4 doc', 'duration': 'duration formated'})
+        obj = ContextMethod(t1, 'duration', t_errors)  # skip
+        self.assertDictEqual(obj, {
+            'status_name': "SKIP", 'status_icon': "cut",
+            'status_color': "info", 'error': 'error t1',
+            'name': 't1', 'doc': 't1 doc', 'duration': 'duration formated'})
+        obj = ContextMethod(t6, 'duration', t_errors)  # Expected Fail
+        self.assertDictEqual(obj, {
+            'status_name': "Expected Fail", 'status_icon': "stop-circle-o",
+            'status_color': "danger", 'error': 'error t6',
+            'name': 't6', 'doc': 't6 doc', 'duration': 'duration formated'})
+        obj = ContextMethod(t3, 'duration', t_errors)  # Unexpected Success"
+        self.assertDictEqual(obj, {
+            'status_name': "Unexpected Success", 'status_color': 'success',
+            'status_icon': 'hand-stop-o', 'error': None,
+            'name': 't3', 'doc': 't3 doc', 'duration': 'duration formated'})
+        obj = ContextMethod(t5, 'duration', t_errors)  # Success
+        self.assertDictEqual(obj, {
+            'status_name': "SUCCESS", 'status_color': 'success',
+            'status_icon': 'thumbs-o-up', 'error': None,
+            'name': 't5', 'doc': 't5 doc', 'duration': 'duration formated'})
 
 
 class TestContextReport(TestCase):
