@@ -239,6 +239,11 @@ def make_errors_dict(failures, errors, skipped, expFails, unexpSucc):
     ----------
         failures, errors, skipped, expFails, unexpSucc: lists
             errors list from result
+
+    Return
+    ----------
+        t_errors: dict
+            key t_method -> error, key errors failures... -> list tests.
     """
     t_errors = {}
     for error_key, errors_list in [

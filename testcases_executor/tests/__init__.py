@@ -22,7 +22,7 @@ from testcases_executor.tests.test_tc_runner import TestTestRunner
 from testcases_executor.tests.test_tc_reporter import (
     TestTestCasesHtmlReport, TestContextInfos, TestContextHeader,
     TestContextGroup, TestContextTestCase, TestContextMethod,
-    TestContextReport)
+    TestContextsFunctions, TestContextReport)
 
 
 __all__ = [
@@ -30,4 +30,5 @@ __all__ = [
     'TestLoader', 'TestGroup', 'TestGroups', 'TestHelpFormatter', 'TestParser',
     'TestTestCasesResult', 'TestTestRunner', 'TestTestCasesHtmlReport',
     'TestContextInfos', 'TestContextHeader', 'TestContextGroup',
-    'TestContextTestCase', 'TestContextMethod', 'TestContextReport']
+    'TestContextTestCase', 'TestContextMethod', 'TestContextsFunctions',
+    'TestContextReport']

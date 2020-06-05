@@ -9,16 +9,21 @@ unittest.TestCase sublasses:
     TestContextGroup
     TestContextTestCase
     TestContextMethod
+    TestContextsFunctions
     TestContextReport
 
 Imports:
     from unittest: TestCase
+    from unittest.mock: patch, Mock, call
+    from testcases_executor.tc_reporter.contexts: (
+        ContextInfos, ContextHeader, ContextGroup, ContextTestCase, ContextMethod,
+        make_errors_dict, ContextReport)
 """
 from unittest import TestCase
 from unittest.mock import patch, Mock, call
 from testcases_executor.tc_reporter.contexts import (
     ContextInfos, ContextHeader, ContextGroup, ContextTestCase, ContextMethod,
-    ContextReport)
+    make_errors_dict, ContextReport)
 
 
 class TestContextInfos(TestCase):
@@ -258,17 +263,40 @@ class TestContextMethod(TestCase):
             'name': 't5', 'doc': 't5 doc', 'duration': 'duration formated'})
 
 
-# self.failures = [('t1', 'fail t1')]
-# self.errors = [('t3', 'error t3')]
-# self.skipped = [('t2', 'skip t2')]
-# self.expectedFailures = [('t6', 'fail t6')]
-# self.unexpectedSuccesses = [('t7', 'fail t7')]
+class TestContextsFunctions(TestCase):
+    """
+    A subclass of unittest.TestCase .
 
-# self.assertDictEqual(obj.t_errors, {  # make_errors_dict
-#     't1': 'fail t1', 'failures': ['t1'], 't3': 'error t3',
-#     'errors': ['t3'], 't2': 'skip t2', 'skipped': ['t2'],
-#     't6': 'fail t6', 'exp_fails': ['t6'],
-#     'unex_suc': [('t7', 'fail t7')]})
+    Tests for tc_reporter.contexts function make_errors_dict.
+
+    Methods
+    ----------
+    test_make_errors_dict():
+        Assert if make_errors_dict return desired dict.
+    """
+
+    def test_make_errors_dict(self):
+        """
+        Assert if make_errors_dict return desired dict.
+
+        Assertions:
+        ----------
+        assertDictEqual:
+            Assert if t_errors is the desired dict.
+        """
+        failures = [('t1', 'fail t1')]
+        errors = [('t3', 'error t3')]
+        skipped = [('t2', 'skip t2')]
+        expFails = [('t6', 'fail t6')]
+        unexpSucc = [('t7', 'fail t7')]
+        t_errors = make_errors_dict(
+            failures, errors, skipped, expFails, unexpSucc)
+        self.assertDictEqual(t_errors, {  # make_errors_dict
+            't1': 'fail t1', 'failures': ['t1'], 't3': 'error t3',
+            'errors': ['t3'], 't2': 'skip t2', 'skipped': ['t2'],
+            't6': 'fail t6', 'exp_fails': ['t6'],
+            'unex_suc': [('t7', 'fail t7')]})
+
 
 class TestContextReport(TestCase):
     """
