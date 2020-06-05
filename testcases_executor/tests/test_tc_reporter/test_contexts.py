@@ -258,6 +258,18 @@ class TestContextMethod(TestCase):
             'name': 't5', 'doc': 't5 doc', 'duration': 'duration formated'})
 
 
+# self.failures = [('t1', 'fail t1')]
+# self.errors = [('t3', 'error t3')]
+# self.skipped = [('t2', 'skip t2')]
+# self.expectedFailures = [('t6', 'fail t6')]
+# self.unexpectedSuccesses = [('t7', 'fail t7')]
+
+# self.assertDictEqual(obj.t_errors, {  # make_errors_dict
+#     't1': 'fail t1', 'failures': ['t1'], 't3': 'error t3',
+#     'errors': ['t3'], 't2': 'skip t2', 'skipped': ['t2'],
+#     't6': 'fail t6', 'exp_fails': ['t6'],
+#     'unex_suc': [('t7', 'fail t7')]})
+
 class TestContextReport(TestCase):
     """
     A subclass of unittest.TestCase .
@@ -268,25 +280,51 @@ class TestContextReport(TestCase):
     ----------
     test_init_context_report():
         Assert ContextReport object is initialized with good attributes.
-    test_make_errors_dict():
-        Assert if ContextReport.t_errors is desired dict.
     """
 
     @patch("testcases_executor.tc_reporter.contexts.ContextHeader")
+    @patch("testcases_executor.tc_reporter.contexts.make_errors_dict")
     @patch("testcases_executor.tc_reporter.contexts.ContextMethod")
     @patch("testcases_executor.tc_reporter.contexts.ContextTestCase")
     @patch("testcases_executor.tc_reporter.contexts.ContextGroup")
     def test_init_context_report(
-            self, mock_group, mock_tc, mock_method, mock_header):
+            self, mock_group, mock_tc, mock_method, mock_errors_dict,
+            mock_header):
         """
         Assert ContextReport object is initialized with good attributes.
+
+        Parameters:
+        ----------
+        mock_group : Mock
+            Mock of ContextGroup .
+        mock_tc : Mock
+            Mock of ContextTestCase .
+        mock_method : Mock
+            Mock of ContextMethod .
+        mock_errors_dict : Mock
+            Mock of make_errors_dict .
+        mock_header : Mock
+            Mock of ContextHeader .
 
         Classes:
         ----------
         FakeGroup:
             Fake group with name property.
+        FakeTestCase 1 2 3 4:
+            Fake TestCase to get __name__ and __module__ properties.
         FakeResult:
-            Fake a result to get properties to assert if updated correctly.
+            Fake a result to get needed properties to init obj correctly.
+
+        Assertions:
+        ----------
+        assertEqual:
+            Assert title header content, mocks group tc method call count.
+        assert_called_once_with:
+            Assert ContextHeader make_errors_dict called once with parameter.
+        assert_has_calls:
+            Assert mocks group tc method calls parameters.
+        assertListEqual:
+            Assert groups attribute value ( obj.groups).
         """
         class FakeGroup():
 
@@ -335,33 +373,31 @@ class TestContextReport(TestCase):
                 self.n_tests = {'groups': {
                     group_one: 'n_tests group 1',
                     group_two: 'n_tests group 2'}, 'total': 'n_tests total'}
-                self.failures = [('t1', 'fail t1')]
-                self.errors = [('t3', 'error t3')]
-                self.skipped = [('t2', 'skip t2')]
-                self.expectedFailures = [('t6', 'fail t6')]
-                self.unexpectedSuccesses = [('t7', 'fail t7')]
+                self.failures = 'failures'
+                self.errors = 'errors'
+                self.skipped = 'skipped'
+                self.expectedFailures = 'expFails'
+                self.unexpectedSuccesses = 'unexpSucc'
 
         result = FakeResult()
         mock_header.return_value = 'Context Header'
+        mock_errors_dict.return_value = 'Errors dict'
         mock_method.return_value = 'Context Method'
         mock_tc.return_value = 'Context TestCase'
         mock_group.return_value = 'Context Group'
         obj = ContextReport('project name', result)
         self.assertEqual(obj.title, 'project name Tests Results')
-        self.assertDictEqual(obj.t_errors, {  # make_errors_dict
-            't1': 'fail t1', 'failures': ['t1'], 't3': 'error t3',
-            'errors': ['t3'], 't2': 'skip t2', 'skipped': ['t2'],
-            't6': 'fail t6', 'exp_fails': ['t6'],
-            'unex_suc': [('t7', 'fail t7')]})
+        mock_errors_dict.assert_called_once_with(
+            'failures', 'errors', 'skipped', 'expFails', 'unexpSucc')
         mock_header.assert_called_once_with(
             'status total', 'start time', 'n_tests total', 'duration total')
         self.assertEqual(obj.header, 'Context Header')
         self.assertEqual(mock_method.call_count, 7)
         mock_method.assert_has_calls([
-            call('t1', 5, obj.t_errors), call('t4', 3, obj.t_errors),
-            call('t3', 1, obj.t_errors), call('t7', 4, obj.t_errors),
-            call('t5', 2, obj.t_errors), call('t6', 0, obj.t_errors),
-            call('t2', 12, obj.t_errors)])
+            call('t1', 5, 'Errors dict'), call('t4', 3, 'Errors dict'),
+            call('t3', 1, 'Errors dict'), call('t7', 4, 'Errors dict'),
+            call('t5', 2, 'Errors dict'), call('t6', 0, 'Errors dict'),
+            call('t2', 12, 'Errors dict')])
         self.assertEqual(mock_tc.call_count, 4)
         mock_tc.assert_has_calls([
             call(
