@@ -12,7 +12,7 @@ Imports:
     from testcases_executor.__main__: main
 """
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from testcases_executor.__main__ import main
 
 
@@ -51,17 +51,27 @@ class TestMainFunctions(TestCase):
 
         Assertions:
         ----------
-        assert_called_once:
-            Assert if groups, parser.parse_args called once.
+        assertEqual:
+            Assert if groups called once.
         assert_called_once_with:
-            parser -> groups, groups.construct_suites -> parse.parse_args,
-            runner -> groups, report-> runner.run (result)
+            parser .parse_args, groups.construct_suites,
+            runner .run, report called once with parameter
         """
+        groups = Mock()
+        mock_groups.return_value = groups
+        runner = Mock()
+        runner.run.return_value = 'Result'
+        mock_runner.return_value = runner
+        parse_args = Mock()
+        parse_args.open = 'open'
+        parser = Mock()
+        parser.parse_args.return_value = parse_args
+        mock_parser.return_value = parser
         main()
         self.assertEqual(mock_groups.call_count, 1)
-        mock_parser.assert_called_once_with(mock_groups())
-        mock_parser().parse_args.assert_called_once()
-        mock_groups().construct_suites.assert_called_once_with(
-            mock_parser().parse_args())
-        mock_runner().run.assert_called_once_with(mock_groups())
-        mock_report.assert_called_once_with(mock_runner().run(mock_groups()))
+        mock_parser.assert_called_once_with(groups)
+        parser.parse_args.assert_called_once_with()
+        groups.construct_suites.assert_called_once_with(parse_args)
+        mock_runner.assert_called_once_with()
+        runner.run.assert_called_once_with(groups)
+        mock_report.assert_called_once_with('Result', 'open')

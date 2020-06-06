@@ -27,7 +27,7 @@ class TestCasesHtmlReport():
     Use result to get context datas and with a base template construct file.
     """
 
-    def __init__(self, result):
+    def __init__(self, result, open_in_browser=False):
         """
         Init env, get template base and context to construct report file.
 
@@ -35,6 +35,8 @@ class TestCasesHtmlReport():
         ----------
             result: tc_result.TestCasesResult
                 result of tests.
+            open_in_browser: bool (default: False)
+                open or not report in browser.
         """
         result.stream.writeln("Generating html report ...\n")
         env = Environment(
@@ -48,3 +50,6 @@ class TestCasesHtmlReport():
                 groups=context_report.groups))
         result.stream.writeln(
             f"---> {BOLD}{MUTED}tc_executor_report.html{S_RESET}\n")
+        if open_in_browser:
+            import webbrowser
+            webbrowser.open('./tc_executor_report.html')

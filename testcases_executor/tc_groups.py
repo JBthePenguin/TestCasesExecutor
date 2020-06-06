@@ -275,9 +275,7 @@ class TestCasesGroups(list):
             args :
                 result of TestCasesParser.parse_args() .
         """
-        if (len(sys.argv) == 1) or (
-            (len(sys.argv) == 2) and (args.open or args.timestamp)) or (
-                (len(sys.argv) == 3) and args.open and args.timestamp):
+        if (len(sys.argv) == 1) or ((len(sys.argv) == 2) and args.open):
             for tc_group in self:  # no arg or open timesatamp -> all tests
                 for testcase in tc_group.testcases:
                     tc_group.update_suites(testcase)

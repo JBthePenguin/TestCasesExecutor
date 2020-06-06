@@ -435,15 +435,12 @@ class TestGroups(TestCase):
         """
         class FakeArgs():
 
-            def __init__(self, a_open, a_timestamp):
+            def __init__(self, a_open):
                 self.open = a_open
-                self.timestamp = a_timestamp
 
         for argv, args in [  # all groups testcases
-                ([1], FakeArgs(False, False)),
-                ([1, 2], FakeArgs(True, False)),
-                ([1, 2], FakeArgs(False, True)),
-                ([1, 2, 3], FakeArgs(True, True))]:
+                ([1], FakeArgs(False)),
+                ([1, 2], FakeArgs(True))]:
             mock_sys.argv = argv
             obj = TestCasesGroups([
                 ("group test", "g_test", [SubclassTCone, ]),
@@ -455,7 +452,7 @@ class TestGroups(TestCase):
                 call(SubclassTCone), call(SubclassTCtwo)])
             self.assertEqual(obj, [group_one, group_two])
             mock_update_suites.reset_mock()
-        mock_sys.argv = [1, 2, 3, 4]
+        mock_sys.argv = [1, 2, 3]
         for vars_val, count_val, call_vals, new_obj in [  # depending args
                 ((True, False, None, None), 1, (SubclassTCone, ), "one"),
                 ((False, False, None, []), 1, (SubclassTCtwo, ), "two"),

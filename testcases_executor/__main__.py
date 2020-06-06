@@ -9,6 +9,8 @@ Functions:
 Imports:
     from testcases_executor.tc_groups: TestCasesGroups
     from testcases_executor.tc_parser: TestCasesParser
+    from testcases_executor.tc_runner: TestCasesRunner
+    from testcases_executor.tc_reporter.html_report: TestCasesHtmlReport
 """
 from testcases_executor.tc_groups import TestCasesGroups
 from testcases_executor.tc_parser import TestCasesParser
@@ -25,7 +27,7 @@ def main():
     args = parser.parse_args()
     tc_groups.construct_suites(args)
     result = TestCasesRunner().run(tc_groups)
-    TestCasesHtmlReport(result)
+    TestCasesHtmlReport(result, args.open)
 
 
 if __name__ == "__main__":
