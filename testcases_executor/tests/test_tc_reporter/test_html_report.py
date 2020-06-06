@@ -30,13 +30,12 @@ class TestTestCasesHtmlReport(TestCase):
 
     @patch("testcases_executor.tc_reporter.html_report.Environment")
     @patch("testcases_executor.tc_reporter.html_report.PackageLoader")
-    @patch("testcases_executor.tc_reporter.html_report.path")
-    @patch("testcases_executor.tc_reporter.html_report.makedirs")
+    @patch("testcases_executor.tc_reporter.html_report.basename")
     @patch("testcases_executor.tc_reporter.html_report.getcwd")
     @patch("testcases_executor.tc_reporter.html_report.ContextReport")
     def test_init_html_report(
-            self, mock_context, mock_getcwd, mock_makedirs,
-            mock_path, mock_loader, mock_env):
+            self, mock_context, mock_getcwd, mock_basename, mock_loader,
+            mock_env):
         """
         Assert TestCasesHtmlReport object is initialized with good attributes.
 
@@ -46,10 +45,8 @@ class TestTestCasesHtmlReport(TestCase):
             Mock of ContextReport .
         mock_getcwd : Mock
             Mock of os.getcwd .
-        mock_makedirs : Mock
-            Mock of os.makedirs .
-        mock_path : Mock
-            Mock of os.path .
+        mock_basename : Mock
+            Mock of os.path.basename .
         mock_loader : Mock
             Mock of jinja2.PackageLoader .
         mock_env : Mock
@@ -62,21 +59,15 @@ class TestTestCasesHtmlReport(TestCase):
         assert_has_calls:
             Assert stream.write calls parameters.
         assert_called_once_with:
-            Assert env, loader, env.get_template, context, path.basename,
-            getcwd, path.join, open, open.write, template.render, makedirs,
+            Assert env, loader, env.get_template, context, basename,
+            getcwd, open, open.write, template.render,
             called once with parameter.
-        assert_not_called:
-            Assert makedirs not called if assert_not_called is True.
-
         """
         m = mock_open()  # make necessary mocks, set necessary return values
         result, obj_env, report_template = Mock(), Mock(), Mock()
         report_template.render.return_value = "template render"
         obj_env.get_template.return_value = report_template
-        mock_path.exists.return_value = True
-        mock_path.join.return_value = 'path'
-        mock_path.relpath.return_value = 'relpath'
-        mock_path.basename.return_value = 'basename'
+        mock_basename.return_value = 'basename'
         mock_getcwd.return_value = 'getcwd'
         mock_env.return_value = obj_env
         mock_loader.return_value = 'Loader'
@@ -85,24 +76,18 @@ class TestTestCasesHtmlReport(TestCase):
             self.assertEqual(result.stream.writeln.call_count, 2)
             result.stream.writeln.assert_has_calls([
                 call("Generating html report ...\n"),
-                call('---> \x1b[1m\x1b[2mrelpath\x1b[0m\n')])
+                call('---> \x1b[1m\x1b[2mtc_executor_report.html\x1b[0m\n')])
             mock_env.assert_called_once_with(
                 loader='Loader', autoescape=True)
             mock_loader.assert_called_once_with(
                 'testcases_executor.tc_reporter')
             obj_env.get_template.assert_called_once_with(
                 'report_template.html')
-            mock_makedirs.assert_not_called()
             mock_context.assert_called_once_with('basename', result)
-            mock_path.basename.assert_called_once_with('getcwd')
+            mock_basename.assert_called_once_with('getcwd')
             mock_getcwd.assert_called_once_with()
-            mock_path.join.assert_called_once_with(
-                './html_reports', 'report.html')
-            m.assert_called_once_with('path', 'w')
+            m.assert_called_once_with('./tc_executor_report.html', 'w')
             m().write.assert_called_once_with("template render")
             report_template.render.assert_called_once_with(
                 title=mock_context().title, header=mock_context().header,
                 groups=mock_context().groups)
-            mock_path.exists.return_value = False  # path.exists: False
-            TestCasesHtmlReport(result)
-            mock_makedirs.assert_called_once_with('./html_reports')

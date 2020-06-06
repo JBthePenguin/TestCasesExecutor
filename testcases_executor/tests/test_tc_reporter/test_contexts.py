@@ -16,8 +16,8 @@ Imports:
     from unittest: TestCase
     from unittest.mock: patch, Mock, call
     from testcases_executor.tc_reporter.contexts: (
-        ContextInfos, ContextHeader, ContextGroup, ContextTestCase, ContextMethod,
-        make_errors_dict, ContextReport)
+        ContextInfos, ContextHeader, ContextGroup, ContextTestCase,
+        ContextMethod, make_errors_dict, ContextReport)
 """
 from unittest import TestCase
 from unittest.mock import patch, Mock, call

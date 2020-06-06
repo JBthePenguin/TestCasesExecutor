@@ -7,12 +7,14 @@ Class:
     TestCasesHtmlReport
 
 Imports:
-    from os: makedirs, path, getcwd
+    from os: getcwd
+    from os.path: basename
     from jinja2: Environment, PackageLoader
     from testcases_executor.tc_utils: BOLD, MUTED, S_RESET
     from testcases_executor.tc_reporter.contexts: ContextReport
 """
-from os import makedirs, path, getcwd
+from os import getcwd
+from os.path import basename
 from jinja2 import Environment, PackageLoader
 from testcases_executor.tc_utils import BOLD, MUTED, S_RESET
 from testcases_executor.tc_reporter.contexts import ContextReport
@@ -35,18 +37,14 @@ class TestCasesHtmlReport():
                 result of tests.
         """
         result.stream.writeln("Generating html report ...\n")
-        env = Environment(  # load template base
+        env = Environment(
             loader=PackageLoader('testcases_executor.tc_reporter'),
-            autoescape=True)
+            autoescape=True)    # load template base
         report_template = env.get_template('report_template.html')
-        dir_reports = './html_reports'  # dir destination ...
-        if not path.exists(dir_reports):
-            makedirs(dir_reports)    # ... context, path to report file
-        context_report = ContextReport(path.basename(getcwd()), result)
-        report_path = path.join(dir_reports, 'report.html')
-        with open(report_path, 'w') as report_file:
+        context_report = ContextReport(basename(getcwd()), result)
+        with open('./tc_executor_report.html', 'w') as report_file:
             report_file.write(report_template.render(  # html report file
                 title=context_report.title, header=context_report.header,
                 groups=context_report.groups))
         result.stream.writeln(
-            f"---> {BOLD}{MUTED}{path.relpath(report_path)}{S_RESET}\n")
+            f"---> {BOLD}{MUTED}tc_executor_report.html{S_RESET}\n")
