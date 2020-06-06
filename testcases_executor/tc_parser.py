@@ -141,18 +141,13 @@ class TestCasesParser(ArgumentParser):
 
         Arguments
         ----------
-            t, timestamp : store_true
-                to timestamp in html file name.
             o, open : store_true
-                arg to open report in browser after tests.
+                arg to open html report in browser after tests.
         """
         self._optionals.title = "Options"  # title for options
-        self.add_argument(  # arg to timestamp in html file name
-            "-t", "--timestamp", action='store_true',
-            help="Add timestamp in html report file name.")
         self.add_argument(  # arg to open report diretly in browser
             "-o", "--open", action='store_true',
-            help="Open report in browser after tests.")
+            help="Open html report in browser after tests.")
 
     def add_args_groups(self, tc_groups):
         """

@@ -180,24 +180,21 @@ class TestParser(TestCase):
         Assertions:
         ----------
         assertEqual:
-            Assert add_argument called 3 times, optionnals title > Options
+            Assert add_argument called 2 times, optionnals title > Options
         assert_has_calls:
             Assert if add_argument called with good kwargs.
         assertIsInstance:
             Assert if obj is instance ArgumentParser.
         """
         obj = TestCasesParser('tc_groups')
-        self.assertEqual(mock_add_argument.call_count, 3)
+        self.assertEqual(mock_add_argument.call_count, 2)
         mock_add_argument.assert_has_calls([
             call(
                 '-h', '--help', action='help', default='==SUPPRESS==',
                 help='show this help message and exit'),
             call(
-                "-t", "--timestamp", action='store_true',
-                help="Add timestamp in html report file name."),
-            call(
                 "-o", "--open", action='store_true',
-                help="Open report in browser after tests.")])
+                help="Open html report in browser after tests.")])
         self.assertEqual(obj._optionals.title, 'Options')
 
     @patch("testcases_executor.tc_parser.TestCasesParser.add_args_options")

@@ -185,6 +185,14 @@ class TestGroup(TestCase):
             ("group test", "with space", 1), mock_error_two,
             ValueError,
             "Group's argument name must not contain space: with space.")
+        arg_name_h = (  # group's argument name 'h', tup[1]
+            ("group test", "h", 1), mock_error_two,
+            ValueError,
+            "Group's argument name must not be 'h' or 'o': h.")
+        arg_name_o = (  # group's argument name 'o', tup[1]
+            ("group test", "o", 1), mock_error_two,
+            ValueError,
+            "Group's argument name must not be 'h' or 'o': o.")
         tc_no_list_tup = (  # testcases not a list or tuple, tup[1]
             ("group test", "test", 2), mock_error_one,
             TypeError,
@@ -201,14 +209,31 @@ class TestGroup(TestCase):
             "".join([
                 "Item of group's testcases list or tuple must be ",
                 "a unittest.TestCase subclass: <class 'int'>"]))
+
+        class h(TestCase):
+            pass
+
+        item_name_h = (  # testcase name 'h'
+            ("group test", "test", [SubclassTCone, h]),
+            mock_error_two, ValueError,
+            "TestCase's name must not be 'h' or 'o': h.")
+
+        class o(TestCase):
+            pass
+
+        item_name_o = (  # testcase name 'o'
+            ("group test", "test", [SubclassTCone, o]),
+            mock_error_two, ValueError,
+            "TestCase's name must not be 'h' or 'o': o.")
         item_no_used_once = (  # testcase not used once
             ("group test", "test", [SubclassTCone, SubclassTCone]),
             mock_error_two, ValueError,
             "Testcase's subclass must used once in group: 'SubclassTCone'.")
         for group_tup, mock_error, e_type, e_msg in [
                 name_no_str, name_empty, arg_name_no_str, arg_name_empty,
-                arg_name_space, tc_no_list_tup, item_no_class,
-                item_no_subclass, item_no_used_once]:
+                arg_name_space, arg_name_h, arg_name_o, tc_no_list_tup,
+                item_no_class, item_no_subclass, item_name_o, item_name_h,
+                item_no_used_once]:
             try:
                 TestCasesGroup(group_tup)
             except Exception:
@@ -331,13 +356,20 @@ class TestGroups(TestCase):
                 ("group test", "test", [SubclassTCone, ]),
                 ('group test', "test", (SubclassTCtwo, ))),
             mock_error_two, ValueError,
-            "Group's name must used once, 'Group test'.")
+            "Group's name must used once, 'group test'.")
         arg_name_no_used_once = (  # group's arg name not used once
             (
                 ("group test", "test", [SubclassTCone, ]),
                 ('group test 2', "test", (SubclassTCtwo, ))),
             mock_error_two, ValueError,
             "Group's argument name must used once, 'test'.")
+        tc_group_arg_names = (  # testcase and g arg names same
+            (
+                ("group test", "SubclassTCtwo", [SubclassTCone, ]),
+                ('group test 2', "test2", (SubclassTCtwo, ))),
+            mock_error_two, ValueError, "".join([
+                "Group's argument and Testcase name must ",
+                "be different, 'SubclassTCtwo'"]))
         tc_no_used_once = (  # testcase not used once
             (
                 ("group test", "test", [SubclassTCone, ]),
@@ -346,7 +378,8 @@ class TestGroups(TestCase):
             "Testcase must used only in one group, 'SubclassTCone'")
         for tc_groups, mock_error, e_type, e_msg in [
                 groups_no_list_tup, item_no_tup, item_no_three_items,
-                name_no_used_once, arg_name_no_used_once, tc_no_used_once]:
+                name_no_used_once, arg_name_no_used_once, tc_group_arg_names,
+                tc_no_used_once]:
             try:
                 TestCasesGroups(tc_groups)
             except Exception:
