@@ -13,6 +13,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/JBthePenguin/TestCasesExecutor",
     packages=setuptools.find_packages(),
+    package_data={'testcases_executor': ['tc_reporter/templates/*.html']},
+    include_package_data=True,
     install_requires=['jinja2'],
     license='LICENSE',
     python_requires='>=3.7.5',
