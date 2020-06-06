@@ -28,6 +28,7 @@ class TestTestCasesHtmlReport(TestCase):
         Assert TestCasesHtmlReport object is initialized with good attributes.
     """
 
+    @patch("testcases_executor.tc_reporter.html_report.browser_open")
     @patch("testcases_executor.tc_reporter.html_report.Environment")
     @patch("testcases_executor.tc_reporter.html_report.PackageLoader")
     @patch("testcases_executor.tc_reporter.html_report.basename")
@@ -35,7 +36,7 @@ class TestTestCasesHtmlReport(TestCase):
     @patch("testcases_executor.tc_reporter.html_report.ContextReport")
     def test_init_html_report(
             self, mock_context, mock_getcwd, mock_basename, mock_loader,
-            mock_env):
+            mock_env, mock_browser):
         """
         Assert TestCasesHtmlReport object is initialized with good attributes.
 
@@ -51,6 +52,8 @@ class TestTestCasesHtmlReport(TestCase):
             Mock of jinja2.PackageLoader .
         mock_env : Mock
             Mock of jinja2.Environment .
+        mock_browser : Mock
+            Mock of webbrowser .
 
         Assertions:
         ----------
@@ -91,3 +94,5 @@ class TestTestCasesHtmlReport(TestCase):
             report_template.render.assert_called_once_with(
                 title=mock_context().title, header=mock_context().header,
                 groups=mock_context().groups)
+            TestCasesHtmlReport(result, True)
+            mock_browser.assert_called_once_with('./tc_executor_report.html')

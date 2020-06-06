@@ -10,12 +10,14 @@ Imports:
     from os: getcwd
     from os.path: basename
     from jinja2: Environment, PackageLoader
+    from webbrowser: open as browser_open
     from testcases_executor.tc_utils: BOLD, MUTED, S_RESET
     from testcases_executor.tc_reporter.contexts: ContextReport
 """
 from os import getcwd
 from os.path import basename
 from jinja2 import Environment, PackageLoader
+from webbrowser import open as browser_open
 from testcases_executor.tc_utils import BOLD, MUTED, S_RESET
 from testcases_executor.tc_reporter.contexts import ContextReport
 
@@ -51,5 +53,4 @@ class TestCasesHtmlReport():
         result.stream.writeln(
             f"---> {BOLD}{MUTED}tc_executor_report.html{S_RESET}\n")
         if open_in_browser:
-            import webbrowser
-            webbrowser.open('./tc_executor_report.html')
+            browser_open('./tc_executor_report.html')

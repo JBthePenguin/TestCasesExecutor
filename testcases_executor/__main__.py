@@ -20,7 +20,7 @@ from testcases_executor.tc_reporter.html_report import TestCasesHtmlReport
 
 def main():
     """
-    Parse and run groups's TestCases.
+    Construct Groups, Parser and parse args, Suites and Runner tests, Report.
     """
     tc_groups = TestCasesGroups()
     parser = TestCasesParser(tc_groups)
