@@ -7,7 +7,7 @@
 Desription...
 
 ### Install
--  pip install ....
+-  pip install testcases_executor
 -  clone requirements
 
 ### Usage

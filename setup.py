@@ -12,14 +12,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/JBthePenguin/TestCasesExecutor",
-    packages=[
-        "testcases_executor", "testcases_executor.tests",
-        "testcases_executor.tc_reporter"],
+    packages=setuptools.find_packages(),
     install_requires=['jinja2'],
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: GPL v3",
-        "Operating System :: OS Independent",
-    ],
+    license='LICENSE',
     python_requires='>=3.7.5',
 )
