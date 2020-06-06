@@ -208,13 +208,13 @@ class TestCasesGroups(list):
         Check args, update group's testsuites and remove group without suite.
     """
 
-    def __init__(self, tc_groups=import_groups()):
+    def __init__(self, tc_groups=None):
         """
         Constructs list of TestCasesGroup's objects initialized with tc_groups.
 
         Parameters
         ----------
-            tc_groups : list or tuple (default: import_groups())
+            tc_groups : list or tuple (default: None)
                 tuples with 3 items each for items
 
         Raises
@@ -223,6 +223,8 @@ class TestCasesGroups(list):
             ValueError: group's name or testcase not used once.
         """
         sys.tracebacklimit = 0
+        if tc_groups is None:
+            tc_groups = import_groups()
         check_type(tc_groups, (list, tuple), "Object groups")
         super().__init__()
         for group_item in tc_groups:
