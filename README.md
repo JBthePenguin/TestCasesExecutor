@@ -51,7 +51,11 @@ $ python -m testcases_executor -one -TCaseFour -o
 $ python -m testcases_executor -TCaseTwo test_one -TCaseOne test_three
 ...
 ```
+## Screenshot
+in progress
 ## Test
+For the same reasons that meeting your future self would cause a spacio temporal shock, testing a tester using this same tester would cause a spacio testorial shock. So above all, don't.  
+Run **testcases_executor.tests**, using [unittest](https://docs.python.org/3.8/library/unittest.html#module-unittest):
 ```sh
 $ python -m unittest testcases_executor.tests -v
 ```
