@@ -31,23 +31,36 @@ def import_groups():
             object: groups.
 
         Raises:
-            ModuleNotFoundError: testscases.py not founded.
-            ImportError: groups not founded in testscases.py .
+            ModuleNotFoundError: testscases.py no exist or in it.
+            ImportError: import error in testscases.py .
     """
     error_type = None
     try:
         from testcases import groups
-    except ModuleNotFoundError:  # testscases.py not founded
-        error_type = "ModuleNotFound"
-    except ImportError:  # groups not founded in testscases.py
+    except ModuleNotFoundError as e:  # testscases.py no exist or in it
+        if str(e) == "No module named 'testcases'":
+            error_type = "No file named 'testcases.py' in root directory."
+        else:
+            error_type = f"{str(e)} in testcases.py ."
+    except ImportError as e:  # import error in testscases.py
         error_type = "Import"
+        if "cannot import name 'groups' from 'testcases'" in str(e):
+            import_error = "Object groups not founded in testscases.py ."
+        else:
+            e_split = str(e).split(" ")
+            e_split[-1] = "in testscases.py ."
+            import_error = " ".join(e_split)
+    except NameError as e:
+        error_type = "Name"
+        name_error = f"{str(e)} in testcases.py ."
     if error_type is not None:  # error during import
-        if error_type == "ModuleNotFound":
+        if error_type == "Import":
             raise_error(
-                ModuleNotFoundError,
-                "File testcases.py not founded in root directory.")
-        raise_error(
-            ImportError, "Object groups not founded in testscases.py .")
+                ImportError, import_error)
+        if error_type == "Name":
+            raise_error(
+                NameError, name_error)
+        raise_error(ModuleNotFoundError, error_type)
     return groups
 
 

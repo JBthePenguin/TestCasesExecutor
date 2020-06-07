@@ -57,11 +57,13 @@ class TestGroupsFunctions(TestCase):
         mock_raise_error.side_effect = Exception("raise_error called")
         for tc_value, e_type, e_msg in [
                 (  # simulate ModuleNotFoundError
-                    None, ModuleNotFoundError,
-                    "File testcases.py not founded in root directory."),
+                    None, ModuleNotFoundError, "".join([
+                        'import of testcases halted; None ',
+                        'in sys.modules in testcases.py .'])),
                 (  # simulate ImportError
-                    'groups not inside', ImportError,
-                    "Object groups not founded in testscases.py .")]:
+                    'groups not inside', ImportError, "".join([
+                        "cannot import name 'groups' from '<unknown module ",
+                        "name>' (unknown in testscases.py ."]))]:
             with patch.dict('sys.modules', {'testcases': tc_value}):
                 try:
                     import_groups()
