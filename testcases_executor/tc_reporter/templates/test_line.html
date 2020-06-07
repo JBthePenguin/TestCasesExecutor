@@ -12,8 +12,10 @@
             {% if t_method.status_name == 'SKIP' %}
                 {{ t_method.error }}
             {% else %}
-                {{ t_method.error.splitlines()[-1] }}
-                <div class="alert alert-dark rounded m-1" role="alert">{{ t_method.error.replace("\n", "<br>") }}</div>
+            {% with lines = t_method.error.splitlines()%}
+                {{ lines[-1] }}
+                <div class="alert alert-dark rounded m-1" role="alert">{% for line in lines %}{{ line }}<br>{% endfor %}</div>
+            {% endwith %}
             {% endif %}
         {% endif %}
         </div>

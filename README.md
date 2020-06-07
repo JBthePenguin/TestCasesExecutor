@@ -16,19 +16,19 @@ This also install [Jinja2](https://palletsprojects.com/p/jinja/) used to generat
 Create a file named ***testcases.py*** in the root directory of your project.  
 Inside it, import yours *TestCases* and make a list (or tuple) named **groups** that is made up of tuples, each representing a *group*. For example:
 ``` python
-from your_app.test_script.py import TCaseOne, TCaseTwo, TCaseThree, TCaseFour
+from your_app.test_script import TCaseOne, TCaseTwo, TCaseThree, TCaseFour
 groups = [  # or (
     ('Group one', 'one', [TCaseThree, TCaseTwo]),  # or (TCaseThree, TCaseTwo)),
     ('Group two', 'two', [TCaseOne, TCaseFour]),  # or (TCaseOne, TCaseFour)),
 ]  # or )
 ```
 ### Constraints
--   **groups** must be a *list* or a *tuple*.
--   **groups's item** (group's representation) must be a *tuple*.
--   **each tuple** must contain *3 items*:
- - **group's name** must be a *string*.
- - **argument's name** used to run all group's testcases *string without space*.
- - **[unittest.TestCase](https://docs.python.org/3.8/library/unittest.html#unittest.TestCase) subclasses** must be a *list* or a *tuple*.
+*   **groups** must be a *list* or a *tuple*.
+*   **groups's item** (group's representation) must be a *tuple*.
+*   **each tuple** must contain *3 items*:
+    * **group's name** must be a *string*.
+    * **argument's name** used to run all group's testcases *string without space*.
+    * **[unittest.TestCase](https://docs.python.org/3.8/library/unittest.html#unittest.TestCase) subclasses** must be a *list* or a *tuple*.
 
 ## Usage
 ```sh
@@ -36,13 +36,13 @@ $ python -m testcases_executor
 ```
 This run **all tests**, display **result in cli** before generate, in the root directory, the **html report file** named *tc_executor_report.html*. It's possible to customize the command with following availabe arguments.
 ### Available arguments
--   Options
- - **-h, --help**: *display help message.*
- - **-o, --open**: *open html report in browser after test.*
--   Tests selection
- - **-group_argument_name**: run all *group's testcases's tests*.
- - **-TestCaseName**:(without parameter) run all *testcase's tests*.
- - **-TestCaseName**:(with test's names in parameter) run *desired tests*.
+*   Options
+    * **-h, --help**: *display help message.*
+    * **-o, --open**: *open html report in browser after test.*
+*   Tests selection
+    * **-group_argument_name**: run all *group's testcases's tests*.
+    * **-TestCaseName**:(without parameter) run all *testcase's tests*.
+    * **-TestCaseName**:(with test's names in parameter) run *desired tests*.
 
 Some examples:
 ```sh
