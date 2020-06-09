@@ -17,5 +17,5 @@ setuptools.setup(
     include_package_data=True,
     install_requires=['jinja2'],
     license='LICENSE',
-    python_requires='>=3.7.5',
+    python_requires='>=3.8',
 )

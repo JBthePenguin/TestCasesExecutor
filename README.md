@@ -1,8 +1,6 @@
-[![Build Status](https://travis-ci.com/JBthePenguin/TestCasesExecutor.svg?branch=master)](https://travis-ci.com/JBthePenguin/TestCasesExecutor) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3a8b61108c5c4b6188ffa3396433ced9)](https://www.codacy.com/manual/JBthePenguin/TestCasesExecutor?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JBthePenguin/TestCasesExecutor&amp;utm_campaign=Badge_Grade) ![GitHub top language](https://img.shields.io/github/languages/top/JBthePenguin/TestCasesExecutor) ![GitHub repo size](https://img.shields.io/github/repo-size/JBthePenguin/TestCasesExecutor) [![python](https://img.shields.io/badge/python-3.7.5-yellow.svg)](https://www.python.org/downloads/) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-black.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Build Status](https://travis-ci.com/JBthePenguin/TestCasesExecutor.svg?branch=master)](https://travis-ci.com/JBthePenguin/TestCasesExecutor) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3a8b61108c5c4b6188ffa3396433ced9)](https://www.codacy.com/manual/JBthePenguin/TestCasesExecutor?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JBthePenguin/TestCasesExecutor&amp;utm_campaign=Badge_Grade) ![GitHub top language](https://img.shields.io/github/languages/top/JBthePenguin/TestCasesExecutor) ![GitHub repo size](https://img.shields.io/github/repo-size/JBthePenguin/TestCasesExecutor) [![python](https://img.shields.io/badge/python-3.8-yellow.svg)](https://www.python.org/downloads/) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-black.svg)](https://www.gnu.org/licenses/gpl-3.0)
 # TestCasesExecutor
-:exclamation::exclamation::exclamation:***IN PROGRESS***:exclamation::exclamation::exclamation:
-
-Execute configured groups of TestCase (subclass of [unittest.TestCase](https://docs.python.org/3.8/library/unittest.html#unittest.TestCase)), display human readable result in cli, ordered by group and testcase, and generate a html file report.
+:exclamation::exclamation::exclamation:***IN PROGRESS***:exclamation::exclamation::exclamation: Execute configured groups of TestCases (subclasses of [unittest.TestCase](https://docs.python.org/3.8/library/unittest.html#unittest.TestCase)), display human readable result in terminal, ordered by group and testcase, and generate a html file report.
 
 ## Install
 ```sh
@@ -22,27 +20,28 @@ groups = [  # or (
     ('Group two', 'two', [TCaseOne, TCaseFour]),  # or (TCaseOne, TCaseFour)),
 ]  # or )
 ```
-### Constraints
-*   **groups** must be a *list* or a *tuple*.
-*   **groups's item** (group's representation) must be a *tuple*.
+#### Constraints
+*   **groups** must be a *list* or a *tuple*.  
+*   **groups's item** (group's representation) must be a *tuple*.  
 *   **each tuple** must contain *3 items*:
-    * **group's name** must be a *string*.
-    * **argument's name** used to run all group's testcases *string without space*.
-    * **[unittest.TestCase](https://docs.python.org/3.8/library/unittest.html#unittest.TestCase) subclasses** must be a *list* or a *tuple*.
+    *   **group's name** must be a *string*.
+    *   **argument's name** used to run all group's testcases *string without space*.
+    *   **[unittest.TestCase](https://docs.python.org/3.8/library/unittest.html#unittest.TestCase) subclasses** must be a *list* or a *tuple*.  
+*   **group and argument names**, **[unittest.TestCase](https://docs.python.org/3.8/library/unittest.html#unittest.TestCase) subclass** must *used once*.
 
 ## Usage
 ```sh
 $ python -m testcases_executor
 ```
-This run **all tests**, display **result in cli** before generate, in the root directory, the **html report file** named *tc_executor_report.html*. It's possible to customize the command with following availabe arguments.
-### Available arguments
+This run **all tests**, display **result in terminal** before generate, in the root directory, the **html report file** named *tc_executor_report.html*. It's possible to customize the command with following availabe arguments.
+#### Available arguments
 *   Options
-    * **-h, --help**: *display help message.*
-    * **-o, --open**: *open html report in browser after test.*
+    *   **-h, --help**: *display help message.*
+    *   **-o, --open**: *open html report in browser after test.*  
 *   Tests selection
-    * **-group_argument_name**: run all *group's testcases's tests*.
-    * **-TestCaseName**:(without parameter) run all *testcase's tests*.
-    * **-TestCaseName**:(with test's names in parameter) run *desired tests*.
+    *   **-group_argument_name**: run all *group's testcases's tests*.
+    *   **-TestCaseName**:(without parameter) run all *testcase's tests*.
+    *   **-TestCaseName**:(with test's names in parameter) run *desired tests*.
 
 Some examples:
 ```sh
@@ -51,11 +50,18 @@ $ python -m testcases_executor -one -TCaseFour -o
 $ python -m testcases_executor -TCaseTwo test_one -TCaseOne test_three
 ...
 ```
-## Screenshot
-in progress
+
+## Result's screenshots
+#### Terminal
+45
+#### Html Report
+45
+
 ## Test
 For the same reasons that meeting your future self would cause a spacio temporal shock, testing a tester using this same tester would cause a spacio testorial shock. So above all, don't.  
 Run **testcases_executor.tests**, using [unittest](https://docs.python.org/3.8/library/unittest.html#module-unittest):
 ```sh
 $ python -m unittest testcases_executor.tests -v
 ```
+
+:metal: [HtmlTestRunner](https://github.com/oldani/HtmlTestRunner) was a great inspiration, so thank you for that.
