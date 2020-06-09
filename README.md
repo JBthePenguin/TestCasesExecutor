@@ -53,9 +53,14 @@ $ python -m testcases_executor -TCaseTwo test_one -TCaseOne test_three
 
 ## Result's screenshots
 #### Terminal
-45
+![Terminal group one](screenshots/terminal_one.png)
+![Terminal group two](screenshots/terminal_two.png)
+![Terminal errors](screenshots/terminal_three.png)
 #### Html Report
-45
+##### It use [Bootstrap4](https://getbootstrap.com/), [jQuery](https://jquery.com/) and [Fontawesome icons](https://fontawesome.com/v4.7.0/icons/) (via [stackpath cdn](https://www.stackpath.com/open-source/)).
+![Html report](screenshots/html_report.png)
+###### Click on table's lines to see tests's infos.
+![Html errors](screenshots/html_errors.png)
 
 ## Test
 For the same reasons that meeting your future self would cause a spacio temporal shock, testing a tester using this same tester would cause a spacio testorial shock. So above all, don't.  
@@ -63,5 +68,4 @@ Run **testcases_executor.tests**, using [unittest](https://docs.python.org/3.8/l
 ```sh
 $ python -m unittest testcases_executor.tests -v
 ```
-
-:metal: [HtmlTestRunner](https://github.com/oldani/HtmlTestRunner) was a great inspiration, so thank you for that.
+:+1: *[HtmlTestRunner](https://github.com/oldani/HtmlTestRunner) was a great inspiration, so thank you for that.*
