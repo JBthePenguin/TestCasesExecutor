@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="testcases_executor",
-    version="0.0.1",
+    version="1.0.0",
     author="JBthePenguin",
     author_email="jbthepenguin@netcourrier.com",
-    description="An executor of groups of unittest.TestCase subclasses.",
+    description="Executor of unittest.TestCase subclasses ordered by groups.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/JBthePenguin/TestCasesExecutor",
@@ -16,6 +16,9 @@ setuptools.setup(
     package_data={'testcases_executor': ['tc_reporter/templates/*.html']},
     include_package_data=True,
     install_requires=['jinja2'],
-    license='LICENSE',
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GPLv3",
+    ],
     python_requires='>=3.8',
 )
