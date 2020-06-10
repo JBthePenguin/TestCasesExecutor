@@ -9,7 +9,7 @@ $ pip install git+https://github.com/JBthePenguin/TestCasesExecutor.git
 This also install [Jinja2](https://palletsprojects.com/p/jinja/) used to generate html report.
 
 ## Config
-![Structure example](screenshots/structure.png)
+![Structure example](https://raw.githubusercontent.com/JBthePenguin/TestCasesExecutor/master/screenshots/structure.png)
 
 Create a file named ***testcases.py*** in the root directory of your project.  
 Inside it, import yours *TestCases* and make a list (or tuple) named **groups** that is made up of tuples, each representing a *group*. For example:
@@ -20,6 +20,7 @@ groups = [  # or (
     ('Group two', 'two', [TCaseOne, TCaseFour]),  # or (TCaseOne, TCaseFour)),
 ]  # or )
 ```
+
 ### Constraints
 *   **groups** must be a *list* or a *tuple*.
 
@@ -57,17 +58,17 @@ $ python -m testcases_executor -TCaseTwo test_one -TCaseOne test_three
 
 ## Result's screenshots
 ### Terminal
-![Terminal group one](screenshots/terminal_one.png)
-![Terminal group two](screenshots/terminal_two.png)
-![Terminal errors](screenshots/terminal_three.png)
+![Terminal group one](https://raw.githubusercontent.com/JBthePenguin/TestCasesExecutor/master/screenshots/terminal_one.png)
+![Terminal group two](https://raw.githubusercontent.com/JBthePenguin/TestCasesExecutor/master/screenshots/terminal_two.png)
+![Terminal errors](https://raw.githubusercontent.com/JBthePenguin/TestCasesExecutor/master/screenshots/terminal_three.png)
 ### Html Report
 It use [Bootstrap4](https://getbootstrap.com/), [jQuery](https://jquery.com/) and [Fontawesome icons](https://fontawesome.com/v4.7.0/icons/) (via [stackpath cdn](https://www.stackpath.com/open-source/)).
 
-![Html report](screenshots/html_report.png)
+![Html report](https://raw.githubusercontent.com/JBthePenguin/TestCasesExecutor/master/screenshots/html_report.png)
 
 *Click on table's lines to see tests's infos.*
 
-![Html errors](screenshots/html_errors.png)
+![Html errors](https://raw.githubusercontent.com/JBthePenguin/TestCasesExecutor/master/screenshots/html_errors.png)
 
 ## Test
 For the same reasons that meeting your future self would cause a spacio temporal shock, testing a tester using this same tester would cause a spacio testorial shock. So above all, don't.  
