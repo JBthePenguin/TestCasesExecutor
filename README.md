@@ -4,7 +4,7 @@ Execute configured groups of TestCases (subclasses of [unittest.TestCase](https:
 
 ## Install
 ```sh
-$ pip install git+https://github.com/JBthePenguin/TestCasesExecutor.git
+$ pip install testcases_executor
 ```
 This also install [Jinja2](https://palletsprojects.com/p/jinja/) used to generate html report.
 
